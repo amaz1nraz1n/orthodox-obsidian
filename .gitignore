@@ -21,7 +21,6 @@ source_files/*
 # Tooling
 .DS_Store
 .envrc
-.beads/
 .pytest_cache/
 .ruff_cache/
 .mypy_cache/
