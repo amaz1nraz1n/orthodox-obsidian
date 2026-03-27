@@ -1,0 +1,5 @@
+# linear cli
+# https://github.com/schpet/linear-cli
+workspace = "tharp-personal"
+team_id = "PER"
+issue_sort = "priority"
