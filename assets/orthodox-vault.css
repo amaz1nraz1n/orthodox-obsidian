@@ -1,0 +1,193 @@
+/* ------------------------------------------------------------
+   1. VERSE NUMBERS — h6 as invisible anchor, .vn as visible number
+      Hub format (two-line):
+        ###### v1
+        <span class="vn">1</span> Verse text... ^v1
+      The h6 heading provides [[Book Ch#vN]] anchor linkability.
+      .scripture-hub collapses it to zero height so it is invisible
+      but remains in the DOM for scroll-target purposes.
+   ------------------------------------------------------------ */
+
+/* Collapse verse-anchor headings to zero height in scripture hub files */
+.scripture-hub h6,
+.scripture-hub .HyperMD-header-6,
+.scripture-hub .cm-header-6 {
+    font-size: 0 !important;
+    line-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    min-height: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    display: block !important;
+    scroll-margin-top: 3rem;
+}
+
+/* Highlight the verse paragraph when Obsidian navigates to its anchor.
+   Obsidian adds is-flashing to div.el-h6 on heading navigation and removes it
+   after ~2s. Persistent transition on p fades the background out after removal. */
+
+.scripture-hub p {
+    transition: background-color 2s ease-out;
+    scroll-margin-top: 3rem;
+}
+
+.scripture-hub .el-h6.is-flashing + .el-p > p {
+    background-color: var(--text-highlight-bg) !important;
+}
+
+/* Style the visible verse number as a superscript */
+.vn {
+    font-size: 0.75em !important;
+    font-weight: bold !important;
+    color: var(--text-muted) !important;
+    vertical-align: super !important;
+    line-height: 0 !important;
+    margin-right: 0.35em !important;
+}
+
+/* Ensure Block IDs are hidden in reading mode */
+.block-id {
+    display: none !important;
+}
+
+/* Highlight the entire verse when linked */
+.markdown-preview-view .mod-highlighted,
+.markdown-reading-view .mod-highlighted,
+.is-live-preview .cm-active-line.mod-highlighted {
+    background-color: var(--text-highlight-bg) !important;
+    transition: background-color 2s ease-out;
+}
+
+/* ------------------------------------------------------------
+   2. PSALTER SPECIFIC STYLING
+   ------------------------------------------------------------ */
+
+.psalter .markdown-preview-view h6,
+.psalter .markdown-reading-view h6,
+.psalter .is-live-preview h6 {
+    margin-top: 1.2em !important;
+    padding-left: 0.8em !important;
+    border-left: 3px solid var(--interactive-accent) !important;
+}
+
+/* ------------------------------------------------------------
+   3. NOTE MARKER SUPERSCRIPTS
+   Inline <sup class="nt-*"> markers linking hub/text → companion notes.
+   Each type has a distinct color so readers can scan at a glance.
+   nt-fn  †  study/commentary    — muted (neutral, most common)
+   nt-tc  ‡  text-critical       — amber  (signals manuscript variant)
+   nt-tn  *  translation note    — blue   (linguistic commentary)
+   nt-lit ☩  liturgical          — purple (liturgical use)
+   nt-cit ¶  patristic citation  — green  (church fathers)
+   nt-alt ⁺  alternative reading — teal
+   nt-bg  †  background note     — muted  (same as study)
+   ------------------------------------------------------------ */
+
+sup[class^="nt-"] {
+    font-size: 0.65em;
+    font-weight: normal;
+    vertical-align: super;
+    line-height: 0;
+    margin-left: 0.05em;
+}
+
+sup[class^="nt-"] a.internal-link {
+    text-decoration: none;
+}
+
+sup.nt-fn, sup.nt-fn a.internal-link,
+sup.nt-bg, sup.nt-bg a.internal-link {
+    color: var(--text-muted);
+}
+
+sup.nt-tc, sup.nt-tc a.internal-link {
+    color: var(--color-orange);
+}
+
+sup.nt-tn, sup.nt-tn a.internal-link {
+    color: var(--color-blue);
+}
+
+sup.nt-lit, sup.nt-lit a.internal-link {
+    color: var(--color-purple);
+}
+
+sup.nt-cit, sup.nt-cit a.internal-link {
+    color: var(--color-green);
+}
+
+sup.nt-alt, sup.nt-alt a.internal-link {
+    color: var(--color-cyan);
+}
+
+/* ------------------------------------------------------------
+   4. CALLOUT STYLES — note type taxonomy
+   Used in companion notes files (OSB Notes, NET Notes, etc.)
+   ------------------------------------------------------------ */
+
+/* Study / commentary note — neutral gray */
+.callout[data-callout="sn"] {
+    --callout-color: 120, 120, 120;
+    --callout-icon: lucide-book-open;
+}
+
+/* Translator's note — blue */
+.callout[data-callout="tn"] {
+    --callout-color: 68, 138, 255;
+    --callout-icon: lucide-languages;
+}
+
+/* Text-critical / textual variant — amber */
+.callout[data-callout="tc"] {
+    --callout-color: 210, 140, 40;
+    --callout-icon: lucide-git-branch;
+}
+
+/* Alternative reading — teal */
+.callout[data-callout="alt"] {
+    --callout-color: 0, 185, 178;
+    --callout-icon: lucide-repeat-2;
+}
+
+/* Background / historical-geographical context — muted green */
+.callout[data-callout="bg"] {
+    --callout-color: 80, 160, 100;
+    --callout-icon: lucide-map;
+}
+
+/* Parallel passage — purple */
+.callout[data-callout="parallel"] {
+    --callout-color: 152, 103, 196;
+    --callout-icon: lucide-copy;
+}
+
+/* Patristic citation — forest green */
+.callout[data-callout="cite"] {
+    --callout-color: 46, 150, 80;
+    --callout-icon: lucide-scroll;
+}
+
+/* Liturgical note — lavender */
+.callout[data-callout="liturgy"] {
+    --callout-color: 180, 120, 220;
+    --callout-icon: lucide-cross;
+}
+
+/* Map / geographical note — teal */
+.callout[data-callout="map"] {
+    --callout-color: 0, 168, 132;
+    --callout-icon: lucide-map-pin;
+}
+
+/* General info callout */
+.callout[data-callout="info"] {
+    --callout-color: 68, 138, 255;
+    --callout-icon: lucide-info;
+}
+
+/* Block quote / source citation */
+.callout[data-callout="quote"] {
+    --callout-color: 120, 120, 120;
+    --callout-icon: lucide-quote;
+}

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head><title>John - Greek NT (Fixture)</title></head>
+<body>
+<!-- Chapter 1: covers Pattern A (linegroup) and Pattern B (inline prose) -->
+<div type="chapter" osisID="John.1" n="Α">
+  <!-- Pattern A: verse number in own <p>, text in sibling linegroup -->
+  <p>
+    <span class="verse">[1]</span>
+  </p>
+  <div class='linegroup'>
+    <div class='lineitem'>Ἐν ἀρχῇ ἦν ὁ Λόγος,</div>
+    <div class='lineitem'>καὶ ὁ Λόγος ἦν πρὸς τὸν Θεόν,</div>
+    <div class='lineitem'>καὶ Θεὸς ἦν ὁ Λόγος.</div>
+  </div>
+
+  <p>
+    <span class="verse">[2]</span>
+  </p>
+  <div class='linegroup'>
+    <div class='lineitem'>οὗτος ἦν ἐν ἀρχῇ πρὸς τὸν Θεόν.</div>
+  </div>
+
+  <!-- Pattern B: multiple verses inline in one <p> -->
+  <p>
+    <span class="verse">[6]</span>᾿Εγένετο ἄνθρωπος ἀπεσταλμένος παρὰ Θεοῦ, ὄνομα αὐτῷ ᾿Ιωάννης·
+    <span class="verse">[7]</span>οὗτος ἦλθεν εἰς μαρτυρίαν, ἵνα μαρτυρήσῃ περὶ τοῦ φωτός, ἵνα πάντες πιστεύσωσι δι᾽ αὐτοῦ.
+    <span class="verse">[8]</span>οὐκ ἦν ἐκεῖνος τὸ φῶς, ἀλλ᾽ ἵνα μαρτυρήσῃ περὶ τοῦ φωτός.
+  </p>
+
+  <!-- Pattern B: single verse in its own <p> (also inline) -->
+  <p>
+    <span class="verse">[14]</span>Καὶ ὁ Λόγος σὰρξ ἐγένετο καὶ ἐσκήνωσεν ἐν ἡμῖν, καὶ ἐθεασάμεθα τὴν δόξαν αὐτοῦ, δόξαν ὡς μονογενοῦς παρὰ πατρός, πλήρης χάριτος καὶ ἀληθείας.
+  </p>
+</div>
+
+<!-- Chapter 2: verifies chapter boundary parsing and osisID extraction -->
+<div type="chapter" osisID="John.2" n="Β">
+  <p>
+    <span class="verse">[1]</span>Καὶ τῇ ἡμέρᾳ τῇ τρίτῃ γάμος ἐγένετο ἐν Κανᾷ τῆς Γαλιλαίας, καὶ ἦν ἡ μήτηρ τοῦ ᾿Ιησοῦ ἐκεῖ·
+    <span class="verse">[2]</span>ἐκλήθη δὲ καὶ ὁ ᾿Ιησοῦς καὶ οἱ μαθηταὶ αὐτοῦ εἰς τὸν γάμον.
+  </p>
+</div>
+</body>
+</html>

@@ -1,0 +1,6 @@
+pytest>=8
+black>=24
+ruff>=0.4
+pyright>=1.1
+types-beautifulsoup4>=4.12
+python-lsp-server>=1.12

@@ -1,0 +1,34 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Output (generated, not committed)
+output/
+output/Scripture/
+output/Scripture-full/
+
+# Source files (large binaries — keep directory, ignore contents)
+source_files/*
+!source_files/.gitkeep
+
+# Tooling
+.DS_Store
+.envrc
+.beads/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.env
+.env.*
+
+# Project-specific scratch
+_extraction-log.md
+validation-report.json
+Scripture/

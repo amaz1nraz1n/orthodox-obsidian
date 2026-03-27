@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "orthodox-vault-builder"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = ["beautifulsoup4", "lxml", "pyyaml"]
+
+[tool.setuptools.packages.find]
+include = ["vault_builder*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["scripts"]
+markers = [
+    "integration: requires source files (PDF/EPUB) to be present",
+]
+
+[tool.black]
+line-length = 99
+target-version = ["py312"]
+
+[tool.ruff]
+line-length = 99
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
+
+[tool.pyright]
+pythonVersion = "3.12"
+venvPath = "."
+venv = ".venv"
+typeCheckingMode = "strict"
+# Suppress Unknown-type cascades from untyped third-party libraries (pdfminer
+# has no stubs).  All other strict rules remain active.
+reportUnknownMemberType = "none"
+reportUnknownVariableType = "none"
+reportUnknownArgumentType = "none"
+reportUnknownParameterType = "none"
+reportUnknownLambdaType = "none"

@@ -1,0 +1,286 @@
+# Orthodox Vault — Source Registry
+#
+# Maps short source names to file paths, formats, structure docs, adapters, and status.
+# Used by /audit-source and /build-source skills.
+#
+# Status values:
+#   approved    — working adapter + extraction; included in vault builds
+#   incomplete  — adapter exists but quality issues; gated from full runs
+#   new         — file acquired, no adapter yet
+#   reference   — available as reference; not a primary extraction target
+#   superseded  — replaced by a better-format equivalent (kept for reference)
+#   extracted   — fully integrated into vault pipeline via dedicated script
+
+sources:
+
+  # ── Full Bible ────────────────────────────────────────────────────────────
+
+  osb:
+    label: "Orthodox Study Bible"
+    path: "./source_files/Full Bible/The Orthodox Study Bible.epub"
+    format: epub
+    testament: both
+    structure_doc: "docs/osb-epub-source-structure.md"
+    adapter: "vault_builder.adapters.sources.osb_epub"
+    extract_script: "extract_osb.py"
+    status: approved
+    notes: "Primary canonical text (Mode 1 hub). Also source of OSB study notes, textual variants, cross-references, and lectionary annotations."
+
+  kjv:
+    label: "King James Version with Apocrypha"
+    path: "./source_files/Full Bible/KJV with Apocrypha.epub"
+    format: epub
+    testament: both
+    structure_doc: null
+    adapter: null
+    extract_script: null
+    status: new
+    notes: "KJV (1611) with Apocrypha/Deuterocanon. Classic liturgical English; used in ROCOR and some GOA contexts. Potential Mode 3 ecumenical/classic comparison text. EPUB structure not yet assessed."
+
+  njb:
+    label: "The New Jerusalem Bible"
+    path: "./source_files/Full Bible/The New Jerusalem Bible.pdf"
+    format: pdf
+    testament: both
+    structure_doc: null
+    adapter: null
+    extract_script: null
+    status: new
+    notes: "Catholic scholarly translation (1985, Doubleday) based on Hebrew/Greek texts via French Bible de Jérusalem. Literary quality; includes Deuterocanon. Not Orthodox but useful ecumenical/scholarly comparison. PDF structure not yet assessed."
+
+  net:
+    label: "NET Bible 2.1"
+    path: "./source_files/Full Bible/NET Bible 2_1.epub"
+    format: epub
+    testament: both
+    structure_doc: "docs/net-epub-source-structure.md"
+    adapter: "vault_builder.adapters.sources.net_epub"
+    extract_script: "extract_net.py"
+    status: approved
+    notes: "Notes-first source. Produces NET text companion (not in nav) and NET Notes companion (in all navs as universal apparatus). Note types: tn (translator), tc (text-critical), sn (study)."
+
+  net-pdf:
+    label: "NET Bible, First Edition (PDF)"
+    path: "./source_files/Full Bible/The NET Bible, First Edition.pdf"
+    format: pdf
+    testament: both
+    structure_doc: "docs/net-pdf-source-structure.md"
+    adapter: null
+    extract_script: null
+    status: superseded
+    notes: "Superseded by NET Bible 2.1 EPUB. Retained as reference. PDF extraction was explored but EPUB is substantially cleaner."
+
+  noab:
+    label: "New Oxford Annotated Bible (RSV)"
+    path: "./source_files/Full Bible/New Oxford Annotated Bible with Apocrypha RSV.pdf"
+    format: pdf
+    testament: both
+    structure_doc: "docs/noab-pdf-source-structure.md"
+    adapter: "vault_builder.adapters.sources.noab_pdf"
+    extract_script: "extract_noab.py"
+    status: incomplete
+    notes: "RSV text (Mode 3 slot). Known quality issues: OCR artifacts, multi-verse merging, GlyphLessFont encoding failures, Psalms contamination, and unstable verse anchors. DO NOT include in full runs until extraction passes the quality gate. A separate NOAB RSV Notes companion is a future target, but only after text extraction is reliable."
+
+  # ── New Testament ─────────────────────────────────────────────────────────
+
+  eob:
+    label: "Eastern Orthodox Bible — New Testament"
+    path: "./source_files/New Testament/EOB NT.epub"
+    format: epub
+    testament: nt
+    structure_doc: "docs/eob-epub-source-structure.md"
+    adapter: "vault_builder.adapters.sources.eob_epub"
+    extract_script: "extract_eob.py"
+    status: approved
+    notes: "Primary NT Mode 2 comparison text. EPUB preferred over PDF. Produces EOB text companion and EOB Notes companion."
+
+  eob-nt-pdf:
+    label: "Eastern Orthodox Bible — New Testament (PDF)"
+    path: "./source_files/New Testament/EOB - NT The Eastern Greek Orthodox New Testament Based on the Official Text of the Greek Orthodox Church.pdf"
+    format: pdf
+    testament: nt
+    structure_doc: "docs/eob-pdf-source-structure.md"
+    adapter: null
+    extract_script: null
+    status: superseded
+    notes: "Superseded by EOB NT EPUB. Retained as reference. Old PDF adapter (eob_pdf.py) explored but EPUB is cleaner."
+
+  dbh:
+    label: "The New Testament — David Bentley Hart"
+    path: "./source_files/New Testament/The New Testament_ A Translation -- David Bentley Hart.epub"
+    format: epub
+    testament: nt
+    structure_doc: "docs/dbh-nt-source-structure.md"
+    adapter: null
+    extract_script: null
+    status: new
+    notes: "Highly literal NT translation with strong Greek fidelity. Potential second NT Mode 2 or Mode 3 comparison layer. EPUB structure not yet assessed."
+
+  dbh-pdf:
+    label: "The New Testament — David Bentley Hart (PDF)"
+    path: "./source_files/New Testament/David Bentley Hart - The New Testament_ A Translation-Yale University Press (2023).pdf"
+    format: pdf
+    testament: nt
+    structure_doc: null
+    adapter: null
+    extract_script: null
+    status: reference
+    notes: "PDF duplicate of DBH EPUB. Use EPUB (dbh) as primary extraction target."
+
+  # ── Old Testament ─────────────────────────────────────────────────────────
+
+  lexham:
+    label: "Lexham English Septuagint"
+    path: "./source_files/Old Testament /The Lexham English Septuagint.epub"
+    format: epub
+    testament: ot
+    structure_doc: "docs/lexham-epub-source-structure.md"
+    adapter: "vault_builder.adapters.sources.lexham_epub"
+    extract_script: "extract_lexham.py"
+    status: approved
+    notes: "Primary OT Mode 2 comparison text (LXX-based translation). Produces Lexham text companion and Lexham Notes companion. Handles Esdras B chapter-offset split for Ezra/Nehemiah."
+
+  eob-ot:
+    label: "Eastern Orthodox Bible — Old Testament"
+    path: "./source_files/Old Testament /EOB - OT The Eastern Greek Orthodox Old Testament Based on the Official Text of the Greek Orthodox Church.pdf"
+    format: pdf
+    testament: ot
+    structure_doc: null
+    adapter: null
+    extract_script: null
+    status: new
+    notes: "Secondary Orthodox OT comparison candidate. More structurally cumbersome than Lexham; promote only if extraction quality proves strong. PDF only — no EPUB available."
+
+  alter:
+    label: "The Hebrew Bible — Robert Alter"
+    path: "./source_files/Old Testament /The Hebrew Bible -- Robert Alter.epub"
+    format: epub
+    testament: ot
+    structure_doc: null
+    adapter: null
+    extract_script: null
+    status: new
+    notes: "Literary/scholarly OT translation with extensive commentary. Large EPUB (~32 MB). Potential secondary OT comparison or commentary layer. EPUB structure not yet assessed."
+
+  # ── Psalms ────────────────────────────────────────────────────────────────
+
+  psalms-of-david:
+    label: "The Psalms of David"
+    path: "./source_files/Psalms/The Psalms of David.epub"
+    format: epub
+    testament: ot
+    structure_doc: null
+    adapter: null
+    extract_script: null
+    status: new
+    notes: "Poetic/devotional Psalter supplement. Per-Psalm headings, verse numbers, kathisma groupings, sparse footnotes. Technically easier extraction target than HTM Psalter. Not the default Mode 2 Psalter — supplement only."
+
+  htm-psalter:
+    label: "Psalter — Holy Transfiguration Monastery"
+    path: "./source_files/Psalms/The Psalter, according to the Seventy, of St. David, the prophet and King  together with the nine odes and an interpretation... (Holy Transfiguration Monastery.pdf"
+    format: pdf
+    testament: ot
+    structure_doc: null
+    adapter: null
+    extract_script: null
+    status: new
+    notes: "Liturgical Psalter supplement with kathisma framing, doxologies, nine odes, and recitation guidance. Not the default Mode 2 Psalter — liturgical supplement layer. Stronger Orthodox/liturgical case than Psalms of David but harder PDF extraction."
+
+  # ── Greek Texts ───────────────────────────────────────────────────────────
+
+  greek-nt:
+    label: "Greek NT — Antoniades 1904 Patriarchal Text (GOArch)"
+    path: "https://onlinechapel.goarch.org/biblegreek/"
+    format: web
+    testament: nt
+    structure_doc: "docs/goarch-greek-nt-source-structure.md"
+    adapter: "vault_builder.adapters.sources.goarch_greek_nt"
+    extract_script: "extract_greek_nt_goarch.py"
+    status: approved
+    notes: "1904 Antoniades Patriarchal Text — the actual text chanted at GOArch/OCA/Antiochian/ROCOR services. Live scrape (rate limit 1.5s). Polytonic Unicode. Supersedes local Byzantine Majority Text CSV and local Antoniades repo (monotonic only)."
+
+  lxx:
+    label: "LXX — Rahlfs 1935"
+    path: "./source_files/Greek/LXX-Rahlfs-1935-master/11_end-users_files/MyBible/Bibles/LXX_final_main.csv"
+    format: csv
+    testament: ot
+    structure_doc: null
+    adapter: "vault_builder.adapters.sources.greek_lxx_csv"
+    extract_script: "extract_greek_lxx.py"
+    status: approved
+    notes: "Rahlfs 1935 LXX via MyBible TSV. Strips <S> and <m> morphological tags. Psalter uses LXX primary numbering. Structure not yet formally documented in a source structure doc."
+
+  antoniades-local:
+    label: "Antoniades Greek NT (local repo, monotonic)"
+    path: "./source_files/Greek/antoniades/"
+    format: text-repo
+    testament: nt
+    structure_doc: null
+    adapter: null
+    extract_script: null
+    status: reference
+    notes: "byztxt/greektext-antoniades — unaccented monotonic only. Unusable for liturgical display. Superseded by GOArch (greek-nt) which provides full polytonic Unicode."
+
+  byzantine-majority-text:
+    label: "Byzantine Majority Text — Robinson-Pierpont 2018"
+    path: "./source_files/Greek/byzantine-majority-text/"
+    format: csv
+    testament: nt
+    structure_doc: null
+    adapter: null
+    extract_script: null
+    status: reference
+    notes: "Robinson-Pierpont 2018 scholarly critical text. Retained as reference. Superseded as active NT source by GOArch Antoniades (liturgical text)."
+
+  # ── Commentary & Patristics ───────────────────────────────────────────────
+
+  apostolic-fathers:
+    label: "The Apostolic Fathers — Holmes 3rd ed."
+    path: "./source_files/Commentary/Apostolic Fathers/The Apostolic Fathers.epub"
+    format: epub
+    testament: patristic
+    structure_doc: "docs/apostolic-fathers-source-structure.md"
+    adapter: "vault_builder.adapters.sources.apostolic_fathers_epub"
+    extract_script: "extract_apostolic_fathers.py"
+    status: approved
+    notes: "Holmes 3rd edition, 14 documents. Output to 100-References/Apostolic Fathers/. Per-chapter files with verse anchors. Deferred: Shepherd of Hermas (3-book structure), Papias Fragments (no chapter structure)."
+
+  apostolic-fathers-diglot:
+    label: "The Apostolic Fathers — Greek/English Diglot (PDF)"
+    path: "./source_files/Commentary/Apostolic Fathers/The Apostolic Fathers Greek English.pdf"
+    format: pdf
+    testament: patristic
+    structure_doc: null
+    adapter: null
+    extract_script: null
+    status: reference
+    notes: "Greek/English diglot edition (Holmes). Reference source for Greek text comparison. Not the primary extraction target — use apostolic-fathers (EPUB) for English extraction."
+
+  philokalia:
+    label: "The Philokalia — Palmer/Sherrard/Ware"
+    path: "./source_files/Commentary/Philokalia /"
+    format: pdf
+    testament: patristic
+    structure_doc: null
+    adapter: null
+    extract_script: null
+    status: new
+    notes: |
+      Multiple PDFs available:
+        - Philokalia-Complete-Text.pdf (complete single volume)
+        - The Philokalia Volume 1-5.pdf (individual volumes, Palmer/Sherrard/Ware)
+        - Philokalia.pdf, Philokalia(2008).pdf (alternate editions)
+      Prefer individual volumes for extraction. Readable OCR prose with numbered sections and Scripture citations. Not naturally chapter-commentary shaped — keep distributed and manual. Scripture citations use period separator (Jn 1.14 style); Psalm numbering is LXX.
+
+  # ── Lectionary ────────────────────────────────────────────────────────────
+
+  lectionary:
+    label: "OCMC Lectionary"
+    path: "./source_files/Lectionary/lectionary.csv"
+    format: csv
+    testament: both
+    structure_doc: null
+    adapter: null
+    extract_script: "extract_lectionary.py"
+    status: extracted
+    notes: "OCMC lectionary CSV (EPL-2.0 licensed). Already integrated into vault pipeline via extract_lectionary.py. Pericope linking in hub files driven by this data."
