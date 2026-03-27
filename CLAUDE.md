@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Beads
+
+`.beads/` is tracked in git for this repo. Commit it as part of normal git workflow. This overrides the global stealth-mode rule.
+
 ## Project Overview
 
 Orthodox Obsidian vault builder — Python scripts that extract Scripture from EPUB/PDF sources and generate Obsidian-formatted Markdown notes for an Eastern Orthodox personal study vault.
