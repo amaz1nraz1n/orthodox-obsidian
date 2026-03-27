@@ -82,14 +82,25 @@ def test_notes_companion_nav_has_no_study_notes_link(renderer, john1_osb_notes):
     assert "Study Notes" not in output, "Notes companion must not self-link to Study Notes"
 
 
-def test_notes_companion_nav_has_osb_hub_link(renderer, john1_osb_notes):
+def test_notes_companion_nav_uses_nav_label(renderer, john1_osb_notes):
     output = renderer.render_notes(john1_osb_notes)
-    assert "[[John 1|OSB]]" in output
+    assert "> **Nav:**" in output
+    assert "> **Modes:**" not in output
 
 
-def test_notes_companion_nav_has_eob_link(renderer, john1_osb_notes):
+def test_notes_companion_nav_has_hub_link(renderer, john1_osb_notes):
     output = renderer.render_notes(john1_osb_notes)
-    assert "[[John 1 \u2014 EOB|EOB]]" in output
+    assert "[[John 1|Hub]]" in output
+
+
+def test_notes_companion_nav_has_no_osb_mode_link(renderer, john1_osb_notes):
+    output = renderer.render_notes(john1_osb_notes)
+    assert "[[John 1|OSB]]" not in output, "OSB Notes must not include OSB mode link"
+
+
+def test_notes_companion_nav_has_no_eob_link(renderer, john1_osb_notes):
+    output = renderer.render_notes(john1_osb_notes)
+    assert "[[John 1 \u2014 EOB|EOB]]" not in output, "OSB Notes must not link to EOB mode"
 
 
 def test_notes_companion_nav_has_net_notes_link(renderer, john1_osb_notes):

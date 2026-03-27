@@ -103,3 +103,18 @@ def john1_net_notes() -> ChapterNotes:
     # sn (study notes) → footnotes
     notes.footnotes.append(StudyNote(verse_number=5, ref_str="1:5", content="Light vs darkness motif."))
     return notes
+
+
+@pytest.fixture
+def john1_net_notes_with_xref() -> ChapterNotes:
+    """NET notes with cross-references in content for wikilink injection tests."""
+    notes = ChapterNotes(book="John", chapter=1, source="NET")
+    notes.translator_notes.append(StudyNote(
+        verse_number=1, ref_str="1:1",
+        content="See also John 3:16 and Gen 1:1 for parallel creation language.",
+    ))
+    notes.footnotes.append(StudyNote(
+        verse_number=14, ref_str="1:14",
+        content="Compare Col 1:15 and Heb 1:3 on the image of God.",
+    ))
+    return notes

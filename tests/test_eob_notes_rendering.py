@@ -29,14 +29,15 @@ def test_eob_notes_frontmatter_source(renderer, john1_eob_notes):
 
 # ── Nav callout ───────────────────────────────────────────────────────────────
 
-def test_eob_notes_nav_has_osb_link(renderer, john1_eob_notes):
+def test_eob_notes_nav_uses_nav_label(renderer, john1_eob_notes):
     out = renderer.render_notes(john1_eob_notes)
-    assert "[[John 1|OSB]]" in out
+    assert "> **Nav:**" in out
+    assert "> **Modes:**" not in out
 
 
-def test_eob_notes_nav_has_eob_link(renderer, john1_eob_notes):
+def test_eob_notes_nav_has_hub_link(renderer, john1_eob_notes):
     out = renderer.render_notes(john1_eob_notes)
-    assert "[[John 1 \u2014 EOB|EOB]]" in out
+    assert "[[John 1|Hub]]" in out
 
 
 def test_eob_notes_nav_has_net_notes_link(renderer, john1_eob_notes):
@@ -44,14 +45,14 @@ def test_eob_notes_nav_has_net_notes_link(renderer, john1_eob_notes):
     assert "[[John 1 \u2014 NET Notes|NET Notes]]" in out
 
 
-def test_eob_notes_nav_has_no_study_notes_link(renderer, john1_eob_notes):
+def test_eob_notes_nav_has_no_osb_link(renderer, john1_eob_notes):
     out = renderer.render_notes(john1_eob_notes)
-    assert "Study Notes" not in out, "Notes companion must not self-link to Study Notes"
+    assert "[[John 1|OSB]]" not in out, "Notes companion must not include OSB mode link"
 
 
-def test_eob_notes_nav_has_no_eob_notes_self_link(renderer, john1_eob_notes):
+def test_eob_notes_nav_has_no_eob_mode_link(renderer, john1_eob_notes):
     out = renderer.render_notes(john1_eob_notes)
-    assert "EOB Notes" not in out, "EOB Notes companion must not self-link to EOB Notes"
+    assert "[[John 1 \u2014 EOB|EOB]]" not in out, "EOB Notes must not link to EOB text mode"
 
 
 def test_eob_notes_nav_has_no_lexham_link(renderer, john1_eob_notes):

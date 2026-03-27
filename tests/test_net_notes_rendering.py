@@ -8,6 +8,8 @@ Contracts guarded:
   4. Callouts use NET-specific labels ([!tn], [!tc], [!sn], [!map]).
   5. Multiple note families on the same verse appear under one heading.
   6. No category section headings (e.g. "## Translator's Notes").
+  7. Nav is scoped: Hub · NET text link. No full mode bar.
+  8. Scripture cross-references in content are converted to wikilinks.
 """
 import re
 
@@ -99,3 +101,52 @@ def test_net_notes_no_category_section_headings(renderer, john1_net_notes):
     output = renderer.render_net_notes(john1_net_notes)
     for banned in ("## Translator", "## Text-critical", "## Study", "## Map"):
         assert banned not in output, f"Category heading {banned!r} must not appear"
+
+
+# ── Contract 7: scoped nav ────────────────────────────────────────────────────
+
+
+def test_net_notes_nav_uses_nav_label(renderer, john1_net_notes):
+    output = renderer.render_net_notes(john1_net_notes)
+    assert "> **Nav:**" in output
+    assert "> **Modes:**" not in output
+
+
+def test_net_notes_nav_has_hub_link(renderer, john1_net_notes):
+    output = renderer.render_net_notes(john1_net_notes)
+    assert "[[John 1|Hub]]" in output
+
+
+def test_net_notes_nav_has_net_text_link(renderer, john1_net_notes):
+    output = renderer.render_net_notes(john1_net_notes)
+    assert "[[John 1 \u2014 NET|NET text]]" in output
+
+
+def test_net_notes_nav_has_no_osb_or_eob_links(renderer, john1_net_notes):
+    output = renderer.render_net_notes(john1_net_notes)
+    assert "[[John 1|OSB]]" not in output
+    assert "EOB" not in output
+
+
+# ── Contract 8: scripture wikilink injection ──────────────────────────────────
+
+
+def test_net_notes_injects_full_book_ref(renderer, john1_net_notes_with_xref):
+    output = renderer.render_net_notes(john1_net_notes_with_xref)
+    assert "[[John 3#v16|John 3:16]]" in output
+
+
+def test_net_notes_injects_ot_ref(renderer, john1_net_notes_with_xref):
+    output = renderer.render_net_notes(john1_net_notes_with_xref)
+    assert "[[Genesis 1#v1|Gen 1:1]]" in output
+
+
+def test_net_notes_injects_abbreviated_ref(renderer, john1_net_notes_with_xref):
+    output = renderer.render_net_notes(john1_net_notes_with_xref)
+    assert "[[Colossians 1#v15|Col 1:15]]" in output
+    assert "[[Hebrews 1#v3|Heb 1:3]]" in output
+
+
+def test_net_notes_does_not_double_link(renderer, john1_net_notes_with_xref):
+    output = renderer.render_net_notes(john1_net_notes_with_xref)
+    assert "[[[[" not in output, "Must not produce nested wikilinks"

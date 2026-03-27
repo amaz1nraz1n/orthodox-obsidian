@@ -21,6 +21,40 @@ from vault_builder.domain.canon import (
 from vault_builder.domain.models import Chapter, ChapterNotes
 from vault_builder.ports.renderer import VaultRenderer
 
+# ── Scripture cross-reference → wikilink injection ───────────────────────────
+
+def _build_scripture_lookup() -> dict[str, str]:
+    lookup: dict[str, str] = {}
+    for canonical, abbr in BOOK_ABBREVIATIONS.items():
+        lookup[canonical.lower()] = canonical
+        lookup[abbr.lower()] = canonical
+    # Common NET-style alternates not covered by BOOK_ABBREVIATIONS
+    lookup.update({
+        "matt": "Matthew",
+        "exod": "Exodus",
+        "isa": "Isaiah",
+        "eze": "Ezekiel",
+        "philem": "Philemon",
+        "1 john": "I John", "2 john": "II John", "3 john": "III John",
+        "1 peter": "I Peter", "2 peter": "II Peter",
+        "1 sam": "I Kingdoms", "2 sam": "II Kingdoms",
+        "1 kgs": "III Kingdoms", "2 kgs": "IV Kingdoms",
+        "1 chr": "I Chronicles", "2 chr": "II Chronicles",
+        "1 mac": "I Maccabees", "2 mac": "II Maccabees",
+        "song": "Song of Solomon",
+        "ps": "Psalms",
+    })
+    return lookup
+
+_SCRIPTURE_LOOKUP: dict[str, str] = _build_scripture_lookup()
+_BOOK_KEYS: list[str] = sorted(_SCRIPTURE_LOOKUP.keys(), key=len, reverse=True)
+_BOOK_PAT: str = "|".join(re.escape(k) for k in _BOOK_KEYS)
+# Matches "John 10:30", "Gen 1:1", "1 Cor 15:3", etc. — not already inside [[
+_FULL_REF_RE: re.Pattern[str] = re.compile(
+    rf'(?<!\[)(?<!\w)({_BOOK_PAT})\s+(\d{{1,3}}):(\d{{1,3}})(?!\w)(?!\])',
+    re.IGNORECASE,
+)
+
 _CALLOUT = {
     "footnote":         "",
     "variant":          "[!info]",
@@ -107,6 +141,39 @@ class ObsidianRenderer(VaultRenderer):
             f"---"
         )
 
+    def _companion_nav(
+        self,
+        book: str,
+        chapter: int,
+        own_notes_suffix: str | None = None,
+        net_text_link: bool = False,
+    ) -> str:
+        """Scoped nav for companion files: Hub · [own notes] · NET Notes.
+
+        own_notes_suffix: notes file for text companions (e.g. "EOB Notes", "Lexham Notes").
+                          Pass None when there is no notes companion (e.g. Greek NT, LXX).
+        net_text_link: True for NET Notes only — replaces NET Notes link with NET text link.
+        """
+        pfx = book_file_prefix(book)
+        parts = [f"[[{pfx} {chapter}|Hub]]"]
+        if own_notes_suffix:
+            parts.append(f"[[{pfx} {chapter} \u2014 {own_notes_suffix}|{own_notes_suffix}]]")
+        if net_text_link:
+            parts.append(f"[[{pfx} {chapter} \u2014 NET|NET text]]")
+        else:
+            parts.append(f"[[{pfx} {chapter} \u2014 NET Notes|NET Notes]]")
+        return f"> **Nav:** {' \u00b7 '.join(parts)}"
+
+    def _inject_scripture_links(self, text: str, current_book: str) -> str:
+        """Convert plain Scripture refs (Book Ch:V) in note content to wikilinks."""
+        def replace(m: re.Match[str]) -> str:
+            canonical = _SCRIPTURE_LOOKUP.get(m.group(1).lower())
+            if canonical is None:
+                return m.group(0)
+            pfx = book_file_prefix(canonical)
+            return f"[[{pfx} {int(m.group(2))}#v{int(m.group(3))}|{m.group(0)}]]"
+        return _FULL_REF_RE.sub(replace, text)
+
     def _nav_callout(
         self,
         book: str,
@@ -190,14 +257,7 @@ class ObsidianRenderer(VaultRenderer):
         parts = [
             f'---\ncssclasses: [scripture-hub]\nhub: "[[{book_file_prefix(book)} {ch}]]"\nsource: "{source}"\n---',
             "",
-            self._nav_callout(
-                book, ch,
-                notes_suffix=resolved_notes_suffix,
-                show_source_notes=False,
-                show_greek=source not in ("Greek NT", "LXX"),
-                show_net=source != "NET",
-                show_noab_rsv=source != "NOAB RSV",
-            ),
+            self._companion_nav(book, ch, own_notes_suffix=resolved_notes_suffix),
             "",
         ]
         for verse in chapter.sorted_verses():
@@ -225,7 +285,7 @@ class ObsidianRenderer(VaultRenderer):
         lines = [
             f'---\nhub: "[[{book_file_prefix(book)} {ch}]]"\nsource: "{notes.source}"\n---',
             "",
-            self._nav_callout(book, ch, notes_suffix=None),
+            self._companion_nav(book, ch, net_text_link=True),
             "",
         ]
 
@@ -256,7 +316,7 @@ class ObsidianRenderer(VaultRenderer):
                 callout = _NET_CALLOUT[family]
                 lines.append("")
                 lines.append(f"> {callout} {note.ref_str}")
-                lines.append(f"> {note.content}")
+                lines.append(f"> {self._inject_scripture_links(note.content, book)}")
                 i += 1
             lines.append("")
 
@@ -268,12 +328,7 @@ class ObsidianRenderer(VaultRenderer):
         lines = [
             f'---\nhub: "[[{pfx} {ch}]]"\nsource: "{source}"\n---',
             "",
-            self._nav_callout(
-                book,
-                ch,
-                notes_suffix=None,
-                show_source_notes=source not in ("EOB", "Lexham"),
-            ),
+            self._companion_nav(book, ch),
             "",
         ]
 

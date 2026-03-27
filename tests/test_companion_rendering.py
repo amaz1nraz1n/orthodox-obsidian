@@ -7,7 +7,7 @@ Contracts guarded:
   3. Verses render in ascending order.
   4. Each verse has an inline <span class="vn"> number.
   5. Each verse has a hidden ^vN block ID.
-  6. Nav callout has correct source links and Study Notes target.
+  6. Nav is scoped: Hub · own notes (if any) · NET Notes. No full mode bar.
 """
 import re
 
@@ -66,16 +66,22 @@ def test_companion_verse_has_block_id(renderer, genesis1_lexham_chapter):
     assert "^v2" in output
 
 
-# ── Contract 6: nav callout ───────────────────────────────────────────────────
+# ── Contract 6: scoped nav ────────────────────────────────────────────────────
 
-def test_ot_companion_nav_has_osb_link(renderer, genesis1_lexham_chapter):
+def test_companion_nav_uses_nav_label(renderer, genesis1_lexham_chapter):
     output = renderer.render_text_companion(genesis1_lexham_chapter, source="Lexham")
-    assert "[[Genesis 1|OSB]]" in output
+    assert "> **Nav:**" in output
+    assert "> **Modes:**" not in output
 
 
-def test_ot_companion_nav_has_lexham_link(renderer, genesis1_lexham_chapter):
+def test_companion_nav_has_hub_link(renderer, genesis1_lexham_chapter):
     output = renderer.render_text_companion(genesis1_lexham_chapter, source="Lexham")
-    assert "[[Genesis 1 \u2014 Lexham|Lexham]]" in output
+    assert "[[Genesis 1|Hub]]" in output
+
+
+def test_ot_companion_nav_has_lexham_notes_link(renderer, genesis1_lexham_chapter):
+    output = renderer.render_text_companion(genesis1_lexham_chapter, source="Lexham")
+    assert "[[Genesis 1 \u2014 Lexham Notes|Lexham Notes]]" in output
 
 
 def test_ot_companion_nav_has_net_notes_link(renderer, genesis1_lexham_chapter):
@@ -83,9 +89,19 @@ def test_ot_companion_nav_has_net_notes_link(renderer, genesis1_lexham_chapter):
     assert "[[Genesis 1 \u2014 NET Notes|NET Notes]]" in output
 
 
-def test_ot_companion_nav_has_lexham_notes_study_link(renderer, genesis1_lexham_chapter):
+def test_nt_companion_nav_has_eob_notes_link(renderer, john1_chapter):
+    output = renderer.render_text_companion(john1_chapter, source="EOB")
+    assert "[[John 1 \u2014 EOB Notes|EOB Notes]]" in output
+
+
+def test_nt_companion_nav_has_net_notes_link(renderer, john1_chapter):
+    output = renderer.render_text_companion(john1_chapter, source="EOB")
+    assert "[[John 1 \u2014 NET Notes|NET Notes]]" in output
+
+
+def test_companion_nav_has_no_osb_link(renderer, genesis1_lexham_chapter):
     output = renderer.render_text_companion(genesis1_lexham_chapter, source="Lexham")
-    assert "[[Genesis 1 \u2014 Lexham Notes|Study Notes]]" in output
+    assert "[[Genesis 1|OSB]]" not in output, "Companion nav must not include OSB mode link"
 
 
 def test_ot_companion_nav_has_no_eob_link(renderer, genesis1_lexham_chapter):
@@ -93,24 +109,14 @@ def test_ot_companion_nav_has_no_eob_link(renderer, genesis1_lexham_chapter):
     assert "EOB" not in output, "OT companion must not link to EOB"
 
 
-def test_nt_companion_nav_has_eob_link(renderer, john1_chapter):
-    output = renderer.render_text_companion(john1_chapter, source="EOB")
-    assert "[[John 1 \u2014 EOB|EOB]]" in output
-
-
-def test_nt_companion_nav_has_eob_notes_study_link(renderer, john1_chapter):
-    output = renderer.render_text_companion(john1_chapter, source="EOB")
-    assert "[[John 1 \u2014 EOB Notes|Study Notes]]" in output
-
-
 def test_nt_companion_nav_has_no_lexham_link(renderer, john1_chapter):
     output = renderer.render_text_companion(john1_chapter, source="EOB")
     assert "Lexham" not in output, "NT companion must not link to Lexham"
 
 
-def test_nt_eob_companion_nav_has_greek_nt_link(renderer, john1_chapter):
+def test_nt_companion_nav_has_no_greek_nt_link(renderer, john1_chapter):
     output = renderer.render_text_companion(john1_chapter, source="EOB")
-    assert "[[John 1 \u2014 Greek NT|Greek NT]]" in output
+    assert "Greek NT" not in output, "Scoped companion nav must not include Greek NT"
 
 
 def test_nt_greek_companion_nav_has_no_greek_self_link(renderer, john1_chapter):
@@ -118,16 +124,11 @@ def test_nt_greek_companion_nav_has_no_greek_self_link(renderer, john1_chapter):
     assert "[[John 1 \u2014 Greek NT|Greek NT]]" not in output, "Greek NT companion must not self-link"
 
 
-def test_ot_lexham_companion_nav_has_no_greek_nt_link(renderer, genesis1_lexham_chapter):
-    output = renderer.render_text_companion(genesis1_lexham_chapter, source="Lexham")
-    assert "Greek NT" not in output, "OT companion must not link to Greek NT"
-
-
-def test_ot_lexham_companion_nav_has_lxx_link(renderer, genesis1_lexham_chapter):
-    output = renderer.render_text_companion(genesis1_lexham_chapter, source="Lexham")
-    assert "[[Genesis 1 \u2014 LXX|LXX]]" in output
-
-
 def test_ot_lxx_companion_nav_has_no_lxx_self_link(renderer, genesis1_lexham_chapter):
     output = renderer.render_text_companion(genesis1_lexham_chapter, source="LXX", notes_suffix=None)
     assert "[[Genesis 1 \u2014 LXX|LXX]]" not in output, "LXX companion must not self-link"
+
+
+def test_greek_companion_nav_no_notes_suffix_omits_notes_link(renderer, john1_chapter):
+    output = renderer.render_text_companion(john1_chapter, source="Greek NT", notes_suffix=None)
+    assert "Greek NT Notes" not in output
