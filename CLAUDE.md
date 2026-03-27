@@ -6,6 +6,43 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 `.beads/` is tracked in git for this repo. Commit it as part of normal git workflow. This overrides the global stealth-mode rule.
 
+## Linear
+
+Issue tracking: **Linear workspace `tharp-personal`, team `PER`**. Config in `.linear.toml`.
+
+### Structure
+
+```
+Workspace: tharp-personal
+  Team: PER (Personal)
+    Project: Orthodox Obsidian Vault  (slugId: 2b159ac7c42c)
+      Milestone: Phase 1 — Core Sources   (complete)
+      Milestone: Phase 2 — New Sources    (active: Alter, DBH, NOAB)
+      Milestone: Phase 3 — Vault Polish   (nav, linking, validator)
+```
+
+### Issue conventions
+
+- One issue per discrete source adapter or feature
+- Assign to the appropriate milestone when creating
+- Priority: 1=urgent, 2=high, 3=medium, 4=low
+- Use `--project "Orthodox Obsidian Vault"` and `--milestone "<name>"` on `linear issue create`
+- Do NOT use `--start` — it auto-creates a git branch and switches to it
+
+### Useful commands
+
+```bash
+linear issue list                          # open issues assigned to me
+linear issue list -A --all-states          # everything
+linear issue create --title "..." --priority 2 --project "Orthodox Obsidian Vault" --milestone "Phase 2 — New Sources"
+linear issue update PER-XX --state "In Progress"
+linear project view 2b159ac7c42c          # project overview
+```
+
+### GitHub integration
+
+Not connected. Issues are managed via CLI only. Reference Linear issue IDs in commit messages (e.g. `PER-10`) for traceability.
+
 ## Project Overview
 
 Orthodox Obsidian vault builder — Python scripts that extract Scripture from EPUB/PDF sources and generate Obsidian-formatted Markdown notes for an Eastern Orthodox personal study vault.
