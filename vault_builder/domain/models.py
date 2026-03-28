@@ -44,6 +44,7 @@ class StudyNote:
     content: str              # Markdown-formatted note body
     verse_end: Optional[int] = None  # Future-proofing: Not currently utilized by Obsidian,
                                      # but exists to support potential future range-linking.
+    note_id: Optional[str] = None  # EPUB element ID for per-callout deep-linking (e.g. "fn4706")
 
 
 @dataclass

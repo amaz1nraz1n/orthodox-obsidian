@@ -149,7 +149,9 @@ def _footnote_marker_html(href: str, book: str, chapter: int, verse: int) -> str
     symbol, css_class = _NOTE_TYPE_TO_MARKER.get(note_type, ("", ""))
     if not symbol:
         return ""
-    return f'<sup class="{css_class}">[[{book} {chapter} — OSB Notes#^v{verse}|{symbol}]]</sup>'
+    fragment = href.split("#")[1] if "#" in href else ""
+    anchor = f"^{fragment}" if fragment else f"^v{verse}"
+    return f'<sup class="{css_class}">[[{book} {chapter} — OSB Notes#{anchor}|{symbol}]]</sup>'
 
 
 def _resolve_html_book(html_filename: str) -> Optional[str]:
@@ -786,6 +788,9 @@ class OsbEpubSource(ScriptureSource):
             md = _footnote_to_md(note_div)
             if not md:
                 continue
+            own_id = note_div.get("id", "")
+            if not isinstance(own_id, str):
+                own_id = ""
             key = (book, chapter)
             chapter_content.setdefault(
                 key,
@@ -793,7 +798,7 @@ class OsbEpubSource(ScriptureSource):
                  "liturgical": [], "citations": [],
                  "alternatives": [], "background_notes": [], "translator_notes": []}
             )
-            chapter_content[key][content_key].append((verse_start, verse_end, ref_str, md))
+            chapter_content[key][content_key].append((verse_start, verse_end, ref_str, md, own_id))
 
     # ── Domain object builders ────────────────────────────────────────────────
 
@@ -829,7 +834,7 @@ class OsbEpubSource(ScriptureSource):
     def _content_to_chapter_notes(
         chapter_content: dict[tuple[str, int], dict[str, Any]],
     ) -> Iterator[ChapterNotes]:
-        def _dedup(tuples: list[tuple[int, int | None, str, str]]) -> list[tuple[int, int | None, str, str]]:
+        def _dedup(tuples: list[tuple]) -> list[tuple]:
             seen = set()
             out = []
             for t in tuples:
@@ -850,8 +855,9 @@ class OsbEpubSource(ScriptureSource):
                     ref_str=ref_str,
                     content=md,
                     verse_end=verse_end,
+                    note_id=own_id or None,
                 )
-                for verse_start, verse_end, ref_str, md in _dedup(content.get("footnotes", []))
+                for verse_start, verse_end, ref_str, md, own_id in _dedup(content.get("footnotes", []))
             ]
             variants = [
                 StudyNote(
@@ -859,8 +865,9 @@ class OsbEpubSource(ScriptureSource):
                     ref_str=ref_str,
                     content=md,
                     verse_end=verse_end,
+                    note_id=own_id or None,
                 )
-                for verse_start, verse_end, ref_str, md in _dedup(content.get("variants", []))
+                for verse_start, verse_end, ref_str, md, own_id in _dedup(content.get("variants", []))
             ]
             cross_references = [
                 StudyNote(
@@ -868,15 +875,16 @@ class OsbEpubSource(ScriptureSource):
                     ref_str=ref_str,
                     content=md,
                     verse_end=verse_end,
+                    note_id=own_id or None,
                 )
-                for verse_start, verse_end, ref_str, md in _dedup(content.get("cross_references", []))
+                for verse_start, verse_end, ref_str, md, own_id in _dedup(content.get("cross_references", []))
             ]
             def _notes_list(key: str) -> list[StudyNote]:
                 return [
                     StudyNote(
-                        verse_number=vs, ref_str=ref, content=md, verse_end=ve,
+                        verse_number=vs, ref_str=ref, content=md, verse_end=ve, note_id=nid or None,
                     )
-                    for vs, ve, ref, md in _dedup(content.get(key, []))
+                    for vs, ve, ref, md, nid in _dedup(content.get(key, []))
                 ]
 
             liturgical = _notes_list("liturgical")

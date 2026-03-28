@@ -377,7 +377,8 @@ class ObsidianRenderer(VaultRenderer):
                 if not first_in_group:
                     lines.append("")
                 if callout:
-                    lines.append(f"> {callout} {note.ref_str}")
+                    block_id = f" ^{note.note_id}" if (callout and note.note_id) else ""
+                    lines.append(f"> {callout} {note.ref_str}{block_id}")
                     lines.append(f"> {note.content}")
                 else:
                     lines.append(note.content)
