@@ -84,6 +84,7 @@ class ObsidianRenderer(VaultRenderer):
         parts = [
             self._hub_frontmatter(chapter, max_chapter, intro_link=intro_link),
             self._nav_callout(chapter.book, chapter.number),
+            "",
         ]
         for verse in chapter.sorted_verses():
             if verse.text:
