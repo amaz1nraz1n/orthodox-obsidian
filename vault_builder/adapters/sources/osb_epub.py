@@ -149,7 +149,7 @@ def _footnote_marker_html(href: str, book: str, chapter: int, verse: int) -> str
     symbol, css_class = _NOTE_TYPE_TO_MARKER.get(note_type, ("", ""))
     if not symbol:
         return ""
-    return f'<sup class="{css_class}">[[{book} {chapter} — OSB Notes#v{verse}|{symbol}]]</sup>'
+    return f'<sup class="{css_class}">[[{book} {chapter} — OSB Notes#^v{verse}|{symbol}]]</sup>'
 
 
 def _resolve_html_book(html_filename: str) -> Optional[str]:
