@@ -27,10 +27,15 @@ class ObsidianWriter:
         self._write(path, content)
         return path
 
-    def _hub_path(self, book: str, chapter: int) -> str:
+    def _chapter_dir(self, book: str, chapter: int) -> str:
         book_dir = os.path.join(self.output_root, book_folder_path(book))
-        os.makedirs(book_dir, exist_ok=True)
-        return os.path.join(book_dir, f"{book_file_prefix(book)} {chapter}.md")
+        ch_dir = os.path.join(book_dir, f"Chapter {chapter:02d}")
+        os.makedirs(ch_dir, exist_ok=True)
+        return ch_dir
+
+    def _hub_path(self, book: str, chapter: int) -> str:
+        ch_dir = self._chapter_dir(book, chapter)
+        return os.path.join(ch_dir, f"{book_file_prefix(book)} {chapter}.md")
 
     # ── Text companion files ──────────────────────────────────────────────────
 
@@ -41,9 +46,8 @@ class ObsidianWriter:
         return path
 
     def _text_companion_path(self, book: str, chapter: int, source: str) -> str:
-        book_dir = os.path.join(self.output_root, book_folder_path(book))
-        os.makedirs(book_dir, exist_ok=True)
-        return os.path.join(book_dir, f"{book_file_prefix(book)} {chapter} \u2014 {source}.md")
+        ch_dir = self._chapter_dir(book, chapter)
+        return os.path.join(ch_dir, f"{book_file_prefix(book)} {chapter} \u2014 {source}.md")
 
     # ── Notes companion files ─────────────────────────────────────────────────
 
@@ -54,9 +58,8 @@ class ObsidianWriter:
         return path
 
     def _notes_path(self, book: str, chapter: int, source: str) -> str:
-        book_dir = os.path.join(self.output_root, book_folder_path(book))
-        os.makedirs(book_dir, exist_ok=True)
-        return os.path.join(book_dir, f"{book_file_prefix(book)} {chapter} \u2014 {source} Notes.md")
+        ch_dir = self._chapter_dir(book, chapter)
+        return os.path.join(ch_dir, f"{book_file_prefix(book)} {chapter} \u2014 {source} Notes.md")
 
     # ── Book intro files ──────────────────────────────────────────────────────
 

@@ -113,6 +113,7 @@ def test_psalm_text_companion_hub_link_singular(renderer, psalms50_chapter):
 def test_writer_hub_path_singular(writer, psalms50_chapter):
     content = "---\n---\ntest"
     path = writer.write_hub(psalms50_chapter, content)
+    assert "Chapter 50" in path, f"Expected chapter subdir in path, got: {path}"
     assert path.endswith("Psalm 50.md"), f"Expected 'Psalm 50.md', got: {path}"
     assert "Psalms 50.md" not in path
 
@@ -120,6 +121,7 @@ def test_writer_hub_path_singular(writer, psalms50_chapter):
 def test_writer_text_companion_path_singular(writer, psalms50_chapter):
     content = "---\n---\ntest"
     path = writer.write_text_companion(psalms50_chapter, "LXX", content)
+    assert "Chapter 50" in path, f"Expected chapter subdir in path, got: {path}"
     assert "Psalm 50 \u2014 LXX.md" in path
     assert "Psalms 50" not in path
 
@@ -128,6 +130,7 @@ def test_writer_notes_path_singular(writer, psalms50_chapter):
     notes = ChapterNotes(book="Psalms", chapter=50, source="Lexham")
     content = "---\n---\ntest"
     path = writer.write_notes(notes, content)
+    assert "Chapter 50" in path, f"Expected chapter subdir in path, got: {path}"
     assert "Psalm 50 \u2014 Lexham Notes.md" in path
     assert "Psalms 50" not in path
 
