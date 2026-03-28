@@ -30,51 +30,61 @@ DEFAULT_EPUB = "./source_files/Full Bible/The Orthodox Study Bible.epub"
 #
 #   Torah:          Genesis 1 (creation narrative), Exodus 20 (Ten Commandments),
 #                   Leviticus 1 (priestly formula)
-#   Historical:     I Kingdoms 1 (narrative prose), I Maccabees 1 (deuterocanon)
-#   Wisdom/Poetry:  Psalms 1 + 50 (olstyle list, superscription), Job 3 (speech poetry),
-#                   Proverbs 8 (mixed), Song of Songs 1 (dialogue), Sirach 1 (deuterocanon)
+#   Historical:     I Kingdoms 1 (narrative prose), I Maccabees 1 (deuterocanon),
+#                   Ezra 1 + Nehemiah 1 (matches Lexham sample)
+#   Wisdom/Poetry:  Psalms 1 + 50 + 151 (olstyle list, superscription, LXX-only),
+#                   Job 3 (speech poetry), Proverbs 8 (mixed),
+#                   Song of Songs 1 (dialogue), Sirach 1 (deuterocanon),
+#                   Wisdom of Solomon 1 (matches LXX sample)
 #   Poetry/Acrostic: Lamentations 1
-#   Prophecy:       Isaiah 53, Jeremiah 1, Ezekiel 1
+#   Prophecy:       Isaiah 53, Jeremiah 1, Ezekiel 1, Daniel 3 (matches LXX sample)
 #   NT Gospel:      John 1, Matthew 1 + 5 (Beatitudes)
 #   NT Narrative:   Acts 15 (Council of Jerusalem)
 #   NT Epistle:     Romans 8, I Corinthians 13, James 1
 #   NT Apocalyptic: Revelation 1
 #
 # Isaiah 7, Matthew 1, James 1, Acts 15 added to anchor EOB/Lexham/NET companions.
+# Ezra 1, Nehemiah 1 added to match Lexham sample (prevents CMP002 hub-not-found).
+# Psalms 151, Wisdom of Solomon 1, Daniel 3 added to match LXX sample.
 SAMPLE_CHAPTERS = {
     # Torah
-    ("Genesis",          1),
-    ("Exodus",          20),
-    ("Leviticus",        1),
+    ("Genesis",           1),
+    ("Exodus",           20),
+    ("Leviticus",         1),
     # Historical
-    ("I Kingdoms",       1),
-    ("I Maccabees",      1),
+    ("I Kingdoms",        1),
+    ("I Maccabees",       1),
+    ("Ezra",              1),
+    ("Nehemiah",          1),
     # Wisdom / Poetry
-    ("Psalms",           1),
-    ("Psalms",          50),
-    ("Job",              3),
-    ("Proverbs",         8),
-    ("Song of Solomon",  1),
-    ("Sirach",           1),
+    ("Psalms",            1),
+    ("Psalms",           50),
+    ("Psalms",          151),
+    ("Job",               3),
+    ("Proverbs",          8),
+    ("Song of Solomon",   1),
+    ("Sirach",            1),
+    ("Wisdom of Solomon", 1),
     # Poetry / Acrostic
-    ("Lamentations",     1),
+    ("Lamentations",      1),
     # Prophecy
-    ("Isaiah",           7),
-    ("Isaiah",          53),
-    ("Jeremiah",         1),
-    ("Ezekiel",          1),
+    ("Isaiah",            7),
+    ("Isaiah",           53),
+    ("Jeremiah",          1),
+    ("Ezekiel",           1),
+    ("Daniel",            3),
     # NT Gospel
-    ("John",             1),
-    ("Matthew",          1),
-    ("Matthew",          5),
+    ("John",              1),
+    ("Matthew",           1),
+    ("Matthew",           5),
     # NT Narrative
-    ("Acts",            15),
+    ("Acts",             15),
     # NT Epistle
-    ("Romans",           8),
-    ("I Corinthians",   13),
-    ("James",            1),
+    ("Romans",            8),
+    ("I Corinthians",    13),
+    ("James",             1),
     # NT Apocalyptic
-    ("Revelation",       1),
+    ("Revelation",        1),
 }
 
 

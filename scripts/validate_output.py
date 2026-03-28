@@ -322,7 +322,10 @@ def _resolve_hub_path(hub_field: str, scripture_root: Path) -> Optional[Path]:
         return None
     top_folder, order = BOOK_FOLDER[book]
     pfx = book_file_prefix(book)
-    return scripture_root / top_folder / f"{order:02d} - {book}" / f"{pfx} {chapter}.md"
+    book_dir = scripture_root / top_folder / f"{order:02d} - {book}"
+    chapter_dir = book_dir / f"Chapter {chapter:02d}" / f"{pfx} {chapter}.md"
+    flat_path = book_dir / f"{pfx} {chapter}.md"
+    return chapter_dir if chapter_dir.exists() else flat_path
 
 
 def validate_companion(path: Path, scripture_root: Path) -> list[Finding]:
