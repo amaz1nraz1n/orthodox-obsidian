@@ -6,21 +6,20 @@ or output format. All extractors produce these; all renderers consume them.
 """
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional
+from enum import Enum
+from typing import ClassVar
 
-# Canonical note type names — used as keys in ChapterNotes, renderer _CALLOUT
-# dicts, and source adapter _NOTE_TYPE_TO_MARKER dicts.
-NOTE_TYPES = (
-    "footnote",        # Study/commentary note (OSB main notes)
-    "background_note", # Historical/geographical context
-    "variant",         # Textual variant / manuscript difference
-    "translator_note", # Linguistic or translation note
-    "alternative",     # Alternative reading
-    "cross_reference", # Cross-reference to another passage
-    "parallel_passage",# Synoptic/parallel passage link
-    "liturgical",      # Liturgical usage note
-    "citation",        # Patristic citation
-)
+
+class NoteType(str, Enum):
+    FOOTNOTE =    "footnote"         # Study/commentary note
+    VARIANT =     "variant"          # Textual variant / manuscript difference
+    CROSS_REF =   "cross_reference"  # Cross-reference to another passage
+    LITURGICAL =  "liturgical"       # Liturgical usage note
+    CITATION =    "citation"         # Patristic citation
+    TRANSLATOR =  "translator_note"  # Linguistic or translation note
+    ALTERNATIVE = "alternative"      # Alternative reading
+    BACKGROUND =  "background_note"  # Historical/geographical context
+    PARALLEL =    "parallel_passage" # Synoptic/parallel passage link
 
 
 @dataclass
@@ -33,18 +32,18 @@ class Verse:
 class Chapter:
     book: str
     number: int
-    verses: Dict[int, Verse] = field(default_factory=dict)
-    pericopes: Dict[int, str] = field(default_factory=dict)  # first_verse → title
-    after_markers: Dict[int, List[str]] = field(default_factory=dict)  # verse_num → markers after that verse (e.g. Diapsalma/Selah)
+    verses: dict[int, Verse] = field(default_factory=dict)
+    pericopes: dict[int, str] = field(default_factory=dict)  # first_verse → title
+    after_markers: dict[int, list[str]] = field(default_factory=dict)  # verse_num → markers after that verse (e.g. Diapsalma/Selah)
 
-    def sorted_verses(self) -> List[Verse]:
+    def sorted_verses(self) -> list[Verse]:
         return [self.verses[n] for n in sorted(self.verses)]
 
 
 @dataclass
 class Book:
     name: str
-    chapters: Dict[int, Chapter] = field(default_factory=dict)
+    chapters: dict[int, Chapter] = field(default_factory=dict)
 
     def max_chapter(self) -> int:
         return max(self.chapters.keys()) if self.chapters else 0
@@ -52,13 +51,12 @@ class Book:
 
 @dataclass
 class StudyNote:
-    """A single per-verse footnote from a study source."""
+    """A single study annotation associated with one or more verses."""
     verse_number: int
     ref_str: str              # e.g. "1:14" or "1:14-16"
     content: str              # Markdown-formatted note body
-    verse_end: Optional[int] = None  # Future-proofing: Not currently utilized by Obsidian,
-                                     # but exists to support potential future range-linking.
-    note_id: Optional[str] = None  # EPUB element ID for per-callout deep-linking (e.g. "fn4706")
+    verse_end: int | None = None  # End verse when the note spans a range (e.g. 1:3–5)
+    anchor_id: str | None = None  # Stable identifier for per-callout deep-linking (e.g. EPUB fragment ID "fn4706")
 
 
 @dataclass
@@ -104,41 +102,30 @@ class ChapterNotes:
     book: str
     chapter: int
     source: str                              # e.g. "OSB", "EOB"
-    articles: List[StudyArticle] = field(default_factory=list)
-    footnotes: List[StudyNote] = field(default_factory=list)
-    variants: List[StudyNote] = field(default_factory=list)
-    cross_references: List[StudyNote] = field(default_factory=list)
-    liturgical: List[StudyNote] = field(default_factory=list)
-    citations: List[StudyNote] = field(default_factory=list)
-    translator_notes: List[StudyNote] = field(default_factory=list)
-    alternatives: List[StudyNote] = field(default_factory=list)
-    background_notes: List[StudyNote] = field(default_factory=list)
-    parallel_passages: List[StudyNote] = field(default_factory=list)
-    chapter_intro: Optional[ChapterIntro] = None
+    articles: list[StudyArticle] = field(default_factory=list)
+    footnotes: list[StudyNote] = field(default_factory=list)
+    variants: list[StudyNote] = field(default_factory=list)
+    cross_references: list[StudyNote] = field(default_factory=list)
+    liturgical: list[StudyNote] = field(default_factory=list)
+    citations: list[StudyNote] = field(default_factory=list)
+    translator_notes: list[StudyNote] = field(default_factory=list)
+    alternatives: list[StudyNote] = field(default_factory=list)
+    background_notes: list[StudyNote] = field(default_factory=list)
+    parallel_passages: list[StudyNote] = field(default_factory=list)
+    chapter_intro: ChapterIntro | None = None
 
-    def sorted_footnotes(self) -> List[StudyNote]:
-        return sorted(self.footnotes, key=lambda n: n.verse_number)
+    _NOTE_LISTS: ClassVar[dict[NoteType, str]] = {
+        NoteType.FOOTNOTE:    "footnotes",
+        NoteType.VARIANT:     "variants",
+        NoteType.CROSS_REF:   "cross_references",
+        NoteType.LITURGICAL:  "liturgical",
+        NoteType.CITATION:    "citations",
+        NoteType.TRANSLATOR:  "translator_notes",
+        NoteType.ALTERNATIVE: "alternatives",
+        NoteType.BACKGROUND:  "background_notes",
+        NoteType.PARALLEL:    "parallel_passages",
+    }
 
-    def sorted_variants(self) -> List[StudyNote]:
-        return sorted(self.variants, key=lambda n: n.verse_number)
-
-    def sorted_cross_references(self) -> List[StudyNote]:
-        return sorted(self.cross_references, key=lambda n: n.verse_number)
-
-    def sorted_liturgical(self) -> List[StudyNote]:
-        return sorted(self.liturgical, key=lambda n: n.verse_number)
-
-    def sorted_citations(self) -> List[StudyNote]:
-        return sorted(self.citations, key=lambda n: n.verse_number)
-
-    def sorted_translator_notes(self) -> List[StudyNote]:
-        return sorted(self.translator_notes, key=lambda n: n.verse_number)
-
-    def sorted_alternatives(self) -> List[StudyNote]:
-        return sorted(self.alternatives, key=lambda n: n.verse_number)
-
-    def sorted_background_notes(self) -> List[StudyNote]:
-        return sorted(self.background_notes, key=lambda n: n.verse_number)
-
-    def sorted_parallel_passages(self) -> List[StudyNote]:
-        return sorted(self.parallel_passages, key=lambda n: n.verse_number)
+    def sorted_notes(self, note_type: NoteType) -> list[StudyNote]:
+        """Return notes of the given type sorted by verse number."""
+        return sorted(getattr(self, self._NOTE_LISTS[note_type]), key=lambda n: n.verse_number)

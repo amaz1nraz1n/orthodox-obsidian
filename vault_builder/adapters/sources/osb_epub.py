@@ -855,7 +855,7 @@ class OsbEpubSource(ScriptureSource):
                     ref_str=ref_str,
                     content=md,
                     verse_end=verse_end,
-                    note_id=own_id or None,
+                    anchor_id=own_id or None,
                 )
                 for verse_start, verse_end, ref_str, md, own_id in _dedup(content.get("footnotes", []))
             ]
@@ -865,7 +865,7 @@ class OsbEpubSource(ScriptureSource):
                     ref_str=ref_str,
                     content=md,
                     verse_end=verse_end,
-                    note_id=own_id or None,
+                    anchor_id=own_id or None,
                 )
                 for verse_start, verse_end, ref_str, md, own_id in _dedup(content.get("variants", []))
             ]
@@ -875,14 +875,14 @@ class OsbEpubSource(ScriptureSource):
                     ref_str=ref_str,
                     content=md,
                     verse_end=verse_end,
-                    note_id=own_id or None,
+                    anchor_id=own_id or None,
                 )
                 for verse_start, verse_end, ref_str, md, own_id in _dedup(content.get("cross_references", []))
             ]
             def _notes_list(key: str) -> list[StudyNote]:
                 return [
                     StudyNote(
-                        verse_number=vs, ref_str=ref, content=md, verse_end=ve, note_id=nid or None,
+                        verse_number=vs, ref_str=ref, content=md, verse_end=ve, anchor_id=nid or None,
                     )
                     for vs, ve, ref, md, nid in _dedup(content.get(key, []))
                 ]

@@ -18,7 +18,7 @@ from vault_builder.domain.canon import (
     PSALM_KATHISMA,
     book_file_prefix,
 )
-from vault_builder.domain.models import Chapter, ChapterNotes
+from vault_builder.domain.models import Chapter, ChapterNotes, NoteType, StudyNote
 from vault_builder.ports.renderer import VaultRenderer
 
 # ── Scripture cross-reference → wikilink injection ───────────────────────────
@@ -55,24 +55,24 @@ _FULL_REF_RE: re.Pattern[str] = re.compile(
     re.IGNORECASE,
 )
 
-_CALLOUT = {
-    "footnote":         "[!note]",
-    "variant":          "[!info]",
-    "cross_reference":  "[!quote]",
-    "liturgical":       "[!liturgy]",
-    "citation":         "[!cite]",
-    "translator_note":  "[!tn]",
-    "alternative":      "[!alt]",
-    "background_note":  "[!bg]",
-    "parallel_passage": "[!parallel]",
+_CALLOUT: dict[NoteType, str] = {
+    NoteType.FOOTNOTE:    "[!note]",
+    NoteType.VARIANT:     "[!info]",
+    NoteType.CROSS_REF:   "[!quote]",
+    NoteType.LITURGICAL:  "[!liturgy]",
+    NoteType.CITATION:    "[!cite]",
+    NoteType.TRANSLATOR:  "[!tn]",
+    NoteType.ALTERNATIVE: "[!alt]",
+    NoteType.BACKGROUND:  "[!bg]",
+    NoteType.PARALLEL:    "[!parallel]",
 }
 
 # NET Bible note type → Obsidian callout label
-_NET_CALLOUT = {
-    "footnote":        "[!sn]",   # sn  = Study Note
-    "variant":         "[!tc]",   # tc  = Text-critical Note
-    "cross_reference": "[!map]",  # map = Map Note
-    "translator_note": "[!tn]",   # tn  = Translator's Note
+_NET_CALLOUT: dict[NoteType, str] = {
+    NoteType.FOOTNOTE:    "[!sn]",
+    NoteType.VARIANT:     "[!tc]",
+    NoteType.CROSS_REF:   "[!map]",
+    NoteType.TRANSLATOR:  "[!tn]",
 }
 
 
@@ -290,15 +290,10 @@ class ObsidianRenderer(VaultRenderer):
             "",
         ]
 
-        tagged = []
-        for note in notes.footnotes:
-            tagged.append(("footnote", note))
-        for note in notes.variants:
-            tagged.append(("variant", note))
-        for note in notes.cross_references:
-            tagged.append(("cross_reference", note))
-        for note in notes.translator_notes:
-            tagged.append(("translator_note", note))
+        tagged: list[tuple[NoteType, StudyNote]] = []
+        for note_type in _NET_CALLOUT:
+            for note in notes.sorted_notes(note_type):
+                tagged.append((note_type, note))
 
         tagged.sort(key=lambda x: x[1].verse_number)
 
@@ -338,25 +333,10 @@ class ObsidianRenderer(VaultRenderer):
             lines.append(article.content)
             lines.append("")
 
-        tagged = []
-        for note in notes.sorted_footnotes():
-            tagged.append(("footnote", note))
-        for note in notes.sorted_variants():
-            tagged.append(("variant", note))
-        for note in notes.sorted_cross_references():
-            tagged.append(("cross_reference", note))
-        for note in notes.sorted_liturgical():
-            tagged.append(("liturgical", note))
-        for note in notes.sorted_citations():
-            tagged.append(("citation", note))
-        for note in notes.sorted_translator_notes():
-            tagged.append(("translator_note", note))
-        for note in notes.sorted_alternatives():
-            tagged.append(("alternative", note))
-        for note in notes.sorted_background_notes():
-            tagged.append(("background_note", note))
-        for note in notes.sorted_parallel_passages():
-            tagged.append(("parallel_passage", note))
+        tagged: list[tuple[NoteType, StudyNote]] = []
+        for note_type in NoteType:
+            for note in notes.sorted_notes(note_type):
+                tagged.append((note_type, note))
 
         tagged.sort(key=lambda x: x[1].verse_number)
 
@@ -379,7 +359,7 @@ class ObsidianRenderer(VaultRenderer):
                 if not first_in_group:
                     lines.append("")
                 if callout:
-                    block_id = f" ^{note.note_id}" if (callout and note.note_id) else ""
+                    block_id = f" ^{note.anchor_id}" if (callout and note.anchor_id) else ""
                     lines.append(f"> {callout} {note.ref_str}{block_id}")
                     lines.append(f"> {note.content}")
                 else:

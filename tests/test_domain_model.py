@@ -5,6 +5,7 @@ from vault_builder.domain.models import (
     BookIntro,
     ChapterIntro,
     ChapterNotes,
+    NoteType,
     PartIntro,
     StudyNote,
 )
@@ -71,37 +72,37 @@ def _make_note(verse: int, ref: str = None) -> StudyNote:
 def test_sorted_translator_notes():
     notes = ChapterNotes(book="John", chapter=1, source="NET")
     notes.translator_notes = [_make_note(5), _make_note(2), _make_note(8)]
-    result = notes.sorted_translator_notes()
+    result = notes.sorted_notes(NoteType.TRANSLATOR)
     assert [n.verse_number for n in result] == [2, 5, 8]
 
 
 def test_sorted_alternatives():
     notes = ChapterNotes(book="Genesis", chapter=1, source="OSB")
     notes.alternatives = [_make_note(3), _make_note(1)]
-    result = notes.sorted_alternatives()
+    result = notes.sorted_notes(NoteType.ALTERNATIVE)
     assert [n.verse_number for n in result] == [1, 3]
 
 
 def test_sorted_background_notes():
     notes = ChapterNotes(book="Genesis", chapter=1, source="OSB")
     notes.background_notes = [_make_note(10), _make_note(4), _make_note(7)]
-    result = notes.sorted_background_notes()
+    result = notes.sorted_notes(NoteType.BACKGROUND)
     assert [n.verse_number for n in result] == [4, 7, 10]
 
 
 def test_sorted_parallel_passages():
     notes = ChapterNotes(book="Matthew", chapter=3, source="OSB")
     notes.parallel_passages = [_make_note(6), _make_note(1)]
-    result = notes.sorted_parallel_passages()
+    result = notes.sorted_notes(NoteType.PARALLEL)
     assert [n.verse_number for n in result] == [1, 6]
 
 
 def test_sorted_methods_return_empty_list_when_no_notes():
     notes = ChapterNotes(book="John", chapter=1, source="OSB")
-    assert notes.sorted_translator_notes() == []
-    assert notes.sorted_alternatives() == []
-    assert notes.sorted_background_notes() == []
-    assert notes.sorted_parallel_passages() == []
+    assert notes.sorted_notes(NoteType.TRANSLATOR) == []
+    assert notes.sorted_notes(NoteType.ALTERNATIVE) == []
+    assert notes.sorted_notes(NoteType.BACKGROUND) == []
+    assert notes.sorted_notes(NoteType.PARALLEL) == []
 
 
 # ── Backward compatibility ────────────────────────────────────────────────────
