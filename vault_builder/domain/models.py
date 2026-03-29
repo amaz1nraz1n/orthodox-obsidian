@@ -8,6 +8,20 @@ or output format. All extractors produce these; all renderers consume them.
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 
+# Canonical note type names — used as keys in ChapterNotes, renderer _CALLOUT
+# dicts, and source adapter _NOTE_TYPE_TO_MARKER dicts.
+NOTE_TYPES = (
+    "footnote",        # Study/commentary note (OSB main notes)
+    "background_note", # Historical/geographical context
+    "variant",         # Textual variant / manuscript difference
+    "translator_note", # Linguistic or translation note
+    "alternative",     # Alternative reading
+    "cross_reference", # Cross-reference to another passage
+    "parallel_passage",# Synoptic/parallel passage link
+    "liturgical",      # Liturgical usage note
+    "citation",        # Patristic citation
+)
+
 
 @dataclass
 class Verse:
