@@ -56,7 +56,7 @@ _FULL_REF_RE: re.Pattern[str] = re.compile(
 )
 
 _CALLOUT = {
-    "footnote":         "",
+    "footnote":         "[!note]",
     "variant":          "[!info]",
     "cross_reference":  "[!quote]",
     "liturgical":       "[!liturgy]",
