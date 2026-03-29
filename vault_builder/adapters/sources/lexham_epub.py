@@ -294,7 +294,7 @@ class LexhamEpubSource:
                 elif event[0] == "footnote_marker" and current_verse is not None:
                     marker = (
                         f'<sup class="nt-tn">[[{current_book} {current_chapter}'
-                        f" \u2014 Lexham Notes#v{current_verse}|*]]</sup>"
+                        f" \u2014 Lexham Notes#^v{current_verse}|*]]</sup>"
                     )
                     raw.setdefault(current_book, {}).setdefault(current_chapter, {})
                     existing = raw[current_book][current_chapter].get(current_verse, "")

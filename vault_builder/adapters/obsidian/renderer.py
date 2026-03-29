@@ -311,7 +311,8 @@ class ObsidianRenderer(VaultRenderer):
             else:
                 if pericopes and verse_num in pericopes:
                     lines.append(f"*{pericopes[verse_num]}*")
-                lines.append(f"### [[{pfx} {ch}#v{verse_num}|{abbr} {ch}:{verse_num}]] ^v{verse_num}")
+                lines.append(f"### [[{pfx} {ch}#v{verse_num}|{abbr} {ch}:{verse_num}]]")
+                lines.append(f"^v{verse_num}")
             while i < len(tagged) and tagged[i][1].verse_number == verse_num:
                 family, note = tagged[i]
                 callout = _NET_CALLOUT[family]
@@ -369,7 +370,8 @@ class ObsidianRenderer(VaultRenderer):
             m_cross = re.match(r'^(\d+:\d+)-(\d+)$', heading_ref)
             if m_cross and int(m_cross.group(2)) < int(m_cross.group(1).split(':')[1]):
                 heading_ref = m_cross.group(1)
-            lines.append(f"### [[{pfx} {ch}#v{verse_num}|{heading_ref}]] ^v{verse_num}")
+            lines.append(f"### [[{pfx} {ch}#v{verse_num}|{heading_ref}]]")
+            lines.append(f"^v{verse_num}")
             first_in_group = True
             while i < len(tagged) and tagged[i][1].verse_number == verse_num:
                 family, note = tagged[i]

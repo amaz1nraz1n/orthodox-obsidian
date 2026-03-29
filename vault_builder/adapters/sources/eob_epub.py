@@ -410,7 +410,7 @@ def _walk(
                         except (ValueError, KeyError):
                             pass
                     marker = (
-                        f'<sup class="nt-fn">[[{book} {chapter} — EOB Notes#v{current_verse}|†]]</sup>'
+                        f'<sup class="nt-fn">[[{book} {chapter} — EOB Notes#^v{current_verse}|†]]</sup>'
                     )
                     _add_text(raw, book, chapter, current_verse, marker)
 
