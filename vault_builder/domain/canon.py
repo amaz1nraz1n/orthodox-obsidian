@@ -5,10 +5,8 @@ Book names use Roman numerals for numbered books (I Kingdoms, II Corinthians, et
 to match vault folder/file naming conventions.
 """
 
-from typing import Dict, Optional, Tuple
-
 # Maps book_name -> (top_level_folder, canonical_order_within_folder)
-BOOK_FOLDER: Dict[str, Tuple[str, int]] = {
+BOOK_FOLDER: dict[str, tuple[str, int]] = {
     # 01 - Old Testament (all 51 books in LXX canonical order)
     "Genesis":             ("01 - Old Testament",  1),
     "Exodus":              ("01 - Old Testament",  2),
@@ -92,7 +90,7 @@ BOOK_FOLDER: Dict[str, Tuple[str, int]] = {
 }
 
 # Standard scholarly abbreviations (Arabic numerals, per SBL/academic convention)
-BOOK_ABBREVIATIONS: Dict[str, str] = {
+BOOK_ABBREVIATIONS: dict[str, str] = {
     "Genesis": "Gen", "Exodus": "Ex", "Leviticus": "Lev", "Numbers": "Num",
     "Deuteronomy": "Deut", "Joshua": "Josh", "Judges": "Judg", "Ruth": "Ruth",
     "I Kingdoms": "1 Sam", "II Kingdoms": "2 Sam",
@@ -120,7 +118,7 @@ BOOK_ABBREVIATIONS: Dict[str, str] = {
 }
 
 # Frontmatter testament field values
-BOOK_TESTAMENT: Dict[str, str] = {
+BOOK_TESTAMENT: dict[str, str] = {
     "Genesis": "OT", "Exodus": "OT", "Leviticus": "OT", "Numbers": "OT",
     "Deuteronomy": "OT", "Joshua": "OT", "Judges": "OT", "Ruth": "OT",
     "I Kingdoms": "OT", "II Kingdoms": "OT", "III Kingdoms": "OT", "IV Kingdoms": "OT",
@@ -147,7 +145,7 @@ BOOK_TESTAMENT: Dict[str, str] = {
     "I John": "NT", "II John": "NT", "III John": "NT", "Jude": "NT", "Revelation": "NT",
 }
 
-BOOK_GENRE: Dict[str, str] = {
+BOOK_GENRE: dict[str, str] = {
     "Genesis": "Torah", "Exodus": "Torah", "Leviticus": "Torah",
     "Numbers": "Torah", "Deuteronomy": "Torah",
     "Joshua": "Historical", "Judges": "Historical", "Ruth": "Historical",
@@ -181,7 +179,7 @@ BOOK_GENRE: Dict[str, str] = {
 }
 
 
-BOOK_CHAPTER_COUNT: Dict[str, int] = {
+BOOK_CHAPTER_COUNT: dict[str, int] = {
     "Genesis": 50, "Exodus": 40, "Leviticus": 27, "Numbers": 36, "Deuteronomy": 34,
     "Joshua": 24, "Judges": 21, "Ruth": 4,
     "I Kingdoms": 31, "II Kingdoms": 24, "III Kingdoms": 22, "IV Kingdoms": 25,
@@ -237,7 +235,7 @@ def _build_psalm_kathisma() -> Dict[int, tuple]:
         (19, 1, 134, 136), (19, 2, 137, 139), (19, 3, 140, 142),
         (20, 1, 143, 144), (20, 2, 145, 147), (20, 3, 148, 150),
     ]
-    m: Dict[int, tuple] = {}
+    m: dict[int, tuple[int, int]] = {}
     for kath, stasis, first, last in data:
         for ps in range(first, last + 1):
             m[ps] = (kath, stasis)
@@ -245,11 +243,11 @@ def _build_psalm_kathisma() -> Dict[int, tuple]:
     return m
 
 
-PSALM_KATHISMA: Dict[int, tuple] = _build_psalm_kathisma()
+PSALM_KATHISMA: dict[int, tuple[int, int]] = _build_psalm_kathisma()
 
 
-def _build_lxx_to_mt() -> Dict[int, Optional[int]]:
-    m: Dict[int, Optional[int]] = {}
+def _build_lxx_to_mt() -> dict[int, int | None]:
+    m: dict[int, int | None] = {}
     for i in range(1, 9):    m[i] = i        # 1–8: identical
     m[9] = 9                                  # LXX 9 = MT 9 (LXX merges MT 9+10)
     for i in range(10, 113): m[i] = i + 1   # 10–112: offset +1
@@ -263,7 +261,7 @@ def _build_lxx_to_mt() -> Dict[int, Optional[int]]:
     m[151] = None                             # LXX 151: no MT equivalent
     return m
 
-LXX_TO_MT: Dict[int, Optional[int]] = _build_lxx_to_mt()
+LXX_TO_MT: dict[int, int | None] = _build_lxx_to_mt()
 
 
 def book_folder_path(book: str) -> str:
@@ -276,10 +274,10 @@ def book_folder_path(book: str) -> str:
 
 
 # Books where the chapter file/link prefix differs from the canonical book name.
-_BOOK_FILE_PREFIX: Dict[str, str] = {
+_BOOK_FILE_PREFIX: dict[str, str] = {
     "Psalms": "Psalm",
 }
-_FILE_PREFIX_TO_CANONICAL: Dict[str, str] = {v: k for k, v in _BOOK_FILE_PREFIX.items()}
+_FILE_PREFIX_TO_CANONICAL: dict[str, str] = {v: k for k, v in _BOOK_FILE_PREFIX.items()}
 
 
 def book_file_prefix(book: str) -> str:
