@@ -135,6 +135,53 @@ _VERSE_ANCHOR_RE = re.compile(
 # Chapter anchor: CODE.N  (no underscores, no BibleLXX2)
 _CHAPTER_ANCHOR_RE = re.compile(r"^([A-Z0-9]+)\.(\d+)$")
 
+# ── Note classification ───────────────────────────────────────────────────── #
+
+_RE_LEXHAM_VARIANTS = re.compile(
+    r"^(?:Some\s+manuscripts|Other\s+mss|Other\s+manuscripts)",
+    re.IGNORECASE,
+)
+
+_RE_LEXHAM_ALTERNATIVES = re.compile(
+    r"^(?:Or[,\s]|Lit\.\s|Literally\s|i\.e\.)",
+    re.IGNORECASE,
+)
+
+_RE_LEXHAM_CROSS_REF = re.compile(
+    r"^(?:"
+    r"(?:See|Compare|Cf\.)\s+"
+    r"|(?:Genesis|Exodus|Leviticus|Numbers|Deuteronomy|Joshua|Judges|Ruth"
+    r"|Samuel|Kings|Chronicles|Ezra|Nehemiah|Tobit|Judith|Esther|Maccabees"
+    r"|Job|Psalm|Proverb|Ecclesiastes|Song|Wisdom|Sirach|Baruch|Isaias|Isaiah"
+    r"|Jeremiah|Lamentations|Ezekiel|Daniel|Hosea|Joel|Amos|Obadiah"
+    r"|Jonah|Micah|Nahum|Habakkuk|Zephaniah|Haggai|Zechariah|Malachi)\b"
+    r")",
+    re.IGNORECASE,
+)
+
+
+def _classify_lexham_note(text: str) -> str:
+    """Return the ChapterNotes slot name for a raw Lexham footnote string."""
+    if _RE_LEXHAM_VARIANTS.match(text):
+        return "variants"
+    if _RE_LEXHAM_ALTERNATIVES.match(text):
+        return "alternatives"
+    if _RE_LEXHAM_CROSS_REF.match(text):
+        return "cross_references"
+    return "translator_notes"
+
+
+# Canonical hub marker table for Lexham note slots
+_LEXHAM_SLOT_MARKER: dict[str, tuple[str, str]] = {
+    "footnotes":        ("\u2020", "nt-fn"),
+    "variants":         ("\u2021", "nt-tc"),
+    "citations":        ("\u00b6", "nt-cit"),
+    "alternatives":     ("\u207a", "nt-alt"),
+    "translator_notes": ("*",      "nt-tn"),
+    "background_notes": ("\u25e6", "nt-bg"),
+    "cross_references": ("\u00a7", "nt-cross"),
+}
+
 
 class LexhamEpubSource:
     """
@@ -163,11 +210,18 @@ class LexhamEpubSource:
 
         with zipfile.ZipFile(self.epub_path) as z:
             spine_files = self._spine_order(z)
+            # Pre-classify notes for typed hub markers
+            raw_f79 = z.read("OEBPS/f79.xhtml").decode("utf-8", errors="ignore")
+            fn_text = self._load_footnote_definitions(raw_f79)
+            fn_type_map = {
+                anchor_id: _LEXHAM_SLOT_MARKER.get(_classify_lexham_note(text), ("*", "nt-tn"))
+                for anchor_id, text in fn_text.items()
+            }
             for fname in spine_files:
                 if not fname.endswith(".xhtml"):
                     continue
                 html = z.read(f"OEBPS/{fname}").decode("utf-8", errors="ignore")
-                self._parse_file(html, raw, raw_markers)
+                self._parse_file(html, raw, raw_markers, fn_type_map=fn_type_map)
 
         for book_name, chapters in sorted(raw.items()):
             book = Book(name=book_name)
@@ -204,6 +258,7 @@ class LexhamEpubSource:
         html: str,
         raw: dict[str, dict[int, dict[int, str]]],
         raw_markers: dict[str, dict[int, dict[int, list[str]]]],
+        fn_type_map: Optional[dict[str, tuple[str, str]]] = None,
     ) -> None:
         import warnings
         from bs4 import XMLParsedAsHTMLWarning
@@ -292,9 +347,14 @@ class LexhamEpubSource:
                 if event[0] == "verse_start":
                     current_verse = event[1]
                 elif event[0] == "footnote_marker" and current_verse is not None:
+                    anchor_id = event[1]
+                    if fn_type_map and anchor_id:
+                        symbol, css_class = fn_type_map.get(anchor_id, ("*", "nt-tn"))
+                    else:
+                        symbol, css_class = "*", "nt-tn"
                     marker = (
-                        f'<sup class="nt-tn">[[{current_book} {current_chapter}'
-                        f" \u2014 Lexham Notes#^v{current_verse}|*]]</sup>"
+                        f'<sup class="{css_class}">[[{current_book} {current_chapter}'
+                        f" \u2014 Lexham Notes#^v{current_verse}|{symbol}]]</sup>"
                     )
                     raw.setdefault(current_book, {}).setdefault(current_chapter, {})
                     existing = raw[current_book][current_chapter].get(current_verse, "")
@@ -333,10 +393,11 @@ class LexhamEpubSource:
                 for verse_num in sorted(chapters[ch_num]):
                     for content in chapters[ch_num][verse_num]:
                         ref = f"{ch_num}:{verse_num}"
-                        notes_obj.translator_notes.append(
+                        slot = _classify_lexham_note(content)
+                        getattr(notes_obj, slot).append(
                             StudyNote(verse_number=verse_num, ref_str=ref, content=content)
                         )
-                if notes_obj.translator_notes:
+                if any(getattr(notes_obj, s) for s in ["translator_notes", "variants", "alternatives", "cross_references"]):
                     yield notes_obj
 
     @staticmethod
@@ -544,7 +605,9 @@ class LexhamEpubSource:
                 if isinstance(cls, str):
                     cls = [cls]
                 if "x1B" in cls:
-                    yield ("footnote_marker", None)
+                    href = child.get("href", "")
+                    anchor_id = href.split("#", 1)[1] if "#" in href else ""
+                    yield ("footnote_marker", anchor_id)
                     continue
                 aid = (child.get("id") or "").strip()
                 m = _VERSE_ANCHOR_RE.match(aid)

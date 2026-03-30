@@ -14,7 +14,7 @@ Note families → ChapterNotes slot mapping:
   tn  (Translator's Note)   → footnotes
   tc  (Text-Critical Note)  → variants
   sn  (Study Note)          → citations
-  map (Map Note)            → cross_references
+  map (Map Note)            → background_notes
 
 See docs/net-epub-source-structure.md for full structural documentation.
 """
@@ -145,7 +145,7 @@ _NOTE_TYPE_TO_SLOT = {
     "tn":  "translator_notes",
     "tc":  "variants",
     "sn":  "footnotes",
-    "map": "cross_references",
+    "map": "background_notes",
 }
 
 # Inline note marker symbols and CSS classes (tc > tn > sn precedence)

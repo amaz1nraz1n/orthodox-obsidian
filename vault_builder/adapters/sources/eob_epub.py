@@ -72,6 +72,27 @@ _RE_CROSS_REF = re.compile(
     re.IGNORECASE,
 )
 
+_RE_CITATION = re.compile(
+    r"^(?:"
+    r"(?:St\.|Saint|According\s+to\s+(?:St\.|Saint))\s+[A-Z]"
+    r"|(?:St\.|Saint)\s+\w+\s+(?:says?|writes?|interprets?|comments?|notes?|explains?)"
+    r")",
+    re.IGNORECASE,
+)
+
+_RE_BACKGROUND_START = re.compile(
+    r"^(?:"
+    r"In\s+(?:the\s+)?(?:ancient|early|first\s+century|biblical)"
+    r"|The\s+\w+\s+(?:River|Sea|Mountain|City|Province|Region|Desert)\s+was\b"
+    r")",
+    re.IGNORECASE,
+)
+
+_RE_BACKGROUND_LOCATION = re.compile(
+    r"\bwas\s+(?:a|an|the)\s+(?:city|town|region|river|sea|mountain|province|area|place)\b",
+    re.IGNORECASE,
+)
+
 
 def _classify_eob_note(text: str) -> str:
     """Return the ChapterNotes slot name for a raw EOB endnote string."""
@@ -84,6 +105,10 @@ def _classify_eob_note(text: str) -> str:
         return "translator_notes"
     if _RE_CROSS_REF.match(body):
         return "cross_references"
+    if _RE_CITATION.match(body):
+        return "citations"
+    if _RE_BACKGROUND_START.match(body) or _RE_BACKGROUND_LOCATION.search(body):
+        return "background_notes"
     return "footnotes"
 
 

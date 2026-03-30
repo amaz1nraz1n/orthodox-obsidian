@@ -5,7 +5,7 @@ Contracts guarded:
   1. Companion frontmatter includes hub and source: "NET" fields.
   2. Notes from all families render interleaved in verse order.
   3. Each verse group has exactly one heading: ### [[Book Ch#vN|Abbr Ch:N]]
-  4. Callouts use NET-specific labels ([!tn], [!tc], [!sn], [!map]).
+  4. Callouts use unified labels ([!tn], [!info], [!note]).
   5. Multiple note families on the same verse appear under one heading.
   6. No category section headings (e.g. "## Translator's Notes").
   7. Nav is scoped: Hub · NET text link. No full mode bar.
@@ -72,12 +72,12 @@ def test_net_notes_tn_callout(renderer, john1_net_notes):
 
 def test_net_notes_tc_callout(renderer, john1_net_notes):
     output = renderer.render_net_notes(john1_net_notes)
-    assert "[!tc]" in output
+    assert "[!info]" in output
 
 
 def test_net_notes_sn_callout(renderer, john1_net_notes):
     output = renderer.render_net_notes(john1_net_notes)
-    assert "[!sn]" in output
+    assert "[!note]" in output
 
 
 # ── Contract 5: multi-family grouping ────────────────────────────────────────
@@ -91,7 +91,7 @@ def test_net_notes_tn_and_tc_under_same_verse_heading(renderer, john1_net_notes)
     v3_idx = output.index("### [[John 1#v3|")
     v1_block = output[v1_idx:v3_idx]
     assert "[!tn]" in v1_block, "tn callout missing from v1 block"
-    assert "[!tc]" in v1_block, "tc callout missing from v1 block"
+    assert "[!info]" in v1_block, "info callout missing from v1 block"
 
 
 # ── Contract 6: no category headings ─────────────────────────────────────────

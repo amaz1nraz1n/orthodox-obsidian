@@ -6,7 +6,7 @@ Contracts guarded:
   2. Verse text has superscript note refs stripped
   3. Poetry verses spanning multiple <p> elements are joined
   4. read_notes(book, chapter) → ChapterNotes with source="NET"
-  5. Note type mapping: tn→translator_notes, tc→variants, sn→footnotes, map→cross_references
+  5. Note type mapping: tn→translator_notes, tc→variants, sn→footnotes, map→background_notes
   6. Notes correctly attributed to verses via text-file anchor cross-reference
   7. Multi-typed note entries (tn + sn in one <p id="nXXX">) expand to separate notes
   8. Psalm LXX→MT chapter conversion for file lookup (LXX 50 = MT 51)
@@ -211,10 +211,15 @@ def test_sn_goes_to_footnotes(john1_source):
     assert any("Reference" in n.content or "verse 1" in n.content for n in notes.footnotes)
 
 
-def test_map_goes_to_cross_references(john1_source):
+def test_map_goes_to_background_notes(john1_source):
     notes = john1_source.read_notes("John", 1)
-    assert len(notes.cross_references) >= 1
-    assert any("map" in n.content.lower() or "creation" in n.content.lower() for n in notes.cross_references)
+    assert len(notes.background_notes) >= 1
+    assert any("map" in n.content.lower() or "creation" in n.content.lower() for n in notes.background_notes)
+
+
+def test_map_does_not_go_to_cross_references(john1_source):
+    notes = john1_source.read_notes("John", 1)
+    assert len(notes.cross_references) == 0
 
 
 # ── Contract 6: verse attribution ─────────────────────────────────────────────
@@ -224,10 +229,10 @@ def test_notes_attributed_to_correct_verse(john1_source):
     notes = john1_source.read_notes("John", 1)
     v1_tns = [n for n in notes.translator_notes if n.verse_number == 1]
     v2_fns = [n for n in notes.footnotes if n.verse_number == 2]
-    v3_cr = [n for n in notes.cross_references if n.verse_number == 3]
+    v3_bg = [n for n in notes.background_notes if n.verse_number == 3]
     assert len(v1_tns) == 1
     assert len(v2_fns) == 1
-    assert len(v3_cr) == 1
+    assert len(v3_bg) == 1
 
 
 def test_notes_ref_str_format(john1_source):

@@ -67,13 +67,6 @@ _CALLOUT: dict[NoteType, str] = {
     NoteType.PARALLEL:    "[!parallel]",
 }
 
-# NET Bible note type → Obsidian callout label
-_NET_CALLOUT: dict[NoteType, str] = {
-    NoteType.FOOTNOTE:    "[!sn]",
-    NoteType.VARIANT:     "[!tc]",
-    NoteType.CROSS_REF:   "[!map]",
-    NoteType.TRANSLATOR:  "[!tn]",
-}
 
 
 class ObsidianRenderer(VaultRenderer):
@@ -280,7 +273,7 @@ class ObsidianRenderer(VaultRenderer):
         notes: ChapterNotes,
         pericopes: dict[int, str] | None = None,
     ) -> str:
-        """Render a NET Bible notes companion with tn/tc/sn/map callouts."""
+        """Render a NET Bible notes companion with unified callouts ([!tn], [!info], [!note], [!bg])."""
         book, ch = notes.book, notes.chapter
         abbr = BOOK_ABBREVIATIONS.get(book, book[:3])
         lines = [
@@ -291,7 +284,7 @@ class ObsidianRenderer(VaultRenderer):
         ]
 
         tagged: list[tuple[NoteType, StudyNote]] = []
-        for note_type in _NET_CALLOUT:
+        for note_type in (NoteType.FOOTNOTE, NoteType.VARIANT, NoteType.TRANSLATOR, NoteType.BACKGROUND):
             for note in notes.sorted_notes(note_type):
                 tagged.append((note_type, note))
 
@@ -310,7 +303,7 @@ class ObsidianRenderer(VaultRenderer):
                 lines.append(f"^v{verse_num}")
             while i < len(tagged) and tagged[i][1].verse_number == verse_num:
                 family, note = tagged[i]
-                callout = _NET_CALLOUT[family]
+                callout = _CALLOUT[family]
                 lines.append("")
                 lines.append(f"> {callout} {note.ref_str}")
                 lines.append(f"> {self._inject_scripture_links(note.content, book)}")

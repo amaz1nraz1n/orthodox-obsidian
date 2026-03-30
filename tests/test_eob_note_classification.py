@@ -56,6 +56,30 @@ def test_cross_ref_compare():
     assert _classify_eob_note("[1100] Compare Colossians 1:19") == "cross_references"
 
 
+# ── citations ─────────────────────────────────────────────────────────────────
+
+def test_citations_st_with_period():
+    assert _classify_eob_note("[850] St. John Chrysostom says that the logos was...") == "citations"
+
+def test_citations_according_to_st():
+    assert _classify_eob_note("[851] According to St. Basil, this passage...") == "citations"
+
+def test_citations_saint_full():
+    assert _classify_eob_note("[852] Saint Athanasius interprets this as...") == "citations"
+
+
+# ── background_notes ──────────────────────────────────────────────────────────
+
+def test_background_ancient_near_east():
+    assert _classify_eob_note("[900] In the ancient Near East, the concept of...") == "background_notes"
+
+def test_background_city_location():
+    assert _classify_eob_note("[901] Caesarea Philippi was a city located at the...") == "background_notes"
+
+def test_background_river_boundary():
+    assert _classify_eob_note("[902] The Jordan River was the boundary between...") == "background_notes"
+
+
 # ── footnotes (default) ───────────────────────────────────────────────────────
 
 def test_footnotes_see_appendix_not_cross_ref():
