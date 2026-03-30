@@ -14,25 +14,84 @@ from vault_builder.domain.models import Chapter, ChapterNotes
 class VaultRenderer(ABC):
 
     @abstractmethod
-    def render_hub(self, chapter: Chapter, max_chapter: int) -> str:
+    def render_hub(
+        self,
+        chapter: Chapter,
+        max_chapter: int,
+        intro_link: str | None = None,
+    ) -> str:
         """Render the hub file content for a single chapter.
 
         Args:
             chapter: The fully-populated Chapter domain object.
             max_chapter: The highest chapter number in this book (used for
                          generating prev/next navigation links).
+            intro_link: Optional wikilink to a per-book introduction file,
+                        included only in chapter-1 hubs (e.g. "[[John — OSB Intro]]").
+        """
 
-        Returns:
-            Complete file content as a string (UTF-8).
+    @abstractmethod
+    def render_text_companion(
+        self,
+        chapter: Chapter,
+        source: str,
+        notes_suffix: str | None = None,
+    ) -> str:
+        """Render a parallel text layer (e.g. Lexham, EOB, NET) as a companion file.
+
+        Args:
+            chapter: The fully-populated Chapter domain object.
+            source: Display name for this text layer (e.g. "Lexham", "EOB").
+            notes_suffix: Suffix for the companion notes link (e.g. "EOB Notes").
+                          Pass None to suppress the link. When omitted, concrete
+                          implementations default to f"{source} Notes".
         """
 
     @abstractmethod
     def render_notes(self, notes: ChapterNotes) -> str:
-        """Render the companion notes file content for a chapter.
+        """Render a study notes companion file for a chapter.
 
         Args:
             notes: The ChapterNotes domain object for one chapter/source pair.
+        """
 
-        Returns:
-            Complete file content as a string (UTF-8).
+    @abstractmethod
+    def render_net_notes(
+        self,
+        notes: ChapterNotes,
+        pericopes: dict[int, str] | None = None,
+    ) -> str:
+        """Render a NET Bible notes companion with tn/tc/sn callouts.
+
+        Args:
+            notes: The ChapterNotes domain object.
+            pericopes: Optional mapping of verse number → pericope heading text,
+                       used to insert section headers within the notes file.
+        """
+
+    @abstractmethod
+    def render_book_intro(self, book: str, content: str) -> str:
+        """Render a per-book introduction companion file.
+
+        Args:
+            book: Canonical book name (e.g. "John").
+            content: Pre-rendered Markdown body from the source adapter.
+        """
+
+    @abstractmethod
+    def render_patristic_chapter(
+        self,
+        chapter: Chapter,
+        notes: ChapterNotes,
+        max_chapter: int,
+    ) -> str:
+        """Render an Apostolic Fathers chapter as a single self-contained file.
+
+        Combines verse text and footnotes inline — unlike Scripture hub+companion
+        pairs, patristic chapters render as one unified document per chapter.
+
+        Args:
+            chapter: The fully-populated Chapter domain object.
+            notes: Footnotes and annotations for the chapter.
+            max_chapter: Highest chapter in this document (for prev/next nav).
         """

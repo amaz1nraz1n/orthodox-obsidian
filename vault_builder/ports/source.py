@@ -7,7 +7,7 @@ specific format (EPUB, plain text, API, etc.).
 """
 
 from abc import ABC, abstractmethod
-from typing import Iterator
+from collections.abc import Iterator
 
 from vault_builder.domain.models import Book, BookIntro, ChapterNotes
 
