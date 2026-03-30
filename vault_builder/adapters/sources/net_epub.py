@@ -369,7 +369,7 @@ class NetEpubSource:
                     sym, cls = _NET_NOTE_MARKER.get(ptype, ("", ""))
                     if not sym:
                         return ""
-                    return f'<sup class="{cls}">[[{book} {chapter} — NET Notes#v{verse_num}|{sym}]]</sup>'
+                    return f'<sup class="{cls}">[[{book} {chapter} — NET Notes#^v{verse_num}|{sym}]]</sup>'
                 text = re.sub(r"__NOTE_(n\d+)__", _resolve, text)
             else:
                 text = re.sub(r"__NOTE_(n\d+)__", "", text)
