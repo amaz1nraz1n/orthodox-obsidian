@@ -112,12 +112,13 @@ _REF_STR_PAT = re.compile(r"^(\d+):(\d+)(?:[-–—](\d+))?")  # Support various
 _FN_ANCHOR_PAT = re.compile(r"^fn\d+$")
 
 _FOOTNOTE_FILE_TO_TYPE: dict[str, str] = {
-    "variant.html": "variants",
-    "x-liturgical.html": "liturgical",
-    "citation.html": "citations",
-    "alternative.html": "alternatives",
-    "translation.html": "translator_notes",
-    "background.html": "background_notes",
+    "variant.html":         "variants",
+    "x-liturgical.html":    "liturgical",
+    "citation.html":        "citations",
+    "alternative.html":     "alternatives",
+    "translation.html":     "translator_notes",
+    "background.html":      "background_notes",
+    "crossReference.html":  "cross_references",
 }
 
 _NOTE_TYPE_TO_MARKER: dict[str, tuple[str, str]] = {
@@ -127,7 +128,8 @@ _NOTE_TYPE_TO_MARKER: dict[str, tuple[str, str]] = {
     "citations":        ("¶",  "nt-cit"),
     "alternatives":     ("⁺",  "nt-alt"),
     "translator_notes": ("*",  "nt-tn"),
-    "background_notes": ("†",  "nt-bg"),
+    "background_notes": ("◦",  "nt-bg"),
+    "cross_references": ("§",  "nt-cross"),
 }
 
 
