@@ -37,7 +37,7 @@ from typing import Any, Iterator, Optional, cast
 
 from bs4 import BeautifulSoup
 
-from vault_builder.domain.models import Book, Chapter, ChapterNotes, StudyNote, Verse
+from vault_builder.domain.models import Book, Chapter, ChapterNotes, NoteType, StudyNote, Verse
 
 logger = logging.getLogger(__name__)
 
@@ -160,26 +160,26 @@ _RE_LEXHAM_CROSS_REF = re.compile(
 )
 
 
-def _classify_lexham_note(text: str) -> str:
-    """Return the ChapterNotes slot name for a raw Lexham footnote string."""
+def _classify_lexham_note(text: str) -> NoteType:
+    """Classify a raw Lexham footnote string into a NoteType."""
     if _RE_LEXHAM_VARIANTS.match(text):
-        return "variants"
+        return NoteType.VARIANT
     if _RE_LEXHAM_ALTERNATIVES.match(text):
-        return "alternatives"
+        return NoteType.ALTERNATIVE
     if _RE_LEXHAM_CROSS_REF.match(text):
-        return "cross_references"
-    return "translator_notes"
+        return NoteType.CROSS_REF
+    return NoteType.TRANSLATOR
 
 
-# Canonical hub marker table for Lexham note slots
-_LEXHAM_SLOT_MARKER: dict[str, tuple[str, str]] = {
-    "footnotes":        ("\u2020", "nt-fn"),
-    "variants":         ("\u2021", "nt-tc"),
-    "citations":        ("\u00b6", "nt-cit"),
-    "alternatives":     ("\u207a", "nt-alt"),
-    "translator_notes": ("*",      "nt-tn"),
-    "background_notes": ("\u25e6", "nt-bg"),
-    "cross_references": ("\u00a7", "nt-cross"),
+# Canonical hub marker table for Lexham note types
+_LEXHAM_SLOT_MARKER: dict[NoteType, tuple[str, str]] = {
+    NoteType.FOOTNOTE:    ("\u2020", "nt-fn"),
+    NoteType.VARIANT:     ("\u2021", "nt-tc"),
+    NoteType.CITATION:    ("\u00b6", "nt-cit"),
+    NoteType.ALTERNATIVE: ("\u207a", "nt-alt"),
+    NoteType.TRANSLATOR:  ("*",      "nt-tn"),
+    NoteType.BACKGROUND:  ("\u25e6", "nt-bg"),
+    NoteType.CROSS_REF:   ("\u00a7", "nt-cross"),
 }
 
 
@@ -200,6 +200,9 @@ class LexhamEpubSource:
         self.epub_path = epub_path
         self.sample_only = sample_only
         self.sample_chapters = sample_chapters or set()
+
+    def read_intros(self) -> Iterator:
+        return iter([])
 
     def read_text(self) -> Iterator[Book]:
         """Parse the EPUB and yield one Book per canonical OT book."""
@@ -234,9 +237,9 @@ class LexhamEpubSource:
                 for v_num in sorted(chapters[ch_num]):
                     text = chapters[ch_num][v_num].strip()
                     if text:
-                        chapter.verses[v_num] = Verse(number=v_num, text=text)
+                        chapter.add_verse(v_num, text)
                 if chapter.verses:
-                    book.chapters[ch_num] = chapter
+                    book.add_chapter(chapter)
             if book.chapters:
                 yield book
 
@@ -393,9 +396,10 @@ class LexhamEpubSource:
                 for verse_num in sorted(chapters[ch_num]):
                     for content in chapters[ch_num][verse_num]:
                         ref = f"{ch_num}:{verse_num}"
-                        slot = _classify_lexham_note(content)
-                        getattr(notes_obj, slot).append(
-                            StudyNote(verse_number=verse_num, ref_str=ref, content=content)
+                        note_type = _classify_lexham_note(content)
+                        notes_obj.add_note(
+                            note_type,
+                            StudyNote(verse_number=verse_num, ref_str=ref, content=content),
                         )
                 if any(getattr(notes_obj, s) for s in ["translator_notes", "variants", "alternatives", "cross_references"]):
                     yield notes_obj

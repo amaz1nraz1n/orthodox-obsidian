@@ -38,7 +38,7 @@ from typing import Iterator, Optional
 from bs4 import BeautifulSoup, XMLParsedAsHTMLWarning
 
 from vault_builder.domain.canon import book_file_prefix
-from vault_builder.domain.models import Chapter, ChapterNotes, StudyNote, Verse
+from vault_builder.domain.models import Chapter, ChapterNotes, NoteType, StudyNote, Verse
 
 warnings.filterwarnings("ignore", category=XMLParsedAsHTMLWarning)
 
@@ -314,12 +314,13 @@ class ApostolicFathersEpubSource:
             notes_obj = ChapterNotes(book=doc_name, chapter=current_chapter, source="AF")
             for verse_num, frags in pending_notes.items():
                 for frag in frags:
-                    notes_obj.footnotes.append(
+                    notes_obj.add_note(
+                        NoteType.FOOTNOTE,
                         StudyNote(
                             verse_number=verse_num,
                             ref_str=f"{current_chapter}.{verse_num}",
                             content=frag,
-                        )
+                        ),
                     )
             return ch_obj, notes_obj
 

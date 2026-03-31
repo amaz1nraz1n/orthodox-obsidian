@@ -5,7 +5,7 @@ import re
 import pytest
 
 from vault_builder.adapters.obsidian.renderer import ObsidianRenderer
-from vault_builder.domain.models import ChapterNotes, StudyNote
+from vault_builder.domain.models import ChapterNotes, NoteType, StudyNote
 
 
 @pytest.fixture
@@ -104,9 +104,7 @@ def test_all_note_families_sort_by_verse_order(renderer):
 
 def test_net_render_includes_translator_notes(renderer):
     n = ChapterNotes(book="John", chapter=1, source="NET")
-    n.translator_notes.append(
-        StudyNote(verse_number=1, ref_str="1:1", content="Greek nuance note.")
-    )
+    n.add_note(NoteType.TRANSLATOR, StudyNote(verse_number=1, ref_str="1:1", content="Greek nuance note."))
     output = renderer.render_net_notes(n)
     assert "[!tn]" in output
     assert "Greek nuance note." in output
@@ -114,8 +112,8 @@ def test_net_render_includes_translator_notes(renderer):
 
 def test_net_translator_notes_sort_with_other_note_types(renderer):
     n = ChapterNotes(book="John", chapter=1, source="NET")
-    n.footnotes.append(StudyNote(verse_number=3, ref_str="1:3", content="Footnote v3."))
-    n.translator_notes.append(StudyNote(verse_number=1, ref_str="1:1", content="TN v1."))
+    n.add_note(NoteType.FOOTNOTE, StudyNote(verse_number=3, ref_str="1:3", content="Footnote v3."))
+    n.add_note(NoteType.TRANSLATOR, StudyNote(verse_number=1, ref_str="1:1", content="TN v1."))
     output = renderer.render_net_notes(n)
     headings = re.findall(r"### \[\[John 1#v(\d+)", output)
     verse_nums = [int(h) for h in headings]

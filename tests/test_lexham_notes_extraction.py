@@ -16,6 +16,7 @@ import pytest
 from bs4 import BeautifulSoup, XMLParsedAsHTMLWarning
 
 from vault_builder.adapters.sources.lexham_epub import LexhamEpubSource, _classify_lexham_note
+from vault_builder.domain.models import NoteType
 
 warnings.filterwarnings("ignore", category=XMLParsedAsHTMLWarning)
 
@@ -122,31 +123,31 @@ def test_walk_node_footnote_attributed_to_preceding_verse(source):
 # ── _classify_lexham_note ─────────────────────────────────────────────────────
 
 def test_classify_variants_some_manuscripts():
-    assert _classify_lexham_note('Some manuscripts read "them" instead of "him"') == "variants"
+    assert _classify_lexham_note('Some manuscripts read "them" instead of "him"') == NoteType.VARIANT
 
 def test_classify_variants_other_mss():
-    assert _classify_lexham_note('Other mss omit this verse') == "variants"
+    assert _classify_lexham_note('Other mss omit this verse') == NoteType.VARIANT
 
 def test_classify_alternatives_or():
-    assert _classify_lexham_note('Or "sky"') == "alternatives"
+    assert _classify_lexham_note('Or "sky"') == NoteType.ALTERNATIVE
 
 def test_classify_alternatives_lit():
-    assert _classify_lexham_note('Lit. "of the water and of the water"') == "alternatives"
+    assert _classify_lexham_note('Lit. "of the water and of the water"') == NoteType.ALTERNATIVE
 
 def test_classify_alternatives_ie():
-    assert _classify_lexham_note('i.e. the firmament') == "alternatives"
+    assert _classify_lexham_note('i.e. the firmament') == NoteType.ALTERNATIVE
 
 def test_classify_cross_ref_see():
-    assert _classify_lexham_note('See Genesis 1:1') == "cross_references"
+    assert _classify_lexham_note('See Genesis 1:1') == NoteType.CROSS_REF
 
 def test_classify_cross_ref_compare():
-    assert _classify_lexham_note('Compare Psalm 22:1') == "cross_references"
+    assert _classify_lexham_note('Compare Psalm 22:1') == NoteType.CROSS_REF
 
 def test_classify_cross_ref_bare_book():
-    assert _classify_lexham_note('Genesis 1:14 alludes to this') == "cross_references"
+    assert _classify_lexham_note('Genesis 1:14 alludes to this') == NoteType.CROSS_REF
 
 def test_classify_translator_notes_default():
-    assert _classify_lexham_note('The translator chose this reading due to the Hebrew idiom') == "translator_notes"
+    assert _classify_lexham_note('The translator chose this reading due to the Hebrew idiom') == NoteType.TRANSLATOR
 
 def test_classify_translator_notes_linguistic():
-    assert _classify_lexham_note('Linguistic note on the Greek term') == "translator_notes"
+    assert _classify_lexham_note('Linguistic note on the Greek term') == NoteType.TRANSLATOR

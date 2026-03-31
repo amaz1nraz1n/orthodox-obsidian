@@ -133,9 +133,9 @@ class EobPdfSource:
                 for v_num in sorted(chapters[ch_num]):
                     text = chapters[ch_num][v_num].strip()
                     if text:
-                        chapter.verses[v_num] = Verse(number=v_num, text=text)
+                        chapter.add_verse(v_num, text)
                 if chapter.verses:
-                    book.chapters[ch_num] = chapter
+                    book.add_chapter(chapter)
             if book.chapters:
                 yield book
 

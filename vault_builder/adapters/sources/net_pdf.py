@@ -35,9 +35,16 @@ from typing import Iterator, Optional
 from pdfminer.high_level import extract_pages
 from pdfminer.layout import LTTextBox
 
-from vault_builder.domain.models import ChapterNotes, StudyNote
+from vault_builder.domain.models import ChapterNotes, NoteType, StudyNote
 
 logger = logging.getLogger(__name__)
+
+_PDF_CODE_TO_NOTE_TYPE: dict[str, NoteType] = {
+    "tn": NoteType.TRANSLATOR,
+    "tc": NoteType.VARIANT,
+    "sn": NoteType.FOOTNOTE,
+    "map": NoteType.CROSS_REF,
+}
 
 # --------------------------------------------------------------------------- #
 # NET Bible book title text → canonical vault book name
@@ -175,14 +182,8 @@ class NetPdfSource:
                             ref_str=ref,
                             content=content,
                         )
-                        if family == "tn":
-                            notes_obj.translator_notes.append(note)
-                        elif family == "tc":
-                            notes_obj.variants.append(note)
-                        elif family == "sn":
-                            notes_obj.footnotes.append(note)
-                        elif family == "map":
-                            notes_obj.cross_references.append(note)
+                        if nt := _PDF_CODE_TO_NOTE_TYPE.get(family):
+                            notes_obj.add_note(nt, note)
                 if (notes_obj.translator_notes or notes_obj.variants
                         or notes_obj.footnotes or notes_obj.cross_references):
                     yield notes_obj

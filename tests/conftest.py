@@ -3,13 +3,13 @@ Shared fixtures for vault contract regression tests.
 """
 import pytest
 
-from vault_builder.domain.models import Chapter, ChapterNotes, StudyNote, Verse
+from vault_builder.domain.models import Chapter, ChapterNotes, NoteType, StudyNote, Verse
 
 
 def _chapter(book: str, number: int, verses: list[tuple[int, str]]) -> Chapter:
     ch = Chapter(book=book, number=number)
     for vnum, text in verses:
-        ch.verses[vnum] = Verse(number=vnum, text=text)
+        ch.add_verse(vnum, text)
     return ch
 
 
@@ -44,7 +44,7 @@ def john1_osb_notes() -> ChapterNotes:
     notes = ChapterNotes(book="John", chapter=1, source="OSB")
     # Deliberately out of verse order to assert sort behaviour
     for v, text in [(3, "Co-Creator note."), (1, "Logos note."), (5, "Darkness note."), (4, "Life note.")]:
-        notes.footnotes.append(_fn(1, v, text))
+        notes.add_note(NoteType.FOOTNOTE, _fn(1, v, text))
     return notes
 
 
@@ -60,9 +60,9 @@ def genesis1_lexham_chapter() -> Chapter:
 def genesis1_lexham_notes() -> ChapterNotes:
     """Lexham translation notes for Genesis 1 — deliberately unsorted to assert verse order."""
     notes = ChapterNotes(book="Genesis", chapter=1, source="Lexham")
-    notes.translator_notes.append(StudyNote(verse_number=20, ref_str="1:20", content='Lit. "creeping things of living souls"'))
-    notes.translator_notes.append(StudyNote(verse_number=1, ref_str="1:1", content='Or "sky"'))
-    notes.translator_notes.append(StudyNote(verse_number=6, ref_str="1:6", content='Lit. "of the water and of the water"'))
+    notes.add_note(NoteType.TRANSLATOR, StudyNote(verse_number=20, ref_str="1:20", content='Lit. "creeping things of living souls"'))
+    notes.add_note(NoteType.TRANSLATOR, StudyNote(verse_number=1, ref_str="1:1", content='Or "sky"'))
+    notes.add_note(NoteType.TRANSLATOR, StudyNote(verse_number=6, ref_str="1:6", content='Lit. "of the water and of the water"'))
     return notes
 
 
@@ -70,9 +70,9 @@ def genesis1_lexham_notes() -> ChapterNotes:
 def john1_eob_notes() -> ChapterNotes:
     """EOB endnotes for John 1 — deliberately unsorted to assert verse-order sort."""
     notes = ChapterNotes(book="John", chapter=1, source="EOB")
-    notes.footnotes.append(StudyNote(verse_number=14, ref_str="1:14", content="The Word became flesh — Logos incarnation commentary."))
-    notes.footnotes.append(StudyNote(verse_number=1,  ref_str="1:1",  content="Logos commentary — Greek philosophical background."))
-    notes.footnotes.append(StudyNote(verse_number=3,  ref_str="1:3",  content="All things were made through Him — creation through the Logos."))
+    notes.add_note(NoteType.FOOTNOTE, StudyNote(verse_number=14, ref_str="1:14", content="The Word became flesh — Logos incarnation commentary."))
+    notes.add_note(NoteType.FOOTNOTE, StudyNote(verse_number=1,  ref_str="1:1",  content="Logos commentary — Greek philosophical background."))
+    notes.add_note(NoteType.FOOTNOTE, StudyNote(verse_number=3,  ref_str="1:3",  content="All things were made through Him — creation through the Logos."))
     return notes
 
 
@@ -87,7 +87,7 @@ def psalms50_chapter() -> Chapter:
 @pytest.fixture
 def psalms50_notes() -> ChapterNotes:
     notes = ChapterNotes(book="Psalms", chapter=50, source="OSB")
-    notes.footnotes.append(_fn(50, 1, "The great penitential psalm."))
+    notes.add_note(NoteType.FOOTNOTE, _fn(50, 1, "The great penitential psalm."))
     return notes
 
 
@@ -96,12 +96,12 @@ def john1_net_notes() -> ChapterNotes:
     """NET notes fixture with mixed families across multiple verses (deliberately unsorted)."""
     notes = ChapterNotes(book="John", chapter=1, source="NET")
     # tn (translator's notes) → translator_notes
-    notes.translator_notes.append(StudyNote(verse_number=3, ref_str="1:3", content="All things created through him."))
-    notes.translator_notes.append(StudyNote(verse_number=1, ref_str="1:1", content="The Word was God's self-expression."))
+    notes.add_note(NoteType.TRANSLATOR, StudyNote(verse_number=3, ref_str="1:3", content="All things created through him."))
+    notes.add_note(NoteType.TRANSLATOR, StudyNote(verse_number=1, ref_str="1:1", content="The Word was God's self-expression."))
     # tc (text-critical notes) → variants
-    notes.variants.append(StudyNote(verse_number=1, ref_str="1:1", content="Some MSS read 'a god'."))
+    notes.add_note(NoteType.VARIANT, StudyNote(verse_number=1, ref_str="1:1", content="Some MSS read 'a god'."))
     # sn (study notes) → footnotes
-    notes.footnotes.append(StudyNote(verse_number=5, ref_str="1:5", content="Light vs darkness motif."))
+    notes.add_note(NoteType.FOOTNOTE, StudyNote(verse_number=5, ref_str="1:5", content="Light vs darkness motif."))
     return notes
 
 
@@ -109,11 +109,11 @@ def john1_net_notes() -> ChapterNotes:
 def john1_net_notes_with_xref() -> ChapterNotes:
     """NET notes with cross-references in content for wikilink injection tests."""
     notes = ChapterNotes(book="John", chapter=1, source="NET")
-    notes.translator_notes.append(StudyNote(
+    notes.add_note(NoteType.TRANSLATOR, StudyNote(
         verse_number=1, ref_str="1:1",
         content="See also John 3:16 and Gen 1:1 for parallel creation language.",
     ))
-    notes.footnotes.append(StudyNote(
+    notes.add_note(NoteType.FOOTNOTE, StudyNote(
         verse_number=14, ref_str="1:14",
         content="Compare Col 1:15 and Heb 1:3 on the image of God.",
     ))

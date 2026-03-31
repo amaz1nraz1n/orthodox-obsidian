@@ -150,9 +150,9 @@ class GreekLxxCsvSource:
                 chapter = Chapter(book=book_name, number=ch_num)
                 for v_num in sorted(raw[book_id][ch_num]):
                     text = raw[book_id][ch_num][v_num]
-                    chapter.verses[v_num] = Verse(number=v_num, text=text)
+                    chapter.add_verse(v_num, text)
                 if chapter.verses:
-                    book.chapters[ch_num] = chapter
+                    book.add_chapter(chapter)
 
             if book.chapters:
                 yield book

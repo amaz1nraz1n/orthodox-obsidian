@@ -15,7 +15,7 @@ import pytest
 from vault_builder.adapters.obsidian.renderer import ObsidianRenderer
 from vault_builder.adapters.obsidian.writer import ObsidianWriter
 from vault_builder.domain.canon import book_file_prefix
-from vault_builder.domain.models import Chapter, ChapterNotes, Verse
+from vault_builder.domain.models import Chapter, ChapterNotes
 
 
 @pytest.fixture
@@ -55,14 +55,14 @@ def test_psalm_hub_next_link_singular(renderer, psalms50_chapter):
 
 def test_psalm_hub_first_chapter_no_prev(renderer):
     ch = Chapter(book="Psalms", number=1)
-    ch.verses[1] = Verse(number=1, text="Blessed is the man.")
+    ch.add_verse(1, "Blessed is the man.")
     output = renderer.render_hub(ch, max_chapter=151)
     assert 'prev: ""' in output
 
 
 def test_psalm_hub_last_chapter_no_next(renderer):
     ch = Chapter(book="Psalms", number=151)
-    ch.verses[1] = Verse(number=1, text="I was small among my brothers.")
+    ch.add_verse(1, "I was small among my brothers.")
     output = renderer.render_hub(ch, max_chapter=151)
     assert 'next: ""' in output
 
@@ -113,26 +113,26 @@ def test_psalm_text_companion_hub_link_singular(renderer, psalms50_chapter):
 def test_writer_hub_path_singular(writer, psalms50_chapter):
     content = "---\n---\ntest"
     path = writer.write_hub(psalms50_chapter, content)
-    assert "Chapter 50" in path, f"Expected chapter subdir in path, got: {path}"
-    assert path.endswith("Psalm 50.md"), f"Expected 'Psalm 50.md', got: {path}"
-    assert "Psalms 50.md" not in path
+    assert "Chapter 50" in str(path), f"Expected chapter subdir in path, got: {path}"
+    assert str(path).endswith("Psalm 50.md"), f"Expected 'Psalm 50.md', got: {path}"
+    assert "Psalms 50.md" not in str(path)
 
 
 def test_writer_text_companion_path_singular(writer, psalms50_chapter):
     content = "---\n---\ntest"
     path = writer.write_text_companion(psalms50_chapter, "LXX", content)
-    assert "Chapter 50" in path, f"Expected chapter subdir in path, got: {path}"
-    assert "Psalm 50 \u2014 LXX.md" in path
-    assert "Psalms 50" not in path
+    assert "Chapter 50" in str(path), f"Expected chapter subdir in path, got: {path}"
+    assert "Psalm 50 \u2014 LXX.md" in str(path)
+    assert "Psalms 50" not in str(path)
 
 
 def test_writer_notes_path_singular(writer, psalms50_chapter):
     notes = ChapterNotes(book="Psalms", chapter=50, source="Lexham")
     content = "---\n---\ntest"
     path = writer.write_notes(notes, content)
-    assert "Chapter 50" in path, f"Expected chapter subdir in path, got: {path}"
-    assert "Psalm 50 \u2014 Lexham Notes.md" in path
-    assert "Psalms 50" not in path
+    assert "Chapter 50" in str(path), f"Expected chapter subdir in path, got: {path}"
+    assert "Psalm 50 \u2014 Lexham Notes.md" in str(path)
+    assert "Psalms 50" not in str(path)
 
 
 # ── Contract 6: Non-Psalm books unaffected ────────────────────────────────────
@@ -145,4 +145,4 @@ def test_genesis_hub_uses_book_name(renderer, genesis1_chapter):
 def test_genesis_writer_path_unchanged(writer, genesis1_chapter):
     content = "---\n---\ntest"
     path = writer.write_hub(genesis1_chapter, content)
-    assert path.endswith("Genesis 1.md")
+    assert str(path).endswith("Genesis 1.md")

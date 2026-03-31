@@ -26,7 +26,7 @@ from xml.etree import ElementTree
 
 from bs4 import BeautifulSoup, NavigableString, Tag
 
-from vault_builder.domain.models import Book, Chapter, ChapterNotes, StudyNote, Verse
+from vault_builder.domain.models import Book, Chapter, ChapterNotes, NoteType, StudyNote, Verse
 
 logger = logging.getLogger(__name__)
 
@@ -94,22 +94,22 @@ _RE_BACKGROUND_LOCATION = re.compile(
 )
 
 
-def _classify_eob_note(text: str) -> str:
-    """Return the ChapterNotes slot name for a raw EOB endnote string."""
+def _classify_eob_note(text: str) -> NoteType:
+    """Classify a raw EOB endnote string into a NoteType."""
     body = _RE_BRACKET.sub("", text)
     if _RE_VARIANTS.match(body):
-        return "variants"
+        return NoteType.VARIANT
     if _RE_ALTERNATIVES.match(body):
-        return "alternatives"
+        return NoteType.ALTERNATIVE
     if _RE_TRANSLATOR.match(body):
-        return "translator_notes"
+        return NoteType.TRANSLATOR
     if _RE_CROSS_REF.match(body):
-        return "cross_references"
+        return NoteType.CROSS_REF
     if _RE_CITATION.match(body):
-        return "citations"
+        return NoteType.CITATION
     if _RE_BACKGROUND_START.match(body) or _RE_BACKGROUND_LOCATION.search(body):
-        return "background_notes"
-    return "footnotes"
+        return NoteType.BACKGROUND
+    return NoteType.FOOTNOTE
 
 
 # ── Book title mapping ────────────────────────────────────────────────────── #
@@ -176,6 +176,9 @@ class EobEpubSource:
         self.sample_only = sample_only
         self.sample_chapters = sample_chapters or set()
 
+    def read_intros(self) -> Iterator:
+        return iter([])
+
     def read_text(self) -> Iterator[Book]:
         """Parse the EPUB and yield one Book per NT book, in canonical order."""
         raw: dict[str, dict[int, dict[int, str]]] = {}
@@ -190,9 +193,9 @@ class EobEpubSource:
                 for v_num in sorted(raw[book_name][ch_num]):
                     text = raw[book_name][ch_num][v_num].strip()
                     if text:
-                        chapter.verses[v_num] = Verse(number=v_num, text=text)
+                        chapter.add_verse(v_num, text)
                 if chapter.verses:
-                    book.chapters[ch_num] = chapter
+                    book.add_chapter(chapter)
             if book.chapters:
                 yield book
 
@@ -239,9 +242,9 @@ class EobEpubSource:
             key = (book, chapter)
             if key not in by_chapter:
                 by_chapter[key] = ChapterNotes(book=book, chapter=chapter, source="EOB")
-            slot = _classify_eob_note(text)
+            note_type = _classify_eob_note(text)
             note = StudyNote(verse_number=verse, ref_str=f"{chapter}:{verse}", content=text)
-            getattr(by_chapter[key], slot).append(note)
+            by_chapter[key].add_note(note_type, note)
 
         for key in sorted(by_chapter):
             yield by_chapter[key]

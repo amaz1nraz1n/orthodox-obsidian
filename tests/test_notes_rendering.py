@@ -12,6 +12,7 @@ import re
 import pytest
 
 from vault_builder.adapters.obsidian.renderer import ObsidianRenderer
+from vault_builder.domain.models import NoteType
 
 
 @pytest.fixture
@@ -55,8 +56,8 @@ def test_osb_notes_callouts_are_separate_blockquotes(renderer, john1_osb_notes):
     from vault_builder.domain.models import ChapterNotes
 
     notes = ChapterNotes(book="John", chapter=1, source="OSB")
-    notes.footnotes.append(StudyNote(verse_number=1, ref_str="1:1", content="First note."))
-    notes.footnotes.append(StudyNote(verse_number=1, ref_str="1:1", content="Second note."))
+    notes.add_note(NoteType.FOOTNOTE, StudyNote(verse_number=1, ref_str="1:1", content="First note."))
+    notes.add_note(NoteType.FOOTNOTE, StudyNote(verse_number=1, ref_str="1:1", content="Second note."))
 
     output = renderer.render_notes(notes)
     assert "First note." in output

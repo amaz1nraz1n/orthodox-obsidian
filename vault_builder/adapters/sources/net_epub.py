@@ -28,7 +28,7 @@ from typing import Union
 from bs4 import BeautifulSoup
 
 from vault_builder.domain.canon import LXX_TO_MT
-from vault_builder.domain.models import Chapter, ChapterNotes, StudyNote, Verse
+from vault_builder.domain.models import Chapter, ChapterNotes, NoteType, StudyNote, Verse
 
 logger = logging.getLogger(__name__)
 
@@ -140,12 +140,12 @@ def _html_to_markdown(tag) -> str:
     return "".join(parts)
 
 
-# Note type bold markers → ChapterNotes slot names
-_NOTE_TYPE_TO_SLOT = {
-    "tn":  "translator_notes",
-    "tc":  "variants",
-    "sn":  "footnotes",
-    "map": "background_notes",
+# NET EPUB note-type codes → NoteType
+_EPUB_CODE_TO_NOTE_TYPE: dict[str, NoteType] = {
+    "tn":  NoteType.TRANSLATOR,
+    "tc":  NoteType.VARIANT,
+    "sn":  NoteType.FOOTNOTE,
+    "map": NoteType.BACKGROUND,
 }
 
 # Inline note marker symbols and CSS classes (tc > tn > sn precedence)
@@ -458,9 +458,9 @@ class NetEpubSource:
                 bold = typed_para.find("b")
                 if bold is None:
                     continue
-                note_type = bold.get_text().strip()
-                slot = _NOTE_TYPE_TO_SLOT.get(note_type)
-                if slot is None:
+                epub_code = bold.get_text().strip()
+                note_type = _EPUB_CODE_TO_NOTE_TYPE.get(epub_code)
+                if note_type is None:
                     continue
 
                 bold.extract()
@@ -472,6 +472,6 @@ class NetEpubSource:
                     ref_str=ref_str,
                     content=content,
                 )
-                getattr(notes_obj, slot).append(note)
+                notes_obj.add_note(note_type, note)
 
         return notes_obj

@@ -23,6 +23,7 @@ from bs4 import BeautifulSoup, NavigableString, Tag
 
 from vault_builder.domain.models import (
     Book,
+    BookIntro,
     Chapter,
     ChapterNotes,
     StudyArticle,
@@ -297,8 +298,8 @@ class OsbEpubSource(ScriptureSource):
 
         yield from self._raw_to_books(raw, pericopes_raw)
 
-    def read_intros(self) -> Iterator[tuple[str, str]]:
-        """Yield (vault_book_name, markdown_content) for each book intro found."""
+    def read_intros(self) -> Iterator[BookIntro]:
+        """Yield BookIntro for each book intro found in the EPUB."""
         if not os.path.exists(self.epub_path):
             logger.error("EPUB not found: %s", self.epub_path)
             return
@@ -328,7 +329,7 @@ class OsbEpubSource(ScriptureSource):
                 md = self._intro_to_md(intro_div)
                 if md:
                     seen_books.add(book_name)
-                    yield book_name, md
+                    yield BookIntro(book=book_name, source="OSB", content=md)
 
     @staticmethod
     def _intro_to_md(intro_div: Tag) -> str:
@@ -828,8 +829,8 @@ class OsbEpubSource(ScriptureSource):
                 ch_pericopes = (pericopes_raw or {}).get(book_name, {}).get(ch_num, {})
                 chapter = Chapter(book=book_name, number=ch_num, pericopes=ch_pericopes)
                 for v_num, v_text in verses.items():
-                    chapter.verses[v_num] = Verse(number=v_num, text=v_text.strip())
-                book.chapters[ch_num] = chapter
+                    chapter.add_verse(v_num, v_text.strip())
+                book.add_chapter(chapter)
             yield book
 
     @staticmethod

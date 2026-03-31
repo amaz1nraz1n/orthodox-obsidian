@@ -22,7 +22,18 @@ class NoteType(str, Enum):
     PARALLEL =    "parallel_passage" # Synoptic/parallel passage link
 
 
-@dataclass
+@dataclass(frozen=True)
+class VerseRef:
+    """Canonical reference to a single verse: (book, chapter, verse)."""
+    book: str
+    chapter: int
+    verse: int
+
+    def __str__(self) -> str:
+        return f"{self.book} {self.chapter}:{self.verse}"
+
+
+@dataclass(frozen=True)
 class Verse:
     number: int
     text: str
@@ -36,6 +47,11 @@ class Chapter:
     pericopes: dict[int, str] = field(default_factory=dict)  # first_verse → title
     after_markers: dict[int, list[str]] = field(default_factory=dict)  # verse_num → markers after that verse (e.g. Diapsalma/Selah)
 
+    def add_verse(self, number: int, text: str) -> None:
+        if number in self.verses:
+            raise ValueError(f"Duplicate verse {self.book} {self.number}:{number}")
+        self.verses[number] = Verse(number=number, text=text)
+
     def sorted_verses(self) -> list[Verse]:
         return [self.verses[n] for n in sorted(self.verses)]
 
@@ -45,11 +61,14 @@ class Book:
     name: str
     chapters: dict[int, Chapter] = field(default_factory=dict)
 
+    def add_chapter(self, chapter: Chapter) -> None:
+        self.chapters[chapter.number] = chapter
+
     def max_chapter(self) -> int:
         return max(self.chapters.keys()) if self.chapters else 0
 
 
-@dataclass
+@dataclass(frozen=True)
 class StudyNote:
     """A single study annotation associated with one or more verses."""
     verse_number: int
@@ -59,14 +78,14 @@ class StudyNote:
     anchor_id: str | None = None  # Stable identifier for per-callout deep-linking (e.g. EPUB fragment ID "fn4706")
 
 
-@dataclass
+@dataclass(frozen=True)
 class StudyArticle:
     """An inline thematic article (e.g. OSB gray-box study article)."""
     title: str
     content: str       # Markdown-formatted article body
 
 
-@dataclass
+@dataclass(frozen=True)
 class BookIntro:
     """Book-level introduction prose from a source."""
     book: str
@@ -74,7 +93,7 @@ class BookIntro:
     content: str  # Markdown-formatted
 
 
-@dataclass
+@dataclass(frozen=True)
 class ChapterIntro:
     """Optional prose preamble before verse 1 of a chapter."""
     book: str
@@ -83,7 +102,7 @@ class ChapterIntro:
     content: str  # Markdown-formatted
 
 
-@dataclass
+@dataclass(frozen=True)
 class PartIntro:
     """Introduction spanning a group of books (e.g. 'Torah', 'Historical Books').
 
@@ -125,6 +144,12 @@ class ChapterNotes:
         NoteType.BACKGROUND:  "background_notes",
         NoteType.PARALLEL:    "parallel_passages",
     }
+
+    def add_note(self, note_type: NoteType, note: StudyNote) -> None:
+        getattr(self, self._NOTE_LISTS[note_type]).append(note)
+
+    def add_article(self, article: StudyArticle) -> None:
+        self.articles.append(article)
 
     def sorted_notes(self, note_type: NoteType) -> list[StudyNote]:
         """Return notes of the given type sorted by verse number."""

@@ -255,7 +255,7 @@ class NoabPdfSource:
             for v_num, text in verse_texts.items():
                 if v_num in result.verses:
                     merged = f"{result.verses[v_num].text} {text}".strip()
-                    result.verses[v_num].text = re.sub(r"\s+", " ", merged)
+                    result.verses[v_num] = Verse(number=v_num, text=re.sub(r"\s+", " ", merged))
                 else:
                     result.verses[v_num] = Verse(number=v_num, text=text)
             if hit_reset or hit_boundary:
