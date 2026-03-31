@@ -61,7 +61,7 @@ Source registry:
 
 ## Current State
 
-Phase 1 complete as of 2026-03-21. All 8 Phase 1 gates passed (see `docs/source-roadmap.md`).
+Phase 1 complete as of 2026-03-21. DDD refactor complete as of 2026-03-31 (PER-26–35). 367 tests passing.
 
 Active sources (adapter + extract script + tests):
 - **OSB** — hub files + OSB Notes companions (canonical text, study articles, footnotes, cross-refs, lectionary, patristics)
@@ -110,22 +110,52 @@ rsync -av output/Scripture/ "~/Library/CloudStorage/GoogleDrive-jmtharp90@gmail.
 Notes:
 - sample runs → `output/Scripture/`; full runs → `output/Scripture-full/` (don't overwrite sample)
 - `extract_greek_nt_goarch.py` supersedes `extract_greek_nt.py` (old Byzantine CSV adapter)
-- `extract_lexham_notes.py` is a standalone notes-only run; `extract_lexham.py` also emits notes in the same pass
+- `extract_lexham_notes.py` is superseded; `extract_lexham.py` emits text + notes in the same pass via `bootstrap()`
 - Dependencies: see `requirements.txt` (`beautifulsoup4`, `lxml`, `pyyaml`, `pdfminer.six`)
 
 ## Architecture
 
-The project follows a **Ports & Adapters (Hexagonal)** architecture with a DDD-inspired domain core.
+The project follows a **Ports & Adapters (Hexagonal)** architecture with a DDD domain core. See `docs/ddd-architecture-review.md` for the full design rationale.
 
 ```
 vault_builder/
-  domain/   # Plain data objects (Book, Chapter, Verse, StudyNote)
-  ports/    # Interfaces (ScriptureSource, VaultRenderer)
+  domain/
+    models.py       # Value objects (frozen): Verse, StudyNote, StudyArticle, BookIntro, VerseRef
+                    # Aggregates (mutable): Chapter, Book, ChapterNotes
+                    # NoteType enum for type-safe note routing
+    exceptions.py   # Domain exceptions: DuplicateVerseError, DuplicateChapterError,
+                    #   UnknownBookError, MissingSourceError (base: VaultDomainError)
+    canon.py        # Book ordering, folder paths, file prefixes
+  ports/
+    source.py       # ScriptureSource ABC: read_text(), read_notes(), read_intros()
+    renderer.py     # VaultRenderer ABC
+    writer.py       # VaultWriter ABC: write_hub(), write_text_companion(),
+                    #   write_notes(), write_book_intro() — all return Path
+  service_layer/
+    extraction.py   # ExtractionService: orchestrates extract→render→write pipeline
+                    # ExtractionMode.HUB (OSB) / COMPANION (Lexham, EOB, Greek)
+                    # ExtractionResult with hubs/companions/notes/intros counts + summary()
   adapters/
-    sources/  # osb_epub, lexham_epub, eob_epub, net_epub, goarch_greek_nt,
-              # greek_lxx_csv, apostolic_fathers_epub, noab_pdf (incomplete)
-    obsidian/ # Markdown renderer + writer
+    sources/        # osb_epub, lexham_epub, eob_epub, net_epub, goarch_greek_nt,
+                    # greek_lxx_csv, apostolic_fathers_epub, noab_pdf (incomplete)
+    obsidian/       # ObsidianRenderer (VaultRenderer) + ObsidianWriter (VaultWriter)
+  bootstrap.py      # Composition root: bootstrap("osb") → ExtractionService
+                    # Per-source SAMPLE_CHAPTERS config lives here
+scripts/            # Thin CLI entrypoints — 3-line delegates to bootstrap().extract()
+                    # extract_osb.py, extract_lexham.py, extract_eob.py use bootstrap()
+                    # extract_net.py, extract_greek_*.py, extract_apostolic_fathers.py
+                    # remain custom (non-standard interfaces or special rendering)
+tests/
+  fakes.py          # FakeScriptureSource, FakeVaultWriter — unit test without disk/EPUB
 ```
+
+### Key domain invariants
+
+- **Frozen value objects**: `Verse`, `StudyNote`, `StudyArticle`, `BookIntro`, `VerseRef`, intro types — immutable after construction
+- **Mutation via methods only**: `Chapter.add_verse()` raises `DuplicateVerseError`; `Book.add_chapter()` raises `DuplicateChapterError`
+- **`Book.chapters` is read-only**: exposed as `MappingProxyType` — direct assignment raises `TypeError`. Use `add_chapter()`.
+- **`NoteType` enum routing**: `ChapterNotes.add_note(NoteType.TRANSLATOR, note)` — no bare string slot names in adapter code
+- **`bootstrap()` is the only wiring point**: tests inject fakes via `bootstrap("osb", source=fake, writer=fake_writer)` — no source or writer construction in test bodies
 
 ### Output Structure
 

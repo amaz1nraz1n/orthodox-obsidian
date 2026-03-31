@@ -34,185 +34,126 @@ Because of this:
 - extraction must be source-aware
 - output contracts should still stay normalized and shared
 
-## Architecture Shape
+## Architecture Shape (Implemented)
 
-### Source Adapters
+The project uses **Ports & Adapters (Hexagonal Architecture)** with a DDD domain core. All layers are now implemented and tested.
 
-Each source should have its own adapter responsible for:
+### Domain Layer (`vault_builder/domain/`)
 
-- source discovery
-- parsing and cleanup
-- source-specific normalization
-- provenance retention
+**Value objects (frozen dataclasses)** — immutable after construction:
+- `Verse(number, text)`
+- `VerseRef(book, chapter, verse)` — canonical citation reference
+- `StudyNote(verse_number, ref_str, content, verse_end?, anchor_id?)`
+- `StudyArticle(title, content)`
+- `BookIntro(book, source, content)`, `ChapterIntro`, `PartIntro`
 
-Planned adapters:
+**Aggregates (mutable dataclasses)** — mutation via methods only:
+- `Chapter(book, number, verses, pericopes, after_markers)`
+  - `add_verse(number, text)` → raises `DuplicateVerseError` on collision
+  - `sorted_verses()` → ordered list
+- `Book(name)`
+  - `chapters` → read-only `MappingProxyType` (direct write raises `TypeError`)
+  - `add_chapter(chapter)` → raises `DuplicateChapterError` on collision
+  - `max_chapter()` → int
+- `ChapterNotes(book, chapter, source, ...)`
+  - `add_note(NoteType, StudyNote)` → routes to correct list
+  - `add_article(StudyArticle)`
+  - `sorted_notes(NoteType)` → verse-ordered list
 
-- `osb_epub`
-- `lexham_epub`
-- `eob_nt_pdf`
-- `eob_ot_pdf`
-- `net_pdf`
-- `patriarchal_nt`
-- `rahlfs_lxx`
-- future Patristic/source adapters as needed
+**`NoteType` enum** — all note routing uses typed enum, never bare strings:
+`FOOTNOTE`, `VARIANT`, `CROSS_REF`, `LITURGICAL`, `CITATION`, `TRANSLATOR`, `ALTERNATIVE`, `BACKGROUND`, `PARALLEL`
 
-### Shared Domain Model
+**Domain exceptions** (`vault_builder/domain/exceptions.py`):
+`VaultDomainError` (base), `DuplicateVerseError`, `DuplicateChapterError`, `UnknownBookError`, `MissingSourceError`
 
-All adapters should emit into a shared model that can describe:
+### Ports Layer (`vault_builder/ports/`)
 
-- chapter hub text
-- chapter companion layers
-- verse-linked note entries
-- provenance and semantic meaning
+Abstract base classes that adapters must implement:
 
-Recommended normalized concepts:
+- `ScriptureSource`: `read_text() → Iterator[Book]`, `read_notes() → Iterator[ChapterNotes]`, `read_intros() → Iterator[BookIntro]`
+- `VaultRenderer`: `render_hub()`, `render_text_companion()`, `render_notes()`, `render_book_intro()`
+- `VaultWriter`: `write_hub()`, `write_text_companion()`, `write_notes()`, `write_book_intro()` — all return `Path`
 
-#### Canonical Chapter Document
+### Source Adapters (`vault_builder/adapters/sources/`)
 
-Represents a chapter hub.
+Implemented adapters:
 
-Suggested fields:
+| Short name | Class | Mode |
+|-----------|-------|------|
+| `osb` | `OsbEpubSource` | HUB |
+| `lexham` | `LexhamEpubSource` | COMPANION |
+| `eob` | `EobEpubSource` | COMPANION |
+| `greek_lxx` | `GreekLxxCsvSource` | COMPANION |
+| `greek_nt` | `GoArchGreekNtSource` | COMPANION (custom interface) |
+| `net` | net_epub/net_pdf | COMPANION (custom pipeline) |
+| `apostolic_fathers` | `ApostolicFathersEpubSource` | COMPANION (custom renderer) |
 
-- `book`
-- `book_id`
-- `chapter`
-- `testament`
-- `genre`
-- `aliases`
-- `up`
-- `prev`
-- `next`
-- optional `mt_ref`
-- optional `lxx_ref`
-- ordered `verses`
+### Service Layer (`vault_builder/service_layer/extraction.py`)
 
-#### Verse Record
+`ExtractionService` orchestrates the full pipeline:
 
-Represents one hub verse.
+```
+source.read_intros()  → renderer.render_book_intro() → writer.write_book_intro()
+source.read_text()    → renderer.render_hub() (HUB mode)
+                        renderer.render_text_companion() (COMPANION mode)
+                        → writer.write_hub() / write_text_companion()
+source.read_notes()   → renderer.render_notes() → writer.write_notes()
+```
 
-Suggested fields:
+Returns `ExtractionResult` with counts and `summary()` string.
 
-- `verse_number`
-- `anchor_id`
-- `text`
-- optional `source_ref`
+`ExtractionMode.HUB` — used by OSB; produces hub files.
+`ExtractionMode.COMPANION` — used by Lexham, EOB, Greek LXX; produces text companion files.
 
-#### Companion Layer Document
+### Composition Root (`vault_builder/bootstrap.py`)
 
-Represents a chapter-bound companion file.
+`bootstrap(source_name, *, output_dir, full_run, source=None, renderer=None, writer=None) → ExtractionService`
 
-Suggested fields:
+- Wires all dependencies from a single source short-name
+- Per-source `SAMPLE_CHAPTERS` config lives in `_SOURCE_CONFIG`
+- `source=`, `renderer=`, `writer=` overrides enable test injection without real EPUB/PDF
 
-- `hub`
-- `source`
-- `layer_type`
-- `book`
-- `chapter`
-- optional `cssclass`
-- ordered `entries`
+### Output Adapters (`vault_builder/adapters/obsidian/`)
 
-#### Verse-Linked Entry
+- `ObsidianRenderer(VaultRenderer)` — pure functional Markdown renderer
+- `ObsidianWriter(VaultWriter)` — writes files to disk following vault folder conventions
 
-Represents one normalized note or annotation block within a chapter-bound layer.
+### Test Fakes (`tests/fakes.py`)
 
-Suggested fields:
-
-- `book`
-- `chapter`
-- `verse_start`
-- `verse_end`
-- optional `subref`
-- `ref_display`
-- `sort_key`
-- `heading_link`
-- `source`
-- `layer_type`
-- optional `source_bucket`
-- optional `semantic_kind`
-- `content`
-- optional `author`
-- optional `title`
-- optional `tags`
-- optional `raw_ref`
+- `FakeScriptureSource(ScriptureSource)` — in-memory source from plain Python lists
+- `FakeVaultWriter(VaultWriter)` — captures write calls in dicts; never touches disk
 
 ### Source Provenance vs Normalized Meaning
 
-The model must preserve both:
+All adapters map source-specific note markers to `NoteType`:
 
-- `source_bucket`
-- `semantic_kind`
-
-This is especially important for OSB and NET.
-
-Examples:
-
-- OSB `crossReference.html` may contain material that is semantically a textual variant
-- NET `tn`, `tc`, `sn`, `map` note markers have both source and semantic value
-
-The rule is:
-
-- preserve raw source family/provenance
-- normalize vault meaning separately
+- OSB: `crossReference.html` → `CROSS_REF`; `studyNote` → `FOOTNOTE`; patristic citations → `CITATION`
+- NET: `tn` → `TRANSLATOR`; `tc` → `VARIANT`; `sn` → `FOOTNOTE`; `map` → `BACKGROUND`
+- Lexham: translator notes → `TRANSLATOR`; variants → `VARIANT`
+- EOB: variants → `VARIANT`; alternatives → `ALTERNATIVE`; citations → `CITATION`
 
 ## Rendering Model
 
-Rendering should be profile-based, not source-by-source from scratch.
+`ObsidianRenderer` implements two rendering paths:
 
-### Shared Renderers
+### Hub Renderer (`render_hub`)
 
-#### Hub Renderer
+- Canonical frontmatter (`testament`, `genre`, `book_id`, `aliases`, `up`, `prev`, `next`)
+- Mode navigation callout with all companions linked
+- H6 verse anchors with inline verse numbers (`.vn` span) + hidden `^vN` block IDs
+- One real verse per anchor — no grouped-verse corruption
 
-Responsible for:
+### Chapter Text Companion Renderer (`render_text_companion`)
 
-- canonical frontmatter
-- mode navigation bar
-- H6 verse anchors
-- canonical text only
-- the approved hub reading layout: one real verse per anchor, with visible verse numbers rendered inline in a Bible-reading-friendly way without reintroducing grouped-verse corruption
-- preserving the vault's primary `#vN` addressability while also emitting secondary hidden `^vN` block IDs when the output shape benefits from them
+Used for EOB NT, Lexham OT, Greek LXX, Greek NT. Scoped nav (hub + own notes + NET Notes).
 
-#### Chapter Text Companion Renderer
+### Notes Companion Renderer (`render_notes`)
 
-Used for readable chapter-text layers such as:
+Used for OSB Notes, NET Notes, Lexham Notes, EOB Notes. Verse/pericope-ordered headings with typed callout blocks.
 
-- EOB NT
-- Lexham OT
-- future Greek companions
+### Book Intro Renderer (`render_book_intro`)
 
-Responsible for:
-
-- layer frontmatter
-- chapter text presentation
-- optional light footnote/annotation handling
-
-#### Notes-First Companion Renderer
-
-Used for note-dominant layers such as:
-
-- OSB Notes
-- NET notes-first layer
-- future curated Fathers chapter catena files
-
-Responsible for:
-
-- verse/pericope-ordered headings
-- stacked note blocks under each relevant verse/pericope
-- callout/CSS styling by semantic type
-
-#### Distributed Layer Helpers
-
-Used for layers that are not default chapter companions:
-
-- Personal
-- Philokalia
-- many Patristic corpora
-
-These do not need a standard chapter renderer.
-They mainly need:
-
-- consistent verse-linking conventions
-- metadata expectations
-- optional assembly helpers for later curated catena files
+Used by OSB. Linked from Chapter 1 `intro:` frontmatter field.
 
 ## Layer Participation Rules
 

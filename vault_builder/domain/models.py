@@ -7,7 +7,10 @@ or output format. All extractors produce these; all renderers consume them.
 
 from dataclasses import dataclass, field
 from enum import Enum
+from types import MappingProxyType
 from typing import ClassVar
+
+from vault_builder.domain.exceptions import DuplicateChapterError, DuplicateVerseError
 
 
 class NoteType(str, Enum):
@@ -49,7 +52,7 @@ class Chapter:
 
     def add_verse(self, number: int, text: str) -> None:
         if number in self.verses:
-            raise ValueError(f"Duplicate verse {self.book} {self.number}:{number}")
+            raise DuplicateVerseError(self.book, self.number, number)
         self.verses[number] = Verse(number=number, text=text)
 
     def sorted_verses(self) -> list[Verse]:
@@ -59,13 +62,20 @@ class Chapter:
 @dataclass
 class Book:
     name: str
-    chapters: dict[int, Chapter] = field(default_factory=dict)
+    _chapters: dict[int, Chapter] = field(default_factory=dict, init=False, repr=False)
+
+    @property
+    def chapters(self) -> MappingProxyType:
+        """Read-only view of chapters. Use add_chapter() to add chapters."""
+        return MappingProxyType(self._chapters)
 
     def add_chapter(self, chapter: Chapter) -> None:
-        self.chapters[chapter.number] = chapter
+        if chapter.number in self._chapters:
+            raise DuplicateChapterError(self.name, chapter.number)
+        self._chapters[chapter.number] = chapter
 
     def max_chapter(self) -> int:
-        return max(self.chapters.keys()) if self.chapters else 0
+        return max(self._chapters.keys()) if self._chapters else 0
 
 
 @dataclass(frozen=True)

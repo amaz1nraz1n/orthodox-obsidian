@@ -7,8 +7,9 @@ Reviewed against: `vault_builder/` hexagonal architecture
 
 ## Summary Verdict
 
-The core hexagonal structure (domain → ports → adapters) is solid and well-applied.
-The main gaps are: anemic domain objects, missing service/application layer, no dependency injection, and no test doubles for fast unit testing of orchestration logic.
+**All items complete as of 2026-03-31** (PER-26–35, 367 tests passing).
+
+The core hexagonal structure (domain → ports → adapters) is solid and well-applied. All identified gaps from the Cosmic Python review have been resolved.
 
 ---
 
@@ -354,24 +355,20 @@ The epilogue covers the "strangler fig" pattern for refactoring legacy codebases
 
 ---
 
-## Prioritized Improvement List
+## Prioritized Improvement List — ALL COMPLETE (2026-03-31)
 
-| # | Linear | Chapter | Change | Value | Effort |
-|---|--------|---------|--------|-------|--------|
-| 1 | PER-26 | Ch 1/7 | Freeze value objects (`frozen=True`) | High | Trivial |
-| 2 | PER-27 | Ch 1/7 | Add `add_verse()` / `add_note()` to aggregates | High | Small |
-| 3 | PER-28 | Ch 1 | Add `VerseRef` value object | Medium | Small |
-| 4 | PER-29 | Ch 2 | Add `FakeScriptureSource` + `FakeVaultWriter` | High | Small |
-| 5 | PER-30 | Ch 2 | Add `VaultWriter` port (ABC) | Medium | Small |
-| 6 | PER-31 | Ch 4/13 | Extract `ExtractionService` layer | High | Medium |
-| 7 | PER-32 | Ch 13 | Add `bootstrap.py` composition root | Medium | Medium |
-| 8 | PER-35 | Ch 4/13 | Refactor `scripts/` to thin entrypoints | High | Small (after 6+7) |
-| 9 | PER-33 | Ch 1 | Add domain exceptions | Low | Trivial |
-| 10 | PER-34 | Ch 7 | Protect `Book.chapters` dict | Low | Small |
-
-**Wave 1** (1–4): Small, high-value, low-risk — do first.
-**Wave 2** (5–8): Medium effort, unlock fast unit testing of orchestration.
-**Wave 3** (9–10): Polish.
+| # | Linear | Chapter | Change | Status |
+|---|--------|---------|--------|--------|
+| 1 | PER-26 | Ch 1/7 | Freeze value objects (`frozen=True`) | ✅ Done |
+| 2 | PER-27 | Ch 1/7 | Add `add_verse()` / `add_note()` to aggregates | ✅ Done |
+| 3 | PER-28 | Ch 1 | Add `VerseRef` value object | ✅ Done |
+| 4 | PER-29 | Ch 2 | Add `FakeScriptureSource` + `FakeVaultWriter` | ✅ Done |
+| 5 | PER-30 | Ch 2 | Add `VaultWriter` port (ABC) | ✅ Done |
+| 6 | PER-31 | Ch 4/13 | Extract `ExtractionService` layer | ✅ Done |
+| 7 | PER-32 | Ch 13 | Add `bootstrap.py` composition root | ✅ Done |
+| 8 | PER-35 | Ch 4/13 | Refactor `scripts/` to thin entrypoints | ✅ Done |
+| 9 | PER-33 | Ch 1 | Add domain exceptions (`DuplicateVerseError`, etc.) | ✅ Done |
+| 10 | PER-34 | Ch 7 | Protect `Book.chapters` via `MappingProxyType` | ✅ Done |
 
 ---
 

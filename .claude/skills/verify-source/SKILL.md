@@ -55,13 +55,13 @@ If no test files found: note this as a gap (missing test coverage) and continue.
 
 ## Step 4 — Run Sample Extraction
 
-Run the extract script in sample mode:
+Run the extract script in sample mode (default — no flag needed):
 
 ```bash
 .venv/bin/python3 scripts/{extract_script}
 ```
 
-If the script accepts a `--sample` flag (check by reading the first 30 lines of the script for argparse definitions), use it. Otherwise run without flags and note this.
+Sample mode is the default for all extract scripts. Pass `--full` for a full-Bible run. Do NOT look for a `--sample` flag — it does not exist.
 
 Watch for:
 - Non-zero exit code → report the error output and exit.

@@ -66,7 +66,16 @@ Run the test. It **must fail** before writing any adapter code.
 
 Write or update `vault_builder/adapters/sources/{adapter}.py` to make the failing test pass.
 
-Follow existing adapter patterns (read `vault_builder/adapters/sources/osb_epub.py` or the most similar existing adapter before writing).
+Follow existing adapter patterns (read the most similar approved adapter before writing). Key patterns:
+
+- Inherit from `ScriptureSource` (or implement its three methods: `read_text()`, `read_notes()`, `read_intros()`)
+- Use `chapter.add_verse(number, text)` — never `chapter.verses[n] = Verse(...)`
+- Use `book.add_chapter(chapter)` — never `book.chapters[n] = chapter`
+- Use `notes.add_note(NoteType.X, note)` — never `getattr(notes, slot).append(note)`
+- `_classify_*_note()` functions must return `NoteType` enum, never a string slot name
+- If the source has no book intros, add `def read_intros(self): return iter([])` stub
+
+For sources that fit the standard HUB or COMPANION pipeline, add an entry to `vault_builder/bootstrap.py` `_SOURCE_CONFIG` and make the extract script a thin wrapper around `bootstrap(source_name).extract()`.
 
 Minimum code to pass the test. No premature abstractions.
 
@@ -84,13 +93,13 @@ If failures remain, fix adapter or tests and repeat the cycle.
 
 ### Run sample extraction
 
-Once tests pass, run extraction on sample chapters:
+Once tests pass, run extraction in sample mode (the default — no flag needed):
 
 ```bash
-.venv/bin/python3 {extract_script} --sample
+.venv/bin/python3 scripts/{extract_script}
 ```
 
-(Check the extract script for the correct sample flag; if no `--sample` flag exists, run without it and note this.)
+Running without flags produces sample output under `output/Scripture/`. Pass `--full` for a full-Bible run to `output/Scripture-full/`.
 
 Verify output files were created under `output/Scripture/`.
 
