@@ -130,25 +130,29 @@ The chapter hub file (`John 1.md`, `Romans 8.md`, etc.) is the load-bearing stru
 
 **The chapter hub contains ONLY:**
 - Canonical text (Mode 1 translation)
-- H6 verse anchors (`###### v14`)
-- Optional future block IDs only if adopted globally; current canonical link format remains heading-anchor based (`[[John 1#v14]]`)
+- H6 verse anchors (`###### v14`) with inline `.vn`-styled verse numbers and hidden `^vN` block IDs
+- A `> **Modes:**` navigation callout linking all mode companions and notes companions — this is part of the hub contract
 - Breadcrumb frontmatter (`up`, `prev`, `next`)
-- Identity/taxonomy frontmatter (`testament`, `genre`, `book_id`, `aliases`)
+- Identity/taxonomy frontmatter (`testament`, `genre`, `book_id`, `aliases`, `cssclasses: [scripture-hub]`)
 - Optional reference-system frontmatter (`mt_ref`, `lxx_ref`) only where a modeled MT/LXX divergence is actually needed
+- `intro:` frontmatter field on Chapter 1 hubs only, pointing to the book intro companion when one exists
 
-**Everything else lives in companion notes or is pulled via Dataview:**
-- Mode 2/3/4 text → companion notes (see naming convention below)
-- Liturgical feast mappings → `300-Liturgical Cycle/` day notes linking *to* the hub
-- Patristic references → `400-Patristics/` notes linking *to* the hub
-- OSB study notes → companion callout note
-- `domestic_church` flag → personal notes in `000-Zettelkasten/` and `500-Orthodox-Life/`, not on Scripture files
-- `lxx_mt_divergence` flag → Mode 3 companion note frontmatter
+**Everything else lives in companion notes (never added to the hub, never pulled via Dataview for navigation):**
+- Mode 2/3/4 text → companion text files (e.g. `John 1 — EOB.md`, `John 1 — Greek NT.md`)
+- OSB study notes → `John 1 — OSB Notes.md`
+- NET apparatus → `John 1 — NET Notes.md`
+- Liturgical feast mappings → `300-Liturgical Cycle/` day notes linking *back to* hub verses
+- Patristic references → `400-Patristics/` notes linking *back to* hub verses
+- `domestic_church` flag → personal notes in `000-Zettelkasten/` and `500-Orthodox-Life/`
+
+**Dataview is for cross-cutting personal queries, not for companion navigation.** The `> **Modes:**` callout handles Bible-mode navigation inline. Dataview serves orthogonal concerns: domestic church filtering, liturgical day surfacing, all-notes-touching-a-verse reports. Scripture files stay static and identical between personal and public vault versions.
 
 **Rationale:** The hub must be stable and structurally identical between personal and public vault versions. Growth happens in companion notes; the hub is a foundation, not a living document. When you want to add a new source, a new liturgical connection, or a new Patristic link, the answer is always "create or update a companion note," never "add another field to the chapter file."
 
 **Canonical chapter hub frontmatter:**
 ```yaml
 ---
+cssclasses: [scripture-hub]
 testament: "NT"
 genre: "Gospel"
 book_id: "Jn"
@@ -156,6 +160,7 @@ aliases: ["Jn 1"]
 up: "[[John]]"
 prev: ""
 next: "[[John 2]]"
+# intro: "[[John — OSB Intro]]"   ← Chapter 1 only, when a book intro exists
 ---
 ```
 
@@ -349,12 +354,14 @@ next: "[[Psalms 51]]"
 
 ```yaml
 ---
+cssclasses: [scripture-hub]   # text companions; notes companions may use scripture-notes
 hub: "[[John 1]]"
-mode: 2
 source: "EOB"
-lxx_mt_divergence: false
+# layer_type, book, chapter optional — used for Dataview queries
 ---
 ```
+
+Note: `mode:` numbers and `lxx_mt_divergence:` were dropped from the implemented schema. Source name is the stable key; mode numbers are internal jargon. LXX/MT divergence is tracked in the source structure docs, not per-chapter frontmatter.
 
 ### Validation & Regression Plan
 
@@ -587,11 +594,16 @@ Each mode is a companion note or frontmatter field linked from the hub — not a
 - **NT text:** NET Bible with full 60,000+ translator notes (extracted from owned PDF, 1st ed.)
 - **Greek text:** Patriarchal Text 1904/1912 (`byztxt/greektext-antoniades`) for NT; Rahlfs LXX 1935 (CCAT/`eliranwong`) for OT
 - **Default delivery:** notes-first chapter companions; do not assume the NET translation itself deserves a separate full-text reading file in every case
-- **Note types formatted as Obsidian callouts:**
-  - `[!info] Translation Note` — word choice, alternative renderings
-  - `[!quote] Textual Variant` — manuscript differences
-  - `[!warning] LXX/MT Divergence` — theologically significant differences flagged
-  - `[!note] Study Note` — background, historical context
+- **Note types rendered as typed Obsidian callouts** (driven by `NoteType` enum in domain):
+  - `[!note]` — study note / background (OSB `sn`, NET `sn`, general footnote)
+  - `[!tn]` — translator note (NET `tn`, Lexham translator notes)
+  - `[!info]` — textual variant / manuscript note (NET `tc`, EOB variant)
+  - `[!alt]` — alternative rendering (EOB `alt`, Lexham alternative)
+  - `[!quote]` — cross-reference citation
+  - `[!liturgy]` — lectionary / liturgical marker (OSB liturgical notes)
+  - `[!cite]` — patristic citation
+  - `[!bg]` — background / map note
+  - `[!parallel]` — parallel passage (planned)
 - **Strong's links:** Where available, Greek words link to LSJ/TBESG lexicon entries
 - **Design principle:** Maximum transparency. This is the mode for studying a passage, not praying it.
 
@@ -713,13 +725,13 @@ Companion notes are keyed to the **source translation**, not the mode number, si
 ```yaml
 ---
 hub: "[[John 1]]"
-mode: 2
 source: "EOB"
-lxx_mt_divergence: false
 ---
 ```
 
-**Folder location:** Companion notes live in the same **per-book subfolder** as their hub file (e.g., `Holy Tradition/Holy Scripture/02 - New Testament/04 - John/`). They cluster naturally in the file browser around the hub they serve, and the folder can be collapsed when not in use. See Folder Structure for the full layout.
+`mode:` numbers and `lxx_mt_divergence:` are not in the implemented schema. `source:` is the stable key. Optional fields `layer_type`, `book`, `chapter`, `cssclass` may be present.
+
+**Folder location:** Companion notes live in a **per-chapter subfolder** within each book folder (e.g., `Holy Tradition/Holy Scripture/02 - New Testament/04 - John/Chapter 01/`). This prevents large book folders from accumulating thousands of flat files. The folder can be collapsed when not in use. See Folder Structure for the full layout.
 
 ---
 
@@ -835,12 +847,14 @@ Jasper/
 │   └── Holy Scripture/
 │       ├── 01 - Old Testament/   # OT books in canonical order (including Deuterocanon)
 │       │   ├── 01 - Genesis/
-│       │   │   ├── Genesis.md           ← book MOC
-│       │   │   ├── Genesis 1.md         ← chapter hub
-│       │   │   ├── Genesis 1 — EOB.md   ← Mode 2 companion (Lexham LXX)
-│       │   │   ├── Genesis 1 — NET.md   ← Mode 3 companion
-│       │   │   ├── Genesis 1 — Greek.md ← Mode 4 companion
-│       │   │   ├── Genesis 1 — OSB Notes.md
+│       │   │   ├── Genesis.md              ← book MOC
+│       │   │   ├── Chapter 01/
+│       │   │   │   ├── Genesis 1.md        ← chapter hub
+│       │   │   │   ├── Genesis 1 — Lexham.md  ← Mode 2 companion (Lexham LXX)
+│       │   │   │   ├── Genesis 1 — Greek LXX.md ← Mode 4 companion
+│       │   │   │   ├── Genesis 1 — NET Notes.md
+│       │   │   │   └── Genesis 1 — OSB Notes.md
+│       │   │   ├── Chapter 02/
 │       │   │   └── ...
 │       │   ├── 02 - Exodus/
 │       │   ├── 19 - Psalms/       # LXX-numbered
@@ -850,11 +864,13 @@ Jasper/
 │       └── 02 - New Testament/   # NT books in canonical order
 │           ├── 01 - Matthew/
 │           │   ├── Matthew.md
-│           │   ├── Matthew 1.md
-│           │   ├── Matthew 1 — EOB.md
-│           │   ├── Matthew 1 — NET.md
-│           │   ├── Matthew 1 — Greek.md
-│           │   ├── Matthew 1 — OSB Notes.md
+│           │   ├── Chapter 01/
+│           │   │   ├── Matthew 1.md
+│           │   │   ├── Matthew 1 — EOB.md
+│           │   │   ├── Matthew 1 — Greek NT.md
+│           │   │   ├── Matthew 1 — NET Notes.md
+│           │   │   └── Matthew 1 — OSB Notes.md
+│           │   ├── Chapter 02/
 │           │   └── ...
 │           ├── 04 - John/
 │           ├── 06 - Romans/
@@ -865,7 +881,7 @@ Jasper/
 
 **Foldering decision: JD numbers on workflow, descriptive names on sacred content.** The top-level JD structure (`000-`, `100-`, `200-`, etc.) organizes personal workflow folders. `Holy Tradition/` sits alongside these as a top-level folder with no JD prefix — applying a catalog number to Scripture and the Fathers felt category-inappropriate. Within `Holy Scripture/`, the `01 - Old Testament/` and `02 - New Testament/` ordinal prefixes are navigational (file browser sort order), not JD categories.
 
-**Per-book subfolders resolve the companion note folder question.** Without subfolders, the NT alone would put 1,300+ files in a single flat folder (260 chapters × 5 file types + 27 book MOCs). With per-book subfolders, the largest folder (Psalms, 150 chapters) has ~750 files; a typical Gospel folder (John, 21 chapters) has ~105 files. The file browser is navigable, books you're not working with can be collapsed, and the book MOC note sits naturally at the top of its own folder.
+**Per-book subfolders with per-chapter subfolders resolve the companion note folder question.** Each book folder contains the book MOC and one `Chapter NN/` subfolder per chapter. Without chapter subfolders, a typical Gospel folder (John, 21 chapters × 7 file types) would hold ~150 files flat. With chapter subfolders, each chapter folder holds 5–7 files, the book folder stays clean, and the book MOC sits naturally at the top. The largest book (Psalms, 150 chapters) distributes across 150 chapter folders rather than piling into one.
 
 **Links are unaffected.** Obsidian resolves `[[John 1#v14]]` by filename, not path — as long as chapter filenames are unique across the vault (which they are), links work regardless of subfolder depth. The `up: "[[John]]"` breadcrumb resolves to `John.md` inside the `John/` folder.
 
@@ -1089,10 +1105,11 @@ aliases: ["Ps 50", "Ps 51", "Psalms 51"]
 
 Navigation between translations and original languages happens via a consistent markdown callout bar at the top of every chapter hub and companion note.
 
-**Chapter Hub (Mode 1) View:**
+**Chapter Hub View** (canonical nav order — all modes and notes companions):
 
 ```markdown
 ---
+cssclasses: [scripture-hub]
 testament: "NT"
 genre: "Gospel"
 book_id: "Jn"
@@ -1101,26 +1118,34 @@ up: "[[John]]"
 prev: ""
 next: "[[John 2]]"
 ---
-
-> **Modes:** [[John 1 — EOB|EOB]] · [[John 1 — NET|NET]] · [[John 1 — Greek|Greek]] · [[John 1 — OSB Notes|Study Notes]]
+> **Modes:** [[John 1|OSB]] · [[John 1 — EOB|EOB]] · [[John 1 — NET|NET]] · [[John 1 — Greek NT|Greek NT]] · [[John 1 — NET Notes|NET Notes]] · [[John 1 — EOB Notes|EOB Notes]] · [[John 1 — OSB Notes|Study Notes]]
 
 ###### v1
-In the beginning was the Word, and the Word was with God, and the Word was God. ^v1
+<span class="vn">1</span> In the beginning was the Word, and the Word was with God, and the Word was God. ^v1
 
 ```
 
-**Companion Note (Mode 2/3/4) View:**
-The companion note clearly bolds its active mode and links back to the hub:
+**Companion Text View** (scoped nav — hub + own notes + NET Notes only):
 
 ```markdown
 ---
 hub: "[[John 1]]"
-mode: 2
 source: "EOB"
-lxx_mt_divergence: false
 ---
 
-> **Modes:** [[John 1|OSB]] · **EOB** · [[John 1 — NET|NET]] · [[John 1 — Greek|Greek]]
+> **Nav:** [[John 1|Hub]] · [[John 1 — EOB Notes|EOB Notes]] · [[John 1 — NET Notes|NET Notes]]
+
+```
+
+**Companion Notes View** (scoped nav — hub + NET Notes only):
+
+```markdown
+---
+hub: "[[John 1]]"
+source: "OSB"
+---
+
+> **Nav:** [[John 1|Hub]] · [[John 1 — NET Notes|NET Notes]]
 
 ```
 
