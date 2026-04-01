@@ -41,25 +41,25 @@ def test_net_notes_frontmatter_source(renderer, john1_net_notes):
 
 def test_net_notes_render_in_verse_order(renderer, john1_net_notes):
     output = renderer.render_net_notes(john1_net_notes)
-    verse_nums = [int(m) for m in re.findall(r'### \[\[John 1#v(\d+)', output)]
+    verse_nums = [int(m) for m in re.findall(r'### \[\[John 1 \u2014 NET#v(\d+)', output)]
     assert verse_nums == sorted(verse_nums), f"Verse headings out of order: {verse_nums}"
 
 
 def test_net_notes_each_verse_appears_once(renderer, john1_net_notes):
     output = renderer.render_net_notes(john1_net_notes)
     # v1 has both a tn and a tc — must produce exactly one ### heading for v1
-    v1_headings = re.findall(r'### \[\[John 1#v1\|', output)
+    v1_headings = re.findall(r'### \[\[John 1 \u2014 NET#v1\|', output)
     assert len(v1_headings) == 1, f"Expected exactly 1 heading for v1, got {len(v1_headings)}"
 
 
 # ── Contract 3: heading format ────────────────────────────────────────────────
 
 
-def test_net_notes_heading_links_to_hub_anchor(renderer, john1_net_notes):
+def test_net_notes_heading_links_to_net_text(renderer, john1_net_notes):
     output = renderer.render_net_notes(john1_net_notes)
-    assert "### [[John 1#v1|" in output
-    assert "### [[John 1#v3|" in output
-    assert "### [[John 1#v5|" in output
+    assert "### [[John 1 \u2014 NET#v1|" in output
+    assert "### [[John 1 \u2014 NET#v3|" in output
+    assert "### [[John 1 \u2014 NET#v5|" in output
 
 
 # ── Contract 4: NET callout labels ───────────────────────────────────────────
@@ -86,9 +86,9 @@ def test_net_notes_sn_callout(renderer, john1_net_notes):
 def test_net_notes_tn_and_tc_under_same_verse_heading(renderer, john1_net_notes):
     """v1 has both a tn and tc note — both must appear after the single v1 heading."""
     output = renderer.render_net_notes(john1_net_notes)
-    v1_idx = output.index("### [[John 1#v1|")
+    v1_idx = output.index("### [[John 1 \u2014 NET#v1|")
     # Find the next verse heading after v1 (v3)
-    v3_idx = output.index("### [[John 1#v3|")
+    v3_idx = output.index("### [[John 1 \u2014 NET#v3|")
     v1_block = output[v1_idx:v3_idx]
     assert "[!tn]" in v1_block, "tn callout missing from v1 block"
     assert "[!info]" in v1_block, "info callout missing from v1 block"

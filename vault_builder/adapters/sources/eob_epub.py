@@ -182,7 +182,7 @@ class EobEpubSource:
     def read_text(self) -> Iterator[Book]:
         """Parse the EPUB and yield one Book per NT book, in canonical order."""
         raw: dict[str, dict[int, dict[int, str]]] = {}
-        self._parse_epub(raw)
+        self._parse_epub(raw, ednref_map={})
 
         for book_name in _NT_BOOK_ORDER:
             if book_name not in raw:

@@ -56,23 +56,23 @@ def test_net_notes_source_unaffected(renderer, john1_net_notes):
 
 def test_lexham_notes_render_in_verse_order(renderer, genesis1_lexham_notes):
     output = renderer.render_net_notes(genesis1_lexham_notes)
-    verse_nums = [int(m) for m in re.findall(r'### \[\[Genesis 1#v(\d+)', output)]
+    verse_nums = [int(m) for m in re.findall(r'### \[\[Genesis 1 \u2014 Lexham#v(\d+)', output)]
     assert verse_nums == sorted(verse_nums), f"Verse headings out of order: {verse_nums}"
 
 
 # ── Contract 3: heading format ────────────────────────────────────────────────
 
 
-def test_lexham_notes_headings_link_to_hub_anchors(renderer, genesis1_lexham_notes):
+def test_lexham_notes_headings_link_to_lexham_text(renderer, genesis1_lexham_notes):
     output = renderer.render_net_notes(genesis1_lexham_notes)
-    assert "### [[Genesis 1#v1|" in output
-    assert "### [[Genesis 1#v6|" in output
-    assert "### [[Genesis 1#v20|" in output
+    assert "### [[Genesis 1 \u2014 Lexham#v1|" in output
+    assert "### [[Genesis 1 \u2014 Lexham#v6|" in output
+    assert "### [[Genesis 1 \u2014 Lexham#v20|" in output
 
 
 def test_lexham_notes_each_verse_appears_once(renderer, genesis1_lexham_notes):
     output = renderer.render_net_notes(genesis1_lexham_notes)
-    v6_headings = re.findall(r'### \[\[Genesis 1#v6\|', output)
+    v6_headings = re.findall(r'### \[\[Genesis 1 \u2014 Lexham#v6\|', output)
     assert len(v6_headings) == 1
 
 

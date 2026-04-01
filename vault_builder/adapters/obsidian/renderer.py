@@ -306,7 +306,8 @@ class ObsidianRenderer(VaultRenderer):
             else:
                 if pericopes and verse_num in pericopes:
                     lines.append(f"*{pericopes[verse_num]}*")
-                lines.append(f"### [[{pfx} {ch}#v{verse_num}|{abbr} {ch}:{verse_num}]]")
+                text_target = f"{pfx} {ch} \u2014 {notes.source}"
+                lines.append(f"### [[{text_target}#v{verse_num}|{abbr} {ch}:{verse_num}]]")
                 lines.append(f"^v{verse_num}")
             while i < len(tagged) and tagged[i][1].verse_number == verse_num:
                 family, note = tagged[i]
@@ -341,6 +342,11 @@ class ObsidianRenderer(VaultRenderer):
 
         tagged.sort(key=lambda x: (x[1].verse_number, x[1].sort_key))
 
+        text_target = (
+            f"{pfx} {ch} \u2014 {source}"
+            if source in ("EOB", "Lexham")
+            else f"{pfx} {ch}"
+        )
         i = 0
         while i < len(tagged):
             verse_num = tagged[i][1].verse_number
@@ -351,7 +357,7 @@ class ObsidianRenderer(VaultRenderer):
             m_cross = re.match(r'^(\d+:\d+)-(\d+)$', heading_ref)
             if m_cross and int(m_cross.group(2)) < int(m_cross.group(1).split(':')[1]):
                 heading_ref = m_cross.group(1)
-            lines.append(f"### [[{pfx} {ch}#v{verse_num}|{heading_ref}]]")
+            lines.append(f"### [[{text_target}#v{verse_num}|{heading_ref}]]")
             lines.append(f"^v{verse_num}")
             first_in_group = True
             while i < len(tagged) and tagged[i][1].verse_number == verse_num:

@@ -76,11 +76,11 @@ def test_eob_notes_each_verse_appears_once(renderer, john1_eob_notes):
 
 # ── Heading wikilink format ───────────────────────────────────────────────────
 
-def test_eob_notes_headings_link_to_hub_anchors(renderer, john1_eob_notes):
+def test_eob_notes_headings_link_to_eob_text(renderer, john1_eob_notes):
     out = renderer.render_notes(john1_eob_notes)
-    assert "[[John 1#v1|1:1]]" in out
-    assert "[[John 1#v3|1:3]]" in out
-    assert "[[John 1#v14|1:14]]" in out
+    assert "[[John 1 \u2014 EOB#v1|1:1]]" in out
+    assert "[[John 1 \u2014 EOB#v3|1:3]]" in out
+    assert "[[John 1 \u2014 EOB#v14|1:14]]" in out
 
 
 # ── Content ───────────────────────────────────────────────────────────────────
