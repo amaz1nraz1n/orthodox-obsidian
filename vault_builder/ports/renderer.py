@@ -8,7 +8,7 @@ specific output format (Obsidian Markdown, HTML, etc.).
 
 from abc import ABC, abstractmethod
 
-from vault_builder.domain.models import Chapter, ChapterNotes
+from vault_builder.domain.models import Chapter, ChapterFathers, ChapterNotes
 
 
 class VaultRenderer(ABC):
@@ -19,6 +19,7 @@ class VaultRenderer(ABC):
         chapter: Chapter,
         max_chapter: int,
         intro_link: str | None = None,
+        has_fathers: bool = False,
     ) -> str:
         """Render the hub file content for a single chapter.
 
@@ -76,6 +77,14 @@ class VaultRenderer(ABC):
         Args:
             book: Canonical book name (e.g. "John").
             content: Pre-rendered Markdown body from the source adapter.
+        """
+
+    @abstractmethod
+    def render_fathers(self, fathers: ChapterFathers) -> str:
+        """Render a Patristic catena companion file for a Scripture chapter.
+
+        Args:
+            fathers: The ChapterFathers domain object for one chapter/source pair.
         """
 
     @abstractmethod

@@ -9,9 +9,20 @@ Usage:
 from pathlib import Path
 from typing import Iterator
 
-from vault_builder.domain.models import Book, BookIntro, Chapter, ChapterNotes
+from vault_builder.domain.models import Book, BookIntro, Chapter, ChapterFathers, ChapterNotes
+from vault_builder.ports.patristic_source import PatristicSource
 from vault_builder.ports.source import ScriptureSource
 from vault_builder.ports.writer import VaultWriter
+
+
+class FakePatristicSource(PatristicSource):
+    """In-memory PatristicSource for unit tests."""
+
+    def __init__(self, fathers: list[ChapterFathers] | None = None) -> None:
+        self._fathers = fathers or []
+
+    def read_fathers(self):
+        return iter(self._fathers)
 
 
 class FakeScriptureSource(ScriptureSource):
@@ -45,6 +56,7 @@ class FakeVaultWriter(VaultWriter):
         self.written_notes: dict[tuple[str, int, str], str] = {}
         self.written_companions: dict[tuple[str, int, str], str] = {}
         self.written_intros: dict[str, str] = {}
+        self.written_fathers: dict[tuple[str, int], str] = {}
 
     def write_hub(self, chapter: Chapter, content: str) -> Path:
         self.written_hubs[(chapter.book, chapter.number)] = content
@@ -61,3 +73,7 @@ class FakeVaultWriter(VaultWriter):
     def write_book_intro(self, book: str, content: str) -> Path:
         self.written_intros[book] = content
         return Path(f"fake/{book} — Intro.md")
+
+    def write_fathers(self, book: str, chapter: int, content: str) -> Path:
+        self.written_fathers[(book, chapter)] = content
+        return Path(f"fake/{book}/{chapter} — Fathers.md")

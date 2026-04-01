@@ -126,6 +126,43 @@ class PartIntro:
     content: str    # Markdown-formatted
 
 
+class PatristicType(str, Enum):
+    HOMILY =      "homily"
+    COMMENTARY =  "commentary"
+    EPISTLE =     "epistle"
+    ASCETICAL =   "ascetical"
+    LITURGICAL =  "liturgical"
+
+
+@dataclass(frozen=True)
+class PatristicExcerpt:
+    """A single Patristic citation or excerpt addressed to a verse or pericope."""
+    father: str           # e.g. "John Chrysostom"
+    work: str             # e.g. "Homilies on John"
+    content: str          # Markdown-formatted excerpt body
+    verse_start: int      # First verse of the addressed pericope
+    verse_end: int | None = None   # Last verse when the excerpt spans a range
+    section: str | None = None     # e.g. "Homily 2" or "§4.1"
+
+
+@dataclass
+class ChapterFathers:
+    """All Patristic excerpts for a single chapter from one source."""
+    book: str
+    chapter: int
+    source: str           # e.g. "Apostolic Fathers", "OSB"
+    _excerpts: list[tuple[PatristicType, PatristicExcerpt]] = field(
+        default_factory=list, init=False, repr=False
+    )
+
+    def add_excerpt(self, patristic_type: PatristicType, excerpt: PatristicExcerpt) -> None:
+        self._excerpts.append((patristic_type, excerpt))
+
+    def sorted_excerpts(self) -> list[tuple[PatristicType, PatristicExcerpt]]:
+        """Return excerpts sorted by verse_start."""
+        return sorted(self._excerpts, key=lambda x: x[1].verse_start)
+
+
 @dataclass
 class ChapterNotes:
     """All study content for a single chapter from one source."""

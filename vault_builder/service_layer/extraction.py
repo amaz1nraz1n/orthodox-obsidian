@@ -18,6 +18,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 
 from vault_builder.domain.canon import book_file_prefix
+from vault_builder.ports.patristic_source import PatristicSource
 from vault_builder.ports.renderer import VaultRenderer
 from vault_builder.ports.source import ScriptureSource
 from vault_builder.ports.writer import VaultWriter
@@ -36,6 +37,7 @@ class ExtractionResult:
     companions_written: int = 0
     notes_written: int = 0
     intros_written: int = 0
+    fathers_written: int = 0
     errors: int = 0
     error_log: list[str] = field(default_factory=list)
 
@@ -49,6 +51,8 @@ class ExtractionResult:
             parts.append(f"{self.notes_written} notes")
         if self.intros_written:
             parts.append(f"{self.intros_written} intros")
+        if self.fathers_written:
+            parts.append(f"{self.fathers_written} fathers")
         total = ", ".join(parts) or "0 files"
         err = f" ({self.errors} errors)" if self.errors else ""
         return f"{total} written{err}"
@@ -74,12 +78,14 @@ class ExtractionService:
         writer: VaultWriter,
         mode: ExtractionMode = ExtractionMode.HUB,
         source_label: str = "",
+        patristic_source: PatristicSource | None = None,
     ) -> None:
         self._source = source
         self._renderer = renderer
         self._writer = writer
         self._mode = mode
         self._source_label = source_label
+        self._patristic_source = patristic_source
 
     def extract(self) -> ExtractionResult:
         result = ExtractionResult()
@@ -139,6 +145,19 @@ class ExtractionService:
                 logger.error(msg)
                 result.errors += 1
                 result.error_log.append(msg)
+
+        # 4. Patristic catena companions (optional)
+        if self._patristic_source is not None:
+            for fathers in self._patristic_source.read_fathers():
+                try:
+                    content = self._renderer.render_fathers(fathers)
+                    self._writer.write_fathers(fathers.book, fathers.chapter, content)
+                    result.fathers_written += 1
+                except Exception as exc:
+                    msg = f"fathers {fathers.book} {fathers.chapter}: {exc}"
+                    logger.error(msg)
+                    result.errors += 1
+                    result.error_log.append(msg)
 
         logger.info("Extraction complete: %s", result.summary())
         return result

@@ -18,7 +18,7 @@ from vault_builder.domain.canon import (
     PSALM_KATHISMA,
     book_file_prefix,
 )
-from vault_builder.domain.models import Chapter, ChapterNotes, NoteType, StudyNote
+from vault_builder.domain.models import Chapter, ChapterFathers, ChapterNotes, NoteType, PatristicType, StudyNote
 from vault_builder.ports.renderer import VaultRenderer
 
 # ── Scripture cross-reference → wikilink injection ───────────────────────────
@@ -73,10 +73,10 @@ class ObsidianRenderer(VaultRenderer):
 
     # ── Hub file ──────────────────────────────────────────────────────────────
 
-    def render_hub(self, chapter: Chapter, max_chapter: int, intro_link: str | None = None) -> str:
+    def render_hub(self, chapter: Chapter, max_chapter: int, intro_link: str | None = None, has_fathers: bool = False) -> str:
         parts = [
             self._hub_frontmatter(chapter, max_chapter, intro_link=intro_link),
-            self._nav_callout(chapter.book, chapter.number),
+            self._nav_callout(chapter.book, chapter.number, show_fathers=has_fathers),
             "",
         ]
         for verse in chapter.sorted_verses():
@@ -177,6 +177,7 @@ class ObsidianRenderer(VaultRenderer):
         show_greek: bool = True,
         show_net: bool = True,
         show_noab_rsv: bool = True,
+        show_fathers: bool = False,
     ) -> str:
         """Shared modes nav used by all file types.
 
@@ -221,6 +222,11 @@ class ObsidianRenderer(VaultRenderer):
             if notes_suffix
             else ""
         )
+        fathers_link = (
+            f" \u00b7 [[{pfx} {chapter} \u2014 Fathers|Fathers]]"
+            if show_fathers
+            else ""
+        )
         return (
             f"> **Modes:** "
             f"[[{pfx} {chapter}|OSB]] \u00b7 "
@@ -231,6 +237,7 @@ class ObsidianRenderer(VaultRenderer):
             f"{source_notes_link}"
             f"[[{pfx} {chapter} \u2014 NET Notes|NET Notes]]"
             f"{study}"
+            f"{fathers_link}"
         )
 
     # ── Text companion file ───────────────────────────────────────────────────
@@ -377,6 +384,47 @@ class ObsidianRenderer(VaultRenderer):
             f"---\n\n"
             f"{content}\n"
         )
+
+    # ── Patristic catena companion ────────────────────────────────────────
+
+    def render_fathers(self, fathers: ChapterFathers) -> str:
+        """Render a Patristic catena companion for a Scripture chapter.
+
+        Each pericope/verse group is a ### heading linking to the hub verse anchor,
+        followed by [!father] callouts — one per excerpt — with attribution in
+        the callout title and excerpt body below.
+        """
+        book, ch = fathers.book, fathers.chapter
+        abbr = BOOK_ABBREVIATIONS.get(book, book[:3])
+        pfx = book_file_prefix(book)
+        lines = [
+            f'---\nhub: "[[{pfx} {ch}]]"\nsource: "{fathers.source}"\n---',
+            "",
+            self._companion_nav(book, ch),
+            "",
+        ]
+
+        i = 0
+        excerpts = fathers.sorted_excerpts()
+        while i < len(excerpts):
+            ptype, exc = excerpts[i]
+            verse_start = exc.verse_start
+            # Heading: link to first verse of the pericope
+            ref = f"{abbr} {ch}:{verse_start}"
+            lines.append(f"### [[{pfx} {ch}#v{verse_start}|{ref}]]")
+            lines.append(f"^v{verse_start}")
+            while i < len(excerpts) and excerpts[i][1].verse_start == verse_start:
+                _, exc = excerpts[i]
+                attribution = exc.work
+                if exc.section:
+                    attribution += f", {exc.section}"
+                lines.append("")
+                lines.append(f"> [!father] {exc.father} — {attribution}")
+                lines.append(f"> {exc.content}")
+                i += 1
+            lines.append("")
+
+        return "\n".join(lines)
 
     # ── Apostolic Fathers chapter file ────────────────────────────────────
 

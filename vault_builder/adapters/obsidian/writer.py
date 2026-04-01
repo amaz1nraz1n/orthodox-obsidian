@@ -76,6 +76,18 @@ class ObsidianWriter(VaultWriter):
         os.makedirs(book_dir, exist_ok=True)
         return os.path.join(book_dir, f"{book_file_prefix(book)} \u2014 OSB Intro.md")
 
+    # ── Patristic catena files ────────────────────────────────────────────────
+
+    def write_fathers(self, book: str, chapter: int, content: str) -> Path:
+        """Write a Patristic catena companion. Returns the path written."""
+        path = self._fathers_path(book, chapter)
+        self._write(path, content)
+        return Path(path)
+
+    def _fathers_path(self, book: str, chapter: int) -> str:
+        ch_dir = self._chapter_dir(book, chapter)
+        return os.path.join(ch_dir, f"{book_file_prefix(book)} {chapter} \u2014 Fathers.md")
+
     # ── Internal ──────────────────────────────────────────────────────────────
 
     @staticmethod

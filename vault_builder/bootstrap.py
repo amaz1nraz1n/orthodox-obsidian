@@ -22,6 +22,7 @@ import yaml
 
 from vault_builder.adapters.obsidian.renderer import ObsidianRenderer
 from vault_builder.adapters.obsidian.writer import ObsidianWriter
+from vault_builder.ports.patristic_source import PatristicSource
 from vault_builder.ports.renderer import VaultRenderer
 from vault_builder.ports.source import ScriptureSource
 from vault_builder.ports.writer import VaultWriter
@@ -150,6 +151,49 @@ def _build_source(
     if sample_chapters is not None:
         kwargs["sample_chapters"] = sample_chapters
     return cls(path, **kwargs)
+
+
+def bootstrap_fathers(
+    source_name: str,
+    *,
+    output_dir: str = "output/Scripture",
+    patristic_source: PatristicSource | None = None,
+    renderer: VaultRenderer | None = None,
+    writer: VaultWriter | None = None,
+) -> ExtractionService:
+    """
+    Build an ExtractionService wired for Patristic catena output only.
+
+    The service has no ScriptureSource (text/notes pass is a no-op) but
+    will call read_fathers() on the PatristicSource and emit Fathers companions.
+
+    Args:
+        source_name:      Short label used in logging (e.g. "apostolic_fathers").
+        output_dir:       Root directory for generated files.
+        patristic_source: Override the PatristicSource (for testing).
+        renderer:         Override the renderer (for testing).
+        writer:           Override the writer (for testing).
+    """
+    from vault_builder.ports.source import ScriptureSource as _SS
+    from vault_builder.domain.models import Book, BookIntro, ChapterNotes
+    from typing import Iterator
+
+    class _NullSource(_SS):
+        def read_text(self) -> Iterator[Book]: return iter([])
+        def read_notes(self) -> Iterator[ChapterNotes]: return iter([])
+        def read_intros(self) -> Iterator[BookIntro]: return iter([])
+
+    resolved_renderer = renderer or ObsidianRenderer()
+    resolved_writer   = writer   or ObsidianWriter(output_root=output_dir)
+
+    return ExtractionService(
+        source=_NullSource(),
+        renderer=resolved_renderer,
+        writer=resolved_writer,
+        mode=ExtractionMode.HUB,
+        source_label=source_name,
+        patristic_source=patristic_source,
+    )
 
 
 def bootstrap(
