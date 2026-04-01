@@ -38,7 +38,17 @@ from typing import Iterator, Optional
 from bs4 import BeautifulSoup, XMLParsedAsHTMLWarning
 
 from vault_builder.domain.canon import book_file_prefix
-from vault_builder.domain.models import Chapter, ChapterNotes, NoteType, StudyNote, Verse
+from vault_builder.domain.models import (
+    Chapter,
+    ChapterFathers,
+    ChapterNotes,
+    NoteType,
+    PatristicExcerpt,
+    PatristicType,
+    StudyNote,
+    Verse,
+)
+from vault_builder.ports.patristic_source import PatristicSource
 
 warnings.filterwarnings("ignore", category=XMLParsedAsHTMLWarning)
 
@@ -258,13 +268,70 @@ def _parse_footnote_para(raw_text: str, chapter: int) -> dict[int, list[str]]:
     return result
 
 
+def _extract_scripture_citations(
+    raw_text: str, chapter: int
+) -> list[tuple[int, str, int, int, int | None]]:
+    """
+    Extract structured Scripture citations from a raw footnote paragraph.
+
+    Returns list of (af_verse, scripture_book, scripture_chapter, verse_start, verse_end).
+    verse_end is None when the reference is not a simple same-chapter range.
+
+    E.g. "4.1–6 Gen. 4:3–8.  4.8 Cf. Gen. 27:41–28:5." →
+        [(1, 'Genesis', 4, 3, 8), (8, 'Genesis', 27, 41, None)]
+    """
+    seg_re = re.compile(rf"\b{chapter}\.(\d+)(?:–\d+)?\s+")
+    segments: list[tuple[int, str]] = []
+    last_verse: Optional[int] = None
+    last_end = 0
+
+    for m in seg_re.finditer(raw_text):
+        if last_verse is not None:
+            frag = raw_text[last_end : m.start()].strip().rstrip(".")
+            segments.append((last_verse, re.sub(r"\s+", " ", frag)))
+        last_verse = int(m.group(1))
+        last_end = m.end()
+
+    if last_verse is not None:
+        frag = raw_text[last_end:].strip().rstrip(".")
+        segments.append((last_verse, re.sub(r"\s+", " ", frag)))
+
+    results: list[tuple[int, str, int, int, int | None]] = []
+    for af_verse, fragment in segments:
+        for ref_m in _SCRIPTURE_REF_RE.finditer(fragment):
+            abbr = ref_m.group(1)
+            if abbr not in _ABBR_TO_BOOK:
+                continue
+            verse_str = ref_m.group(3)
+            if verse_str is None:
+                continue  # chapter-level ref only, no verse to anchor to
+            verse_start = int(verse_str)
+            suffix = ref_m.group(4)  # e.g. "–8" or "–28:5" or ""
+            verse_end: int | None = None
+            if suffix:
+                simple = re.match(r"–(\d+)$", suffix)
+                if simple:
+                    verse_end = int(simple.group(1))
+            results.append((
+                af_verse,
+                _ABBR_TO_BOOK[abbr],
+                int(ref_m.group(2)),
+                verse_start,
+                verse_end,
+            ))
+    return results
+
+
 # ---------------------------------------------------------------------------
 # Public adapter
 # ---------------------------------------------------------------------------
 
-class ApostolicFathersEpubSource:
+class ApostolicFathersEpubSource(PatristicSource):
     """
     Yields (Chapter, ChapterNotes) for each document chapter.
+
+    Also implements PatristicSource.read_fathers() to yield ChapterFathers
+    keyed to cited Scripture chapters (for the Patristic catena pipeline).
 
     In sample_only mode, only chapters in sample_chapters are yielded.
     sample_chapters: set of (document_name, chapter_num) tuples.
@@ -392,3 +459,98 @@ class ApostolicFathersEpubSource:
         result = _flush()
         if result is not None and self._in_scope(doc_name, result[0].number):
             yield result
+
+    # ── PatristicSource implementation ───────────────────────────────────────
+
+    def read_fathers(self) -> Iterator[ChapterFathers]:
+        """Yield ChapterFathers keyed to cited Scripture chapters.
+
+        Scans footnotes across all 14 documents for Scripture references and
+        groups the citing AF verse text under the referenced Scripture chapter.
+        One ChapterFathers is emitted per unique (Scripture book, chapter) pair.
+        """
+        fathers_by_scripture: dict[tuple[str, int], ChapterFathers] = {}
+        with zipfile.ZipFile(self.epub_path) as zf:
+            for html_file, doc_name, _chapter_count in _AF_DOCUMENTS:
+                self._collect_citations(zf, html_file, doc_name, fathers_by_scripture)
+        yield from fathers_by_scripture.values()
+
+    def _collect_citations(
+        self,
+        zf: zipfile.ZipFile,
+        html_file: str,
+        doc_name: str,
+        fathers_by_scripture: dict[tuple[str, int], ChapterFathers],
+    ) -> None:
+        """Parse one document and populate fathers_by_scripture with excerpts."""
+        html = zf.read(html_file).decode("utf-8")
+        soup = BeautifulSoup(html, "lxml")
+        paragraphs = soup.find_all("p")
+
+        current_chapter: Optional[int] = None
+        current_verses: dict[int, str] = {}
+        pending_citations: list[tuple[int, str, int, int, int | None]] = []
+
+        def _flush_chapter() -> None:
+            if current_chapter is None:
+                return
+            for af_verse, scr_book, scr_ch, v_start, v_end in pending_citations:
+                af_text = current_verses.get(af_verse, "")
+                if not af_text:
+                    continue
+                key = (scr_book, scr_ch)
+                if key not in fathers_by_scripture:
+                    fathers_by_scripture[key] = ChapterFathers(
+                        book=scr_book, chapter=scr_ch, source="Apostolic Fathers"
+                    )
+                fathers_by_scripture[key].add_excerpt(
+                    PatristicType.EPISTLE,
+                    PatristicExcerpt(
+                        father=doc_name,
+                        work=doc_name,
+                        section=f"{current_chapter}.{af_verse}",
+                        content=af_text,
+                        verse_start=v_start,
+                        verse_end=v_end,
+                    ),
+                )
+
+        for p in paragraphs:
+            cls = p.get("class", [])
+            dropcap = p.find("span", class_="dropcap")
+
+            if dropcap and "noindent1" in cls:
+                ch_num_text = dropcap.get_text(strip=True)
+                if not ch_num_text.isdigit():
+                    continue
+                _flush_chapter()
+                current_chapter = int(ch_num_text)
+                current_verses = {}
+                pending_citations = []
+                for v_num, v_text in _extract_verse_text(p).items():
+                    if v_text:
+                        current_verses[v_num] = v_text
+                continue
+
+            if current_chapter is None:
+                continue
+
+            raw_text = re.sub(r"\s+", " ", p.get_text(separator=" ").strip())
+
+            if "noindenta" in cls:
+                pending_citations.extend(
+                    _extract_scripture_citations(raw_text, current_chapter)
+                )
+                continue
+
+            if "noindent1" in cls and not dropcap:
+                if _NOTE_PARA_START_RE.match(raw_text):
+                    pending_citations.extend(
+                        _extract_scripture_citations(raw_text, current_chapter)
+                    )
+                    continue
+                for v_num, v_text in _extract_verse_text(p).items():
+                    if v_text and v_num not in current_verses:
+                        current_verses[v_num] = v_text
+
+        _flush_chapter()
