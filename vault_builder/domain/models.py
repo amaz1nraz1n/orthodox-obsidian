@@ -86,6 +86,7 @@ class StudyNote:
     content: str              # Markdown-formatted note body
     verse_end: int | None = None  # End verse when the note spans a range (e.g. 1:3–5)
     anchor_id: str | None = None  # Stable identifier for per-callout deep-linking (e.g. EPUB fragment ID "fn4706")
+    sort_key: int = 0         # Secondary sort within a verse; preserves EPUB paragraph order
 
 
 @dataclass(frozen=True)
@@ -162,5 +163,5 @@ class ChapterNotes:
         self.articles.append(article)
 
     def sorted_notes(self, note_type: NoteType) -> list[StudyNote]:
-        """Return notes of the given type sorted by verse number."""
-        return sorted(getattr(self, self._NOTE_LISTS[note_type]), key=lambda n: n.verse_number)
+        """Return notes of the given type sorted by verse then EPUB paragraph order."""
+        return sorted(getattr(self, self._NOTE_LISTS[note_type]), key=lambda n: (n.verse_number, n.sort_key))

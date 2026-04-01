@@ -1,18 +1,16 @@
 """
-Contract tests: hub footnote markers use block ID anchors (#^vN).
+Contract tests: hub footnote markers use block ID anchors.
 
 All three sources that embed inline hub-link markers in verse text —
-EOB, Lexham, and NET — must target the block ID anchor (#^vN) rather
-than the heading-text anchor (#vN).  The heading-text anchor fails
-because heading display text is "1:1", not "v1"; the link lands at the
-file top.  The block ID anchor (#^vN) always resolves because the
-renderer places a standalone `^vN` line immediately after each heading.
+EOB, Lexham, and NET — must target block ID anchors rather than the
+heading-text anchor (#vN).  The heading-text anchor fails because
+heading display text is "1:1", not "v1"; the link lands at the file top.
 
 Contracts:
-  1. EOB: _walk generates markers with #^v{N} format
-  2. Lexham: _walk_para generates footnote_marker events, and the
-     caller formats them as #^v{N}
-  3. NET: read_chapter verse text contains #^v{N} (not bare #v{N})
+  1. EOB: _walk without ednref_map uses verse-section anchor (#^vN);
+     with ednref_map uses per-note anchor (#^ednN).
+  2. Lexham: _walk_para generates footnote_marker events formatted as #^vN.
+  3. NET: read_chapter verse text links to per-note block IDs (#^nNNNNNN).
 """
 
 import io
@@ -35,8 +33,8 @@ def _make_eob_para(html_fragment: str) -> BeautifulSoup:
     return soup.find("div")
 
 
-def test_eob_hub_marker_uses_block_id_anchor():
-    """EOB endnote ref anchor must resolve to #^vN, not #vN."""
+def test_eob_hub_marker_fallback_verse_anchor():
+    """EOB _walk without ednref_map falls back to verse-section anchor (#^vN)."""
     para = _make_eob_para(
         '<a id="_ednref1003">*</a> some text'
     )
@@ -44,12 +42,25 @@ def test_eob_hub_marker_uses_block_id_anchor():
     _walk(para, current_verse=5, book="John", chapter=1, raw=raw)
 
     verse_text = raw.get("John", {}).get(1, {}).get(5, "")
-    assert "#^v5" in verse_text, f"Expected block ID anchor #^v5, got: {verse_text!r}"
+    assert "#^v5" in verse_text, f"Expected fallback verse anchor #^v5, got: {verse_text!r}"
     assert "#v5|" not in verse_text, f"Bare heading anchor must not appear: {verse_text!r}"
 
 
+def test_eob_hub_marker_per_note_anchor_with_ednref_map():
+    """EOB _walk with ednref_map uses per-note anchor (#^ednN)."""
+    para = _make_eob_para('<a id="_ednref1003">*</a> some text')
+    raw: dict = {}
+    ednref_map: dict = {}
+    _walk(para, current_verse=5, book="John", chapter=1, raw=raw, ednref_map=ednref_map)
+
+    verse_text = raw.get("John", {}).get(1, {}).get(5, "")
+    assert "#^edn1003" in verse_text, f"Expected per-note anchor #^edn1003, got: {verse_text!r}"
+    assert "#^v5" not in verse_text, f"Verse-section anchor must not appear when ednref_map given: {verse_text!r}"
+    assert ednref_map == {1003: ("John", 1, 5)}
+
+
 def test_eob_hub_marker_format_full():
-    """EOB marker must be a valid Obsidian wikilink with correct structure."""
+    """EOB marker (fallback path) must be a valid Obsidian wikilink."""
     para = _make_eob_para('<a id="_ednref7">*</a>')
     raw: dict = {}
     _walk(para, current_verse=3, book="Genesis", chapter=1, raw=raw)
@@ -156,20 +167,21 @@ def net_john1_source():
     return NetEpubSource(epub_path=buf)
 
 
-def test_net_hub_marker_uses_block_id_anchor_v1(net_john1_source):
-    """NET verse text must contain #^v1 (block ID), not bare #v1."""
+def test_net_hub_marker_uses_per_note_anchor_v1(net_john1_source):
+    """NET verse text must link to per-note block ID (#^n430011), not verse anchor (#^v1)."""
     ch = net_john1_source.read_chapter("John", 1)
     text = ch.verses[1].text
-    assert "#^v1" in text, f"Expected #^v1 block ID anchor in: {text!r}"
-    # Guard against accidental bare heading anchor
+    assert "#^n430011" in text, f"Expected per-note anchor #^n430011 in: {text!r}"
+    assert "#^v1" not in text, f"Verse-section anchor #^v1 must not appear: {text!r}"
     assert "#v1|" not in text, f"Bare heading anchor #v1 must not appear: {text!r}"
 
 
-def test_net_hub_marker_uses_block_id_anchor_v2(net_john1_source):
-    """NET verse text for v2 must contain #^v2 (block ID)."""
+def test_net_hub_marker_uses_per_note_anchor_v2(net_john1_source):
+    """NET verse text for v2 must link to per-note block ID (#^n430021)."""
     ch = net_john1_source.read_chapter("John", 1)
     text = ch.verses[2].text
-    assert "#^v2" in text, f"Expected #^v2 block ID anchor in: {text!r}"
+    assert "#^n430021" in text, f"Expected per-note anchor #^n430021 in: {text!r}"
+    assert "#^v2" not in text, f"Verse-section anchor #^v2 must not appear: {text!r}"
     assert "#v2|" not in text, f"Bare heading anchor #v2 must not appear: {text!r}"
 
 
@@ -177,6 +189,6 @@ def test_net_hub_marker_full_wikilink_format(net_john1_source):
     """NET marker must be a complete Obsidian wikilink targeting the correct notes file."""
     ch = net_john1_source.read_chapter("John", 1)
     text = ch.verses[1].text
-    assert "[[John 1 — NET Notes#^v1|" in text, (
+    assert "[[John 1 — NET Notes#^n430011|" in text, (
         f"Expected full wikilink target, got: {text!r}"
     )

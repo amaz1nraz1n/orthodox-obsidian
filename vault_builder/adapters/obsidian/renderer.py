@@ -288,7 +288,7 @@ class ObsidianRenderer(VaultRenderer):
             for note in notes.sorted_notes(note_type):
                 tagged.append((note_type, note))
 
-        tagged.sort(key=lambda x: x[1].verse_number)
+        tagged.sort(key=lambda x: (x[1].verse_number, x[1].sort_key))
 
         pfx = book_file_prefix(book)
         i = 0
@@ -304,8 +304,9 @@ class ObsidianRenderer(VaultRenderer):
             while i < len(tagged) and tagged[i][1].verse_number == verse_num:
                 family, note = tagged[i]
                 callout = _CALLOUT[family]
+                block_id = f" ^{note.anchor_id}" if note.anchor_id else ""
                 lines.append("")
-                lines.append(f"> {callout} {note.ref_str}")
+                lines.append(f"> {callout} {note.ref_str}{block_id}")
                 lines.append(f"> {self._inject_scripture_links(note.content, book)}")
                 i += 1
             lines.append("")
@@ -331,7 +332,7 @@ class ObsidianRenderer(VaultRenderer):
             for note in notes.sorted_notes(note_type):
                 tagged.append((note_type, note))
 
-        tagged.sort(key=lambda x: x[1].verse_number)
+        tagged.sort(key=lambda x: (x[1].verse_number, x[1].sort_key))
 
         i = 0
         while i < len(tagged):

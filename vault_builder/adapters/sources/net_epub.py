@@ -369,7 +369,7 @@ class NetEpubSource:
                     sym, cls = _NET_NOTE_MARKER.get(ptype, ("", ""))
                     if not sym:
                         return ""
-                    return f'<sup class="{cls}">[[{book} {chapter} — NET Notes#^v{verse_num}|{sym}]]</sup>'
+                    return f'<sup class="{cls}">[[{book} {chapter} — NET Notes#^{nid}|{sym}]]</sup>'
                 text = re.sub(r"__NOTE_(n\d+)__", _resolve, text)
             else:
                 text = re.sub(r"__NOTE_(n\d+)__", "", text)
@@ -442,7 +442,7 @@ class NetEpubSource:
         soup = BeautifulSoup(html, "xml")
         notes_obj = ChapterNotes(book=book, chapter=chapter, source="NET")
 
-        for note_para in soup.find_all("p", id=True):
+        for para_index, note_para in enumerate(soup.find_all("p", id=True)):
             note_id = note_para.get("id", "")
             if not note_id.startswith("n"):
                 continue
@@ -454,6 +454,7 @@ class NetEpubSource:
 
             ref_str = "intro" if verse_num == 0 else f"{chapter}:{verse_num}"
 
+            first_in_para = True
             for typed_para in note_para.find_all("p", recursive=False):
                 bold = typed_para.find("b")
                 if bold is None:
@@ -471,7 +472,10 @@ class NetEpubSource:
                     verse_number=verse_num,
                     ref_str=ref_str,
                     content=content,
+                    anchor_id=note_id if first_in_para else None,
+                    sort_key=para_index,
                 )
                 notes_obj.add_note(note_type, note)
+                first_in_para = False
 
         return notes_obj

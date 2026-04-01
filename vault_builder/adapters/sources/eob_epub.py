@@ -243,7 +243,7 @@ class EobEpubSource:
             if key not in by_chapter:
                 by_chapter[key] = ChapterNotes(book=book, chapter=chapter, source="EOB")
             note_type = _classify_eob_note(text)
-            note = StudyNote(verse_number=verse, ref_str=f"{chapter}:{verse}", content=text)
+            note = StudyNote(verse_number=verse, ref_str=f"{chapter}:{verse}", content=text, anchor_id=f"edn{n}", sort_key=n)
             by_chapter[key].add_note(note_type, note)
 
         for key in sorted(by_chapter):
@@ -431,14 +431,16 @@ def _walk(
             # Endnote reference anchor — record mapping and emit inline marker
             if child.name == "a" and (child.get("id") or "").startswith("_ednref"):
                 if current_verse is not None:
+                    anchor = f"v{current_verse}"
                     if ednref_map is not None:
                         try:
                             n = int(child["id"][7:])  # "_ednref1003" → 1003
                             ednref_map[n] = (book, chapter, current_verse)
+                            anchor = f"edn{n}"
                         except (ValueError, KeyError):
                             pass
                     marker = (
-                        f'<sup class="nt-fn">[[{book} {chapter} — EOB Notes#^v{current_verse}|†]]</sup>'
+                        f'<sup class="nt-fn">[[{book} {chapter} — EOB Notes#^{anchor}|†]]</sup>'
                     )
                     _add_text(raw, book, chapter, current_verse, marker)
 
