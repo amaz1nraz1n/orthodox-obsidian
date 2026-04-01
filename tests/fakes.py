@@ -10,9 +10,20 @@ from pathlib import Path
 from typing import Iterator
 
 from vault_builder.domain.models import Book, BookIntro, Chapter, ChapterFathers, ChapterNotes
+from vault_builder.ports.parallel_source import ParallelSource
 from vault_builder.ports.patristic_source import PatristicSource
 from vault_builder.ports.source import ScriptureSource
 from vault_builder.ports.writer import VaultWriter
+
+
+class FakeParallelSource(ParallelSource):
+    """In-memory ParallelSource for unit tests."""
+
+    def __init__(self, parallels: list[ChapterNotes] | None = None) -> None:
+        self._parallels = parallels or []
+
+    def read_parallels(self):
+        return iter(self._parallels)
 
 
 class FakePatristicSource(PatristicSource):
@@ -57,6 +68,7 @@ class FakeVaultWriter(VaultWriter):
         self.written_companions: dict[tuple[str, int, str], str] = {}
         self.written_intros: dict[str, str] = {}
         self.written_fathers: dict[tuple[str, int], str] = {}
+        self.written_parallels: dict[tuple[str, int], str] = {}
 
     def write_hub(self, chapter: Chapter, content: str) -> Path:
         self.written_hubs[(chapter.book, chapter.number)] = content
@@ -77,3 +89,7 @@ class FakeVaultWriter(VaultWriter):
     def write_fathers(self, book: str, chapter: int, content: str) -> Path:
         self.written_fathers[(book, chapter)] = content
         return Path(f"fake/{book}/{chapter} — Fathers.md")
+
+    def write_parallels(self, book: str, chapter: int, content: str) -> Path:
+        self.written_parallels[(book, chapter)] = content
+        return Path(f"fake/{book}/{chapter} — Parallels.md")

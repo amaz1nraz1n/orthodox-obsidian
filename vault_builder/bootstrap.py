@@ -22,6 +22,7 @@ import yaml
 
 from vault_builder.adapters.obsidian.renderer import ObsidianRenderer
 from vault_builder.adapters.obsidian.writer import ObsidianWriter
+from vault_builder.ports.parallel_source import ParallelSource
 from vault_builder.ports.patristic_source import PatristicSource
 from vault_builder.ports.renderer import VaultRenderer
 from vault_builder.ports.source import ScriptureSource
@@ -193,6 +194,46 @@ def bootstrap_fathers(
         mode=ExtractionMode.HUB,
         source_label=source_name,
         patristic_source=patristic_source,
+    )
+
+
+def bootstrap_parallels(
+    *,
+    output_dir: str = "output/Scripture",
+    parallel_source: ParallelSource | None = None,
+    renderer: VaultRenderer | None = None,
+    writer: VaultWriter | None = None,
+) -> ExtractionService:
+    """
+    Build an ExtractionService wired for parallel passage companion output only.
+
+    The service has no ScriptureSource (text/notes pass is a no-op) but
+    will call read_parallels() on the ParallelSource and emit Parallels companions.
+
+    Args:
+        output_dir:      Root directory for generated files.
+        parallel_source: Override the ParallelSource (for testing).
+        renderer:        Override the renderer (for testing).
+        writer:          Override the writer (for testing).
+    """
+    from vault_builder.ports.source import ScriptureSource as _SS
+    from vault_builder.domain.models import Book, BookIntro, ChapterNotes
+    from typing import Iterator
+
+    class _NullSource(_SS):
+        def read_text(self) -> Iterator[Book]: return iter([])
+        def read_notes(self) -> Iterator[ChapterNotes]: return iter([])
+        def read_intros(self) -> Iterator[BookIntro]: return iter([])
+
+    resolved_renderer = renderer or ObsidianRenderer()
+    resolved_writer   = writer   or ObsidianWriter(output_root=output_dir)
+
+    return ExtractionService(
+        source=_NullSource(),
+        renderer=resolved_renderer,
+        writer=resolved_writer,
+        mode=ExtractionMode.HUB,
+        parallel_source=parallel_source,
     )
 
 

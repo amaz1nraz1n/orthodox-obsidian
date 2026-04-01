@@ -88,6 +88,18 @@ class ObsidianWriter(VaultWriter):
         ch_dir = self._chapter_dir(book, chapter)
         return os.path.join(ch_dir, f"{book_file_prefix(book)} {chapter} \u2014 Fathers.md")
 
+    # ── Parallel passages files ───────────────────────────────────────────────
+
+    def write_parallels(self, book: str, chapter: int, content: str) -> Path:
+        """Write a parallel passages companion. Returns the path written."""
+        path = self._parallels_path(book, chapter)
+        self._write(path, content)
+        return Path(path)
+
+    def _parallels_path(self, book: str, chapter: int) -> str:
+        ch_dir = self._chapter_dir(book, chapter)
+        return os.path.join(ch_dir, f"{book_file_prefix(book)} {chapter} \u2014 Parallels.md")
+
     # ── Internal ──────────────────────────────────────────────────────────────
 
     @staticmethod

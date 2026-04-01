@@ -1,0 +1,365 @@
+# Synoptic Gospel Parallels — Phase 1
+#
+# Each entry is a set of parallel passages (pericopes that share the same event
+# or teaching). The adapter emits bidirectional StudyNote(NoteType.PARALLEL) links
+# for every passage in the group, so each chapter notes file can reference all
+# parallels to that pericope.
+#
+# Format:
+#   - title: human-readable pericope title
+#     passages:
+#       - {book: "...", chapter: N, verse_start: N, verse_end: N}
+#       ...
+#
+# Sources: Aland Gospel Parallels (8th ed.); Orthodox Study Bible pericope headings.
+# Phase 1 scope: synoptic triple tradition + key double tradition + John parallels.
+
+parallels:
+
+  # ── Birth & Infancy ──────────────────────────────────────────────────────────
+
+  - title: "Genealogy of Jesus"
+    passages:
+      - {book: Matthew,  chapter: 1, verse_start: 1,  verse_end: 17}
+      - {book: Luke,     chapter: 3, verse_start: 23, verse_end: 38}
+
+  - title: "Annunciation / Birth of John the Forerunner"
+    passages:
+      - {book: Luke,     chapter: 1, verse_start: 5,  verse_end: 25}
+
+  - title: "Annunciation to the Theotokos"
+    passages:
+      - {book: Luke,     chapter: 1, verse_start: 26, verse_end: 38}
+
+  - title: "Birth of Jesus"
+    passages:
+      - {book: Matthew,  chapter: 1, verse_start: 18, verse_end: 25}
+      - {book: Luke,     chapter: 2, verse_start: 1,  verse_end: 20}
+
+  # ── Theophany / Beginning of Ministry ────────────────────────────────────────
+
+  - title: "Preaching of John the Baptist"
+    passages:
+      - {book: Matthew,  chapter: 3, verse_start: 1,  verse_end: 12}
+      - {book: Mark,     chapter: 1, verse_start: 1,  verse_end: 8}
+      - {book: Luke,     chapter: 3, verse_start: 1,  verse_end: 18}
+      - {book: John,     chapter: 1, verse_start: 19, verse_end: 28}
+
+  - title: "Baptism of Jesus (Theophany)"
+    passages:
+      - {book: Matthew,  chapter: 3, verse_start: 13, verse_end: 17}
+      - {book: Mark,     chapter: 1, verse_start: 9,  verse_end: 11}
+      - {book: Luke,     chapter: 3, verse_start: 21, verse_end: 22}
+      - {book: John,     chapter: 1, verse_start: 29, verse_end: 34}
+
+  - title: "Temptation of Jesus in the Wilderness"
+    passages:
+      - {book: Matthew,  chapter: 4, verse_start: 1,  verse_end: 11}
+      - {book: Mark,     chapter: 1, verse_start: 12, verse_end: 13}
+      - {book: Luke,     chapter: 4, verse_start: 1,  verse_end: 13}
+
+  - title: "Calling of the First Disciples"
+    passages:
+      - {book: Matthew,  chapter: 4, verse_start: 18, verse_end: 22}
+      - {book: Mark,     chapter: 1, verse_start: 16, verse_end: 20}
+      - {book: Luke,     chapter: 5, verse_start: 1,  verse_end: 11}
+      - {book: John,     chapter: 1, verse_start: 35, verse_end: 51}
+
+  # ── Sermon on the Mount / Plain ──────────────────────────────────────────────
+
+  - title: "Beatitudes"
+    passages:
+      - {book: Matthew,  chapter: 5, verse_start: 3,  verse_end: 12}
+      - {book: Luke,     chapter: 6, verse_start: 20, verse_end: 23}
+
+  - title: "Salt and Light"
+    passages:
+      - {book: Matthew,  chapter: 5, verse_start: 13, verse_end: 16}
+      - {book: Mark,     chapter: 9, verse_start: 50, verse_end: 50}
+      - {book: Luke,     chapter: 14, verse_start: 34, verse_end: 35}
+
+  - title: "Lord's Prayer"
+    passages:
+      - {book: Matthew,  chapter: 6, verse_start: 9,  verse_end: 13}
+      - {book: Luke,     chapter: 11, verse_start: 2,  verse_end: 4}
+
+  - title: "Ask, Seek, Knock"
+    passages:
+      - {book: Matthew,  chapter: 7, verse_start: 7,  verse_end: 11}
+      - {book: Luke,     chapter: 11, verse_start: 9,  verse_end: 13}
+
+  - title: "Golden Rule"
+    passages:
+      - {book: Matthew,  chapter: 7, verse_start: 12, verse_end: 12}
+      - {book: Luke,     chapter: 6, verse_start: 31, verse_end: 31}
+
+  - title: "Two Foundations: House on Rock and Sand"
+    passages:
+      - {book: Matthew,  chapter: 7, verse_start: 24, verse_end: 27}
+      - {book: Luke,     chapter: 6, verse_start: 47, verse_end: 49}
+
+  # ── Miracles ──────────────────────────────────────────────────────────────────
+
+  - title: "Healing of the Paralytic"
+    passages:
+      - {book: Matthew,  chapter: 9, verse_start: 1,  verse_end: 8}
+      - {book: Mark,     chapter: 2, verse_start: 1,  verse_end: 12}
+      - {book: Luke,     chapter: 5, verse_start: 17, verse_end: 26}
+
+  - title: "Healing of the Man with the Withered Hand"
+    passages:
+      - {book: Matthew,  chapter: 12, verse_start: 9,  verse_end: 14}
+      - {book: Mark,     chapter: 3, verse_start: 1,  verse_end: 6}
+      - {book: Luke,     chapter: 6, verse_start: 6,  verse_end: 11}
+
+  - title: "Stilling the Storm"
+    passages:
+      - {book: Matthew,  chapter: 8, verse_start: 23, verse_end: 27}
+      - {book: Mark,     chapter: 4, verse_start: 35, verse_end: 41}
+      - {book: Luke,     chapter: 8, verse_start: 22, verse_end: 25}
+
+  - title: "Gadarene / Gerasene Demoniac"
+    passages:
+      - {book: Matthew,  chapter: 8, verse_start: 28, verse_end: 34}
+      - {book: Mark,     chapter: 5, verse_start: 1,  verse_end: 20}
+      - {book: Luke,     chapter: 8, verse_start: 26, verse_end: 39}
+
+  - title: "Feeding of the Five Thousand"
+    passages:
+      - {book: Matthew,  chapter: 14, verse_start: 13, verse_end: 21}
+      - {book: Mark,     chapter: 6, verse_start: 30, verse_end: 44}
+      - {book: Luke,     chapter: 9, verse_start: 10, verse_end: 17}
+      - {book: John,     chapter: 6, verse_start: 1,  verse_end: 15}
+
+  - title: "Walking on Water"
+    passages:
+      - {book: Matthew,  chapter: 14, verse_start: 22, verse_end: 33}
+      - {book: Mark,     chapter: 6, verse_start: 45, verse_end: 52}
+      - {book: John,     chapter: 6, verse_start: 16, verse_end: 21}
+
+  - title: "Healing of the Blind Man"
+    passages:
+      - {book: Matthew,  chapter: 20, verse_start: 29, verse_end: 34}
+      - {book: Mark,     chapter: 10, verse_start: 46, verse_end: 52}
+      - {book: Luke,     chapter: 18, verse_start: 35, verse_end: 43}
+
+  - title: "Raising of Lazarus"
+    passages:
+      - {book: John,     chapter: 11, verse_start: 1,  verse_end: 44}
+
+  - title: "Raising of Jairus' Daughter"
+    passages:
+      - {book: Matthew,  chapter: 9, verse_start: 18, verse_end: 26}
+      - {book: Mark,     chapter: 5, verse_start: 21, verse_end: 43}
+      - {book: Luke,     chapter: 8, verse_start: 40, verse_end: 56}
+
+  # ── Teaching ─────────────────────────────────────────────────────────────────
+
+  - title: "Parable of the Sower"
+    passages:
+      - {book: Matthew,  chapter: 13, verse_start: 1,  verse_end: 23}
+      - {book: Mark,     chapter: 4, verse_start: 1,  verse_end: 20}
+      - {book: Luke,     chapter: 8, verse_start: 4,  verse_end: 15}
+
+  - title: "Parable of the Mustard Seed"
+    passages:
+      - {book: Matthew,  chapter: 13, verse_start: 31, verse_end: 32}
+      - {book: Mark,     chapter: 4, verse_start: 30, verse_end: 32}
+      - {book: Luke,     chapter: 13, verse_start: 18, verse_end: 19}
+
+  - title: "Parable of the Talents / Minas"
+    passages:
+      - {book: Matthew,  chapter: 25, verse_start: 14, verse_end: 30}
+      - {book: Luke,     chapter: 19, verse_start: 11, verse_end: 27}
+
+  - title: "Parable of the Lost Sheep"
+    passages:
+      - {book: Matthew,  chapter: 18, verse_start: 12, verse_end: 14}
+      - {book: Luke,     chapter: 15, verse_start: 3,  verse_end: 7}
+
+  - title: "Greatest Commandment"
+    passages:
+      - {book: Matthew,  chapter: 22, verse_start: 34, verse_end: 40}
+      - {book: Mark,     chapter: 12, verse_start: 28, verse_end: 34}
+      - {book: Luke,     chapter: 10, verse_start: 25, verse_end: 28}
+
+  - title: "Question about David's Son (Messiah)"
+    passages:
+      - {book: Matthew,  chapter: 22, verse_start: 41, verse_end: 46}
+      - {book: Mark,     chapter: 12, verse_start: 35, verse_end: 37}
+      - {book: Luke,     chapter: 20, verse_start: 41, verse_end: 44}
+
+  - title: "Olivet Discourse"
+    passages:
+      - {book: Matthew,  chapter: 24, verse_start: 1,  verse_end: 51}
+      - {book: Mark,     chapter: 13, verse_start: 1,  verse_end: 37}
+      - {book: Luke,     chapter: 21, verse_start: 5,  verse_end: 36}
+
+  # ── Transfiguration ───────────────────────────────────────────────────────────
+
+  - title: "Transfiguration"
+    passages:
+      - {book: Matthew,  chapter: 17, verse_start: 1,  verse_end: 9}
+      - {book: Mark,     chapter: 9,  verse_start: 2,  verse_end: 9}
+      - {book: Luke,     chapter: 9,  verse_start: 28, verse_end: 36}
+      - {book: John,     chapter: 1,  verse_start: 14, verse_end: 14}
+
+  # ── Holy Week ─────────────────────────────────────────────────────────────────
+
+  - title: "Triumphal Entry into Jerusalem"
+    passages:
+      - {book: Matthew,  chapter: 21, verse_start: 1,  verse_end: 11}
+      - {book: Mark,     chapter: 11, verse_start: 1,  verse_end: 11}
+      - {book: Luke,     chapter: 19, verse_start: 28, verse_end: 44}
+      - {book: John,     chapter: 12, verse_start: 12, verse_end: 19}
+
+  - title: "Cleansing of the Temple"
+    passages:
+      - {book: Matthew,  chapter: 21, verse_start: 12, verse_end: 17}
+      - {book: Mark,     chapter: 11, verse_start: 15, verse_end: 19}
+      - {book: Luke,     chapter: 19, verse_start: 45, verse_end: 48}
+      - {book: John,     chapter: 2,  verse_start: 13, verse_end: 22}
+
+  - title: "Anointing at Bethany"
+    passages:
+      - {book: Matthew,  chapter: 26, verse_start: 6,  verse_end: 13}
+      - {book: Mark,     chapter: 14, verse_start: 3,  verse_end: 9}
+      - {book: Luke,     chapter: 7,  verse_start: 36, verse_end: 50}
+      - {book: John,     chapter: 12, verse_start: 1,  verse_end: 8}
+
+  - title: "Last Supper / Institution of the Eucharist"
+    passages:
+      - {book: Matthew,  chapter: 26, verse_start: 17, verse_end: 30}
+      - {book: Mark,     chapter: 14, verse_start: 12, verse_end: 26}
+      - {book: Luke,     chapter: 22, verse_start: 7,  verse_end: 23}
+      - {book: John,     chapter: 13, verse_start: 1,  verse_end: 30}
+
+  - title: "Gethsemane"
+    passages:
+      - {book: Matthew,  chapter: 26, verse_start: 36, verse_end: 46}
+      - {book: Mark,     chapter: 14, verse_start: 32, verse_end: 42}
+      - {book: Luke,     chapter: 22, verse_start: 39, verse_end: 46}
+      - {book: John,     chapter: 18, verse_start: 1,  verse_end: 2}
+
+  - title: "Betrayal and Arrest of Jesus"
+    passages:
+      - {book: Matthew,  chapter: 26, verse_start: 47, verse_end: 56}
+      - {book: Mark,     chapter: 14, verse_start: 43, verse_end: 52}
+      - {book: Luke,     chapter: 22, verse_start: 47, verse_end: 53}
+      - {book: John,     chapter: 18, verse_start: 2,  verse_end: 12}
+
+  - title: "Trial before Pilate"
+    passages:
+      - {book: Matthew,  chapter: 27, verse_start: 11, verse_end: 26}
+      - {book: Mark,     chapter: 15, verse_start: 1,  verse_end: 15}
+      - {book: Luke,     chapter: 23, verse_start: 1,  verse_end: 25}
+      - {book: John,     chapter: 18, verse_start: 28, verse_end: 40}
+
+  - title: "Crucifixion"
+    passages:
+      - {book: Matthew,  chapter: 27, verse_start: 32, verse_end: 56}
+      - {book: Mark,     chapter: 15, verse_start: 21, verse_end: 41}
+      - {book: Luke,     chapter: 23, verse_start: 26, verse_end: 49}
+      - {book: John,     chapter: 19, verse_start: 17, verse_end: 37}
+
+  - title: "Burial of Jesus"
+    passages:
+      - {book: Matthew,  chapter: 27, verse_start: 57, verse_end: 66}
+      - {book: Mark,     chapter: 15, verse_start: 42, verse_end: 47}
+      - {book: Luke,     chapter: 23, verse_start: 50, verse_end: 56}
+      - {book: John,     chapter: 19, verse_start: 38, verse_end: 42}
+
+  # ── Resurrection ─────────────────────────────────────────────────────────────
+
+  - title: "Empty Tomb"
+    passages:
+      - {book: Matthew,  chapter: 28, verse_start: 1,  verse_end: 10}
+      - {book: Mark,     chapter: 16, verse_start: 1,  verse_end: 8}
+      - {book: Luke,     chapter: 24, verse_start: 1,  verse_end: 12}
+      - {book: John,     chapter: 20, verse_start: 1,  verse_end: 10}
+
+  - title: "Appearance to Mary Magdalene"
+    passages:
+      - {book: Matthew,  chapter: 28, verse_start: 9,  verse_end: 10}
+      - {book: Mark,     chapter: 16, verse_start: 9,  verse_end: 11}
+      - {book: John,     chapter: 20, verse_start: 11, verse_end: 18}
+
+  - title: "Road to Emmaus"
+    passages:
+      - {book: Luke,     chapter: 24, verse_start: 13, verse_end: 35}
+      - {book: Mark,     chapter: 16, verse_start: 12, verse_end: 13}
+
+  - title: "Appearance to the Eleven / Great Commission"
+    passages:
+      - {book: Matthew,  chapter: 28, verse_start: 16, verse_end: 20}
+      - {book: Mark,     chapter: 16, verse_start: 14, verse_end: 18}
+      - {book: Luke,     chapter: 24, verse_start: 36, verse_end: 49}
+      - {book: John,     chapter: 20, verse_start: 19, verse_end: 23}
+
+  - title: "Ascension"
+    passages:
+      - {book: Luke,     chapter: 24, verse_start: 50, verse_end: 53}
+      - {book: Acts,     chapter: 1,  verse_start: 9,  verse_end: 11}
+
+  # ── Peter's Confession / Pivotal Moments ──────────────────────────────────────
+
+  - title: "Peter's Confession at Caesarea Philippi"
+    passages:
+      - {book: Matthew,  chapter: 16, verse_start: 13, verse_end: 20}
+      - {book: Mark,     chapter: 8,  verse_start: 27, verse_end: 30}
+      - {book: Luke,     chapter: 9,  verse_start: 18, verse_end: 21}
+      - {book: John,     chapter: 6,  verse_start: 68, verse_end: 69}
+
+  - title: "First Passion Prediction"
+    passages:
+      - {book: Matthew,  chapter: 16, verse_start: 21, verse_end: 23}
+      - {book: Mark,     chapter: 8,  verse_start: 31, verse_end: 33}
+      - {book: Luke,     chapter: 9,  verse_start: 22, verse_end: 22}
+
+  - title: "Take Up Your Cross"
+    passages:
+      - {book: Matthew,  chapter: 16, verse_start: 24, verse_end: 28}
+      - {book: Mark,     chapter: 8,  verse_start: 34, verse_end: 9}
+      - {book: Luke,     chapter: 9,  verse_start: 23, verse_end: 27}
+
+  - title: "Peter's Denial of Christ"
+    passages:
+      - {book: Matthew,  chapter: 26, verse_start: 69, verse_end: 75}
+      - {book: Mark,     chapter: 14, verse_start: 66, verse_end: 72}
+      - {book: Luke,     chapter: 22, verse_start: 54, verse_end: 62}
+      - {book: John,     chapter: 18, verse_start: 15, verse_end: 27}
+
+  # ── Key Johannine / Prologue ──────────────────────────────────────────────────
+
+  - title: "Prologue: In the Beginning Was the Word"
+    passages:
+      - {book: John,     chapter: 1,  verse_start: 1,  verse_end: 18}
+      - {book: Genesis,  chapter: 1,  verse_start: 1,  verse_end: 5}
+
+  - title: "Nicodemus: Born Again of Water and Spirit"
+    passages:
+      - {book: John,     chapter: 3,  verse_start: 1,  verse_end: 21}
+
+  - title: "Woman at the Well"
+    passages:
+      - {book: John,     chapter: 4,  verse_start: 1,  verse_end: 42}
+
+  - title: "Bread of Life Discourse"
+    passages:
+      - {book: John,     chapter: 6,  verse_start: 22, verse_end: 71}
+      - {book: Matthew,  chapter: 26, verse_start: 26, verse_end: 29}
+
+  - title: "Good Shepherd"
+    passages:
+      - {book: John,     chapter: 10, verse_start: 1,  verse_end: 21}
+      - {book: Ezekiel,  chapter: 34, verse_start: 11, verse_end: 24}
+
+  - title: "High Priestly Prayer"
+    passages:
+      - {book: John,     chapter: 17, verse_start: 1,  verse_end: 26}
+
+  - title: "Pentecost / Gift of the Holy Spirit"
+    passages:
+      - {book: Acts,     chapter: 2,  verse_start: 1,  verse_end: 13}
+      - {book: John,     chapter: 20, verse_start: 22, verse_end: 22}
+      - {book: Joel,     chapter: 2,  verse_start: 28, verse_end: 32}

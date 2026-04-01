@@ -33,3 +33,7 @@ class VaultWriter(ABC):
     @abstractmethod
     def write_fathers(self, book: str, chapter: int, content: str) -> Path:
         """Write a Patristic catena companion. Returns the path written."""
+
+    @abstractmethod
+    def write_parallels(self, book: str, chapter: int, content: str) -> Path:
+        """Write a parallel passages companion. Returns the path written."""
