@@ -18,6 +18,7 @@ from vault_builder.adapters.obsidian.renderer import ObsidianRenderer
 from vault_builder.adapters.sources.apostolic_fathers_epub import (
     ApostolicFathersEpubSource,
     _AF_DOCUMENTS,
+    _HERMAS_BOOK_BOUNDARIES,
 )
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
@@ -28,23 +29,29 @@ DEFAULT_EPUB = (
 
 # Sample: a cross-section of documents and chapters
 SAMPLE_CHAPTERS: set[tuple[str, int]] = {
-    ("1 Clement",                  4),
-    ("1 Clement",                  5),
-    ("2 Clement",                  1),
-    ("Ignatius to the Ephesians",  1),
-    ("Ignatius to the Ephesians",  7),
-    ("Ignatius to the Romans",     4),
-    ("Polycarp to the Philippians", 2),
-    ("Martyrdom of Polycarp",      1),
-    ("Didache",                    1),
-    ("Didache",                    9),
-    ("Epistle of Barnabas",        1),
-    ("Epistle to Diognetus",       5),
+    ("1 Clement",                           4),
+    ("1 Clement",                           5),
+    ("2 Clement",                           1),
+    ("Ignatius to the Ephesians",           1),
+    ("Ignatius to the Ephesians",           7),
+    ("Ignatius to the Romans",              4),
+    ("Polycarp to the Philippians",         2),
+    ("Martyrdom of Polycarp",               1),
+    ("Didache",                             1),
+    ("Didache",                             9),
+    ("Epistle of Barnabas",                 1),
+    ("Epistle to Diognetus",                5),
+    ("Shepherd of Hermas — Visions",        1),
+    ("Shepherd of Hermas — Commandments",   1),
+    ("Shepherd of Hermas — Parables",       1),
 }
 
 # Chapter counts per document (needed for prev/next links)
 _CHAPTER_COUNT: dict[str, int] = {
     name: count for _, name, count in _AF_DOCUMENTS
+} | {
+    name: last - first + 1
+    for first, last, name in _HERMAS_BOOK_BOUNDARIES
 }
 
 

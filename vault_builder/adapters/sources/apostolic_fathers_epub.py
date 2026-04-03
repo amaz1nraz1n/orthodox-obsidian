@@ -26,8 +26,18 @@ Phase 1 documents (14): 1 Clement, 2 Clement, all 7 Ignatius letters,
 Polycarp to the Philippians, Martyrdom of Polycarp, Didache, Epistle of
 Barnabas, Epistle to Diognetus.
 
-Deferred: Shepherd of Hermas (three-book structure in one file) and Papias
-Fragments (brief excerpts, no chapter/verse structure).
+Shepherd of Hermas (part0028.html): 114 sequential chapters in one file,
+organised under three h2b book headings:
+  Visions      — sequential chapters  1–25  → within-book 1–25
+  Commandments — sequential chapters 26–49  → within-book 1–24
+  Parables     — sequential chapters 50–114 → within-book 1–65
+Footnote notation uses the sequential chapter number ("26.2 ..."), so
+_parse_footnote_para() receives the sequential value internally even though
+the Chapter domain object stores the within-book number.
+Vision 4 section 1 uses class="noindent" (not "noindent1") for its dropcap
+paragraph — handled explicitly in _parse_hermas.
+
+Deferred: Papias Fragments (brief excerpts, no chapter/verse structure).
 """
 
 import re
@@ -51,6 +61,28 @@ from vault_builder.domain.models import (
 from vault_builder.ports.patristic_source import PatristicSource
 
 warnings.filterwarnings("ignore", category=XMLParsedAsHTMLWarning)
+
+# ---------------------------------------------------------------------------
+# Shepherd of Hermas — three-book structure within one file
+# ---------------------------------------------------------------------------
+
+_HERMAS_HTML = "text/part0028.html"
+
+# (first_seq, last_seq_inclusive, book_name)
+_HERMAS_BOOK_BOUNDARIES: list[tuple[int, int, str]] = [
+    (1,  25,  "Shepherd of Hermas — Visions"),
+    (26, 49,  "Shepherd of Hermas — Commandments"),
+    (50, 114, "Shepherd of Hermas — Parables"),
+]
+
+
+def _hermas_book(seq: int) -> tuple[str, int]:
+    """Return (book_name, within_book_chapter) for a sequential Hermas chapter."""
+    for first, last, name in _HERMAS_BOOK_BOUNDARIES:
+        if first <= seq <= last:
+            return name, seq - first + 1
+    raise ValueError(f"Hermas sequential chapter {seq!r} is outside known range 1–114")
+
 
 # ---------------------------------------------------------------------------
 # Document manifest: (html_file, canonical_name, chapter_count)
@@ -163,6 +195,47 @@ _SCRIPTURE_REF_RE = re.compile(
 
 # Detects a footnote paragraph: starts with "N.M" or "N.M–N" pattern
 _NOTE_PARA_START_RE = re.compile(r"^\s*\d+\.\d+")
+
+# Hermas footnote segment header: "N.M" or "N.M–N" at word boundary
+_HERMAS_NOTE_SEG_RE = re.compile(r"\b(\d+)\.(\d+)(?:–\d+)?\s+")
+
+
+def _collect_hermas_all_notes(soup) -> dict[int, dict[int, list[str]]]:
+    """Pre-pass: collect all Hermas footnotes, keyed seq_chapter → verse → [frags].
+
+    Hermas footnotes are placed out-of-order in the EPUB: a footnote for
+    sequential chapter N may appear several chapters later.  Parsing them in
+    a separate pass — keyed by the chapter.verse label embedded in the text —
+    ensures correct chapter attribution regardless of physical position.
+
+    A single noindenta paragraph may reference multiple chapters, e.g.:
+      "8.1 brothers  9.1 brothers  9.2 are farming..."
+    which yields {8: {1: [...]}, 9: {1: [...], 2: [...]}}.
+    """
+    result: dict[int, dict[int, list[str]]] = {}
+    for p in soup.find_all("p"):
+        if "noindenta" not in p.get("class", []):
+            continue
+        raw = re.sub(r"\s+", " ", p.get_text(separator=" ").strip())
+        last_ch: Optional[int] = None
+        last_v:  Optional[int] = None
+        last_end = 0
+        for m in _HERMAS_NOTE_SEG_RE.finditer(raw):
+            if last_ch is not None:
+                frag = re.sub(r"\s+", " ", raw[last_end : m.start()].strip().rstrip("."))
+                if frag:
+                    result.setdefault(last_ch, {}).setdefault(last_v, []).append(
+                        _linkify_scripture(frag)
+                    )
+            last_ch, last_v = int(m.group(1)), int(m.group(2))
+            last_end = m.end()
+        if last_ch is not None:
+            frag = re.sub(r"\s+", " ", raw[last_end:].strip().rstrip("."))
+            if frag:
+                result.setdefault(last_ch, {}).setdefault(last_v, []).append(
+                    _linkify_scripture(frag)
+                )
+    return result
 
 
 def _linkify_scripture(text: str) -> str:
@@ -352,11 +425,98 @@ class ApostolicFathersEpubSource(PatristicSource):
         with zipfile.ZipFile(self.epub_path) as zf:
             for html_file, doc_name, _chapter_count in _AF_DOCUMENTS:
                 yield from self._parse_file(zf, html_file, doc_name)
+            yield from self._parse_hermas(zf)
 
     def _in_scope(self, doc_name: str, chapter: int) -> bool:
         if not self.sample_only:
             return True
         return (doc_name, chapter) in self.sample_chapters
+
+    def _parse_hermas(
+        self, zf: zipfile.ZipFile
+    ) -> Iterator[tuple[Chapter, ChapterNotes]]:
+        """Parse Shepherd of Hermas from part0028.html.
+
+        114 sequential chapters are split into three named books:
+          Visions (1–25), Commandments (26–49), Parables (50–114).
+        The Chapter.number stored is the within-book number (resets to 1 per
+        book).  Footnote parsing uses the sequential chapter number since the
+        Holmes footnote notation is "seq.verse" (e.g. "26.2 ...").
+        """
+        html = zf.read(_HERMAS_HTML).decode("utf-8")
+        soup = BeautifulSoup(html, "lxml")
+        paragraphs = soup.find_all("p")
+
+        # Pre-pass: collect all footnotes keyed by seq_chapter → verse → [frags].
+        # Hermas footnotes are physically displaced from their chapters in the EPUB.
+        all_notes = _collect_hermas_all_notes(soup)
+
+        current_seq: Optional[int] = None
+        current_verses: dict[int, Verse] = {}
+
+        def _flush() -> Optional[tuple[Chapter, ChapterNotes]]:
+            if current_seq is None or not current_verses:
+                return None
+            book_name, ch_num = _hermas_book(current_seq)
+            ch_obj = Chapter(book=book_name, number=ch_num, verses=current_verses)
+            notes_obj = ChapterNotes(book=book_name, chapter=ch_num, source="AF")
+            for verse_num, frags in all_notes.get(current_seq, {}).items():
+                for frag in frags:
+                    notes_obj.add_note(
+                        NoteType.FOOTNOTE,
+                        StudyNote(
+                            verse_number=verse_num,
+                            ref_str=f"{ch_num}.{verse_num}",
+                            content=frag,
+                        ),
+                    )
+            return ch_obj, notes_obj
+
+        for p in paragraphs:
+            cls = p.get("class", [])
+            dropcap = p.find("span", class_="dropcap")
+
+            # Chapter boundary — Vision 4.1 uses class="noindent" (not noindent1)
+            if dropcap and ("noindent1" in cls or "noindent" in cls):
+                ch_num_text = dropcap.get_text(strip=True)
+                if not ch_num_text.isdigit():
+                    continue
+                seq = int(ch_num_text)
+
+                result = _flush()
+                if result is not None:
+                    ch_obj, _ = result
+                    if self._in_scope(ch_obj.book, ch_obj.number):
+                        yield result
+
+                current_seq    = seq
+                current_verses = {}
+
+                verse_map = _extract_verse_text(p)
+                for v_num, v_text in verse_map.items():
+                    if v_text:
+                        current_verses[v_num] = Verse(number=v_num, text=v_text)
+                continue
+
+            if current_seq is None:
+                continue
+
+            # Continuation paragraphs (rare in Hermas, but handle for completeness)
+            if "noindent1" in cls and not dropcap:
+                raw_text = re.sub(r"\s+", " ", p.get_text(separator=" ").strip())
+                if not _NOTE_PARA_START_RE.match(raw_text):
+                    verse_map = _extract_verse_text(p)
+                    for v_num, v_text in verse_map.items():
+                        if v_text and v_num not in current_verses:
+                            current_verses[v_num] = Verse(number=v_num, text=v_text)
+                continue
+            # noindenta footnote paragraphs are handled by the pre-pass; skip here.
+
+        result = _flush()
+        if result is not None:
+            ch_obj, _ = result
+            if self._in_scope(ch_obj.book, ch_obj.number):
+                yield result
 
     def _parse_file(
         self,
