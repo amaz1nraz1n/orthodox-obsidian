@@ -19,6 +19,7 @@ from vault_builder.adapters.sources.apostolic_fathers_epub import (
     ApostolicFathersEpubSource,
     _AF_DOCUMENTS,
     _HERMAS_BOOK_BOUNDARIES,
+    _PAPIAS_DOCUMENTS,
 )
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
@@ -44,6 +45,8 @@ SAMPLE_CHAPTERS: set[tuple[str, int]] = {
     ("Shepherd of Hermas — Visions",        1),
     ("Shepherd of Hermas — Commandments",   1),
     ("Shepherd of Hermas — Parables",       1),
+    ("Papias Fragments",                    3),
+    ("Papias — Irenaeus Fragments",         1),
 }
 
 # Chapter counts per document (needed for prev/next links)
@@ -52,6 +55,8 @@ _CHAPTER_COUNT: dict[str, int] = {
 } | {
     name: last - first + 1
     for first, last, name in _HERMAS_BOOK_BOUNDARIES
+} | {
+    name: count for _, name, count in _PAPIAS_DOCUMENTS
 }
 
 

@@ -200,6 +200,17 @@ _NOTE_PARA_START_RE = re.compile(r"^\s*\d+\.\d+")
 _HERMAS_NOTE_SEG_RE = re.compile(r"\b(\d+)\.(\d+)(?:–\d+)?\s+")
 
 
+# Papias document manifest
+_PAPIAS_DOCUMENTS: list[tuple[str, str, int]] = [
+    ("text/part0032.html", "Papias Fragments",             26),
+    ("text/part0033.html", "Papias — Irenaeus Fragments",   5),
+]
+
+# Detects a leading plain-text verse number in noindent/noindent1 paragraphs
+# e.g. "1  Five books..." or "53  They went each..."
+_VERSE_LEAD_RE = re.compile(r"^(\d+)\s+")
+
+
 def _collect_hermas_all_notes(soup) -> dict[int, dict[int, list[str]]]:
     """Pre-pass: collect all Hermas footnotes, keyed seq_chapter → verse → [frags].
 
@@ -426,11 +437,98 @@ class ApostolicFathersEpubSource(PatristicSource):
             for html_file, doc_name, _chapter_count in _AF_DOCUMENTS:
                 yield from self._parse_file(zf, html_file, doc_name)
             yield from self._parse_hermas(zf)
+            for html_file, doc_name, _chapter_count in _PAPIAS_DOCUMENTS:
+                yield from self._parse_papias_file(zf, html_file, doc_name)
 
     def _in_scope(self, doc_name: str, chapter: int) -> bool:
         if not self.sample_only:
             return True
         return (doc_name, chapter) in self.sample_chapters
+
+    def _parse_papias_file(
+        self,
+        zf: zipfile.ZipFile,
+        html_file: str,
+        doc_name: str,
+    ) -> Iterator[tuple[Chapter, ChapterNotes]]:
+        """Parse a Papias fragments file.
+
+        Structure differs from the other documents:
+        - Fragment boundary: <p class="centera"> containing only a digit
+        - Verse text: <p class="noindent"> / <p class="noindent1"> with an
+          optional plain-text leading digit (e.g. "1  Five books of Papias…")
+          rather than a <span class="sup"> marker.  Paragraphs with no leading
+          digit are continuations of the previous verse.
+        - Footnotes: <p class="noindenta"> using the same "N.M text" format as
+          the rest of the corpus, but physically displaced — handled by the
+          same pre-pass as Hermas.
+        """
+        html = zf.read(html_file).decode("utf-8")
+        soup = BeautifulSoup(html, "lxml")
+        paragraphs = soup.find_all("p")
+
+        # Pre-pass: collect all N.M footnotes keyed by fragment → verse.
+        all_notes = _collect_hermas_all_notes(soup)
+
+        current_fragment: Optional[int] = None
+        pending_verses: dict[int, list[str]] = {}  # verse_num → [text parts]
+        current_verse: int = 1
+
+        def _flush() -> Optional[tuple[Chapter, ChapterNotes]]:
+            if current_fragment is None or not pending_verses:
+                return None
+            ch_obj = Chapter(book=doc_name, number=current_fragment)
+            for v_num in sorted(pending_verses):
+                text = re.sub(r"\s+", " ", " ".join(pending_verses[v_num])).strip()
+                if text:
+                    ch_obj.add_verse(v_num, text)
+            if not ch_obj.verses:
+                return None
+            notes_obj = ChapterNotes(book=doc_name, chapter=current_fragment, source="AF")
+            for verse_num, frags in all_notes.get(current_fragment, {}).items():
+                for frag in frags:
+                    notes_obj.add_note(
+                        NoteType.FOOTNOTE,
+                        StudyNote(
+                            verse_number=verse_num,
+                            ref_str=f"{current_fragment}.{verse_num}",
+                            content=frag,
+                        ),
+                    )
+            return ch_obj, notes_obj
+
+        for p in paragraphs:
+            cls = p.get("class", [])
+            raw = re.sub(r"\s+", " ", p.get_text(separator=" ").strip())
+
+            # Fragment boundary: centera containing only a number
+            if "centera" in cls and raw.isdigit():
+                result = _flush()
+                if result is not None and self._in_scope(doc_name, result[0].number):
+                    yield result
+                current_fragment = int(raw)
+                pending_verses   = {}
+                current_verse    = 1
+                continue
+
+            if current_fragment is None:
+                continue
+
+            if "noindenta" in cls:
+                continue  # handled by pre-pass
+
+            if "noindent1" in cls or "noindent" in cls:
+                m = _VERSE_LEAD_RE.match(raw)
+                if m:
+                    current_verse = int(m.group(1))
+                    raw = raw[m.end():].strip()
+                if raw:
+                    pending_verses.setdefault(current_verse, []).append(raw)
+                continue
+
+        result = _flush()
+        if result is not None and self._in_scope(doc_name, result[0].number):
+            yield result
 
     def _parse_hermas(
         self, zf: zipfile.ZipFile
