@@ -95,7 +95,7 @@ _AF_DOCUMENTS: list[tuple[str, str, int]] = [
     ("text/part0013.html", "Ignatius to the Magnesians",        15),
     ("text/part0014.html", "Ignatius to the Trallians",         13),
     ("text/part0015.html", "Ignatius to the Romans",            10),
-    ("text/part0016.html", "Ignatius to the Philippians",       11),
+    ("text/part0016.html", "Ignatius to the Philadelphians",    11),
     ("text/part0017.html", "Ignatius to the Smyrnaeans",        13),
     ("text/part0018.html", "Ignatius to Polycarp",               8),
     ("text/part0020.html", "Polycarp to the Philippians",       14),
