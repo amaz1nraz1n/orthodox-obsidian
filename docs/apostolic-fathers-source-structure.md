@@ -145,6 +145,11 @@ Block IDs use `^{chapter}-{verse}` to avoid collisions with Scripture block IDs.
 2. **Phase 2**: Extract inline footnotes as `— Notes.md` companions
 3. **Phase 3** (optional): Scripture citation → wikilink conversion in footnotes
 
+### Follow-on Source Plan
+
+- **Didache (`PER-60`)**: compare the physical edition against the Holmes EPUB before expanding extraction. Keep one primary Didache output, use the other edition as comparison/reference material, and normalize Scripture links to the main hub / OSB verse anchors.
+- **Shepherd of Hermas (`PER-61`)**: revisit the skipped material as a special-case structure. Extract the three internal books, `Visions`, `Mandates`, and `Similitudes`, as separate top-level units rather than forcing the flat chapter model used by the rest of the corpus.
+
 ### What to skip
 
 - The introductions per document (scholarly, not primary text)

@@ -18,6 +18,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 
 from vault_builder.domain.canon import book_file_prefix
+from vault_builder.domain.models import ChapterFathers
 from vault_builder.ports.parallel_source import ParallelSource
 from vault_builder.ports.patristic_source import PatristicSource
 from vault_builder.ports.renderer import VaultRenderer
@@ -84,6 +85,7 @@ class ExtractionService:
         source_label: str = "",
         patristic_source: PatristicSource | None = None,
         parallel_source: ParallelSource | None = None,
+        fathers_chapters: set[tuple[str, int]] | None = None,
     ) -> None:
         self._source = source
         self._renderer = renderer
@@ -92,9 +94,20 @@ class ExtractionService:
         self._source_label = source_label
         self._patristic_source = patristic_source
         self._parallel_source = parallel_source
+        self._fathers_chapters = set(fathers_chapters or set())
 
     def extract(self) -> ExtractionResult:
         result = ExtractionResult()
+        fathers_items: list[ChapterFathers] = []
+
+        # 0. Patristic sources are optionally preloaded so downstream renderers
+        # can know which chapters have Fathers companions before chapter files
+        # are rendered.
+        if self._patristic_source is not None:
+            fathers_items = list(self._patristic_source.read_fathers())
+            self._fathers_chapters.update(
+                {(fathers.book, fathers.chapter) for fathers in fathers_items}
+            )
 
         # 1. Book introductions (optional — most sources yield nothing)
         books_with_intros: set[str] = set()
@@ -115,6 +128,7 @@ class ExtractionService:
             max_ch = book.max_chapter()
             for chapter in sorted(book.chapters.values(), key=lambda c: c.number):
                 try:
+                    has_fathers = (chapter.book, chapter.number) in self._fathers_chapters
                     if self._mode is ExtractionMode.HUB:
                         intro_link = (
                             f"[[{book_file_prefix(chapter.book)} — OSB Intro]]"
@@ -122,13 +136,15 @@ class ExtractionService:
                             else None
                         )
                         content = self._renderer.render_hub(
-                            chapter, max_ch, intro_link=intro_link
+                            chapter, max_ch, intro_link=intro_link, has_fathers=has_fathers
                         )
                         self._writer.write_hub(chapter, content)
                         result.hubs_written += 1
                     else:
                         content = self._renderer.render_text_companion(
-                            chapter, self._source_label
+                            chapter,
+                            self._source_label,
+                            has_fathers=has_fathers,
                         )
                         self._writer.write_text_companion(
                             chapter, self._source_label, content
@@ -143,7 +159,8 @@ class ExtractionService:
         # 3. Notes companions
         for notes in self._source.read_notes():
             try:
-                content = self._renderer.render_notes(notes)
+                has_fathers = (notes.book, notes.chapter) in self._fathers_chapters
+                content = self._renderer.render_notes(notes, has_fathers=has_fathers)
                 self._writer.write_notes(notes, content)
                 result.notes_written += 1
             except Exception as exc:
@@ -153,23 +170,23 @@ class ExtractionService:
                 result.error_log.append(msg)
 
         # 4. Patristic catena companions (optional)
-        if self._patristic_source is not None:
-            for fathers in self._patristic_source.read_fathers():
-                try:
-                    content = self._renderer.render_fathers(fathers)
-                    self._writer.write_fathers(fathers.book, fathers.chapter, content)
-                    result.fathers_written += 1
-                except Exception as exc:
-                    msg = f"fathers {fathers.book} {fathers.chapter}: {exc}"
-                    logger.error(msg)
-                    result.errors += 1
-                    result.error_log.append(msg)
+        for fathers in fathers_items:
+            try:
+                content = self._renderer.render_fathers(fathers)
+                self._writer.write_fathers(fathers.book, fathers.chapter, content)
+                result.fathers_written += 1
+            except Exception as exc:
+                msg = f"fathers {fathers.book} {fathers.chapter}: {exc}"
+                logger.error(msg)
+                result.errors += 1
+                result.error_log.append(msg)
 
         # 5. Parallel passage companions (optional)
         if self._parallel_source is not None:
             for cn in self._parallel_source.read_parallels():
                 try:
-                    content = self._renderer.render_notes(cn)
+                    has_fathers = (cn.book, cn.chapter) in self._fathers_chapters
+                    content = self._renderer.render_notes(cn, has_fathers=has_fathers)
                     self._writer.write_parallels(cn.book, cn.chapter, content)
                     result.parallels_written += 1
                 except Exception as exc:

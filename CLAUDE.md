@@ -17,8 +17,10 @@ Workspace: tharp-personal
   Team: PER (Personal)
     Project: Orthodox Obsidian Vault  (slugId: 2b159ac7c42c)
       Milestone: Phase 1 — Core Sources   (complete)
-      Milestone: Phase 2 — New Sources    (active: Alter, DBH, NOAB)
-      Milestone: Phase 3 — Vault Polish   (nav, linking, validator)
+      Milestone: Phase 2 — New Sources    (backlog: Alter, DBH, NOAB, Manley)
+      Milestone: Phase 3 — Vault Polish   (active: parallel passages, citation routing, companion discoverability)
+      Milestone: Phase 4 — Photocopy PDF Sources  (backlog: NOAB quality gate and OCR cleanup)
+      Milestone: Phase 5 — Interlinear Hubs      (backlog: embedded interlinear / Gospel hub work)
 ```
 
 ### Issue conventions
@@ -61,10 +63,10 @@ Source registry:
 
 ## Current State
 
-Phase 1 complete as of 2026-03-21. DDD refactor complete as of 2026-03-31 (PER-26–35). 367 tests passing.
+Phase 1 complete as of 2026-03-21. DDD refactor complete as of 2026-03-31 (PER-26–35). Linear currently shows Phase 3 as the active execution lane, with Phases 2, 4, and 5 queued/backlog. 367 tests passing.
 
 Active sources (adapter + extract script + tests):
-- **OSB** — hub files + OSB Notes companions (canonical text, study articles, footnotes, cross-refs, lectionary, patristics)
+- **OSB** — hub files + OSB Notes companions with patristic citation links; Fathers companions are source-backed and keyed to their cited work when available (canonical text, study articles, footnotes, cross-refs, lectionary, patristics)
 - **Lexham** — OT text companions + Lexham Notes companions
 - **EOB** — NT text companions + EOB Notes companions
 - **NET** — Full Bible translator's notes companions (NET Notes; NET text file is support-only, not in nav)
@@ -77,6 +79,8 @@ Incomplete / gated:
 - **NOAB RSV** — adapter exists but gated from full runs; OCR artifacts, verse merging, GlyphLessFont issues (see `docs/noab-pdf-source-structure.md`)
 
 Not yet started (status: new): KJV, NJB, DBH NT, Robert Alter OT, EOB OT, Psalms of David, HTM Psalter, Philokalia
+
+Manley (*The Bible and the Holy Fathers for Orthodox*) now provides the source-backed Fathers companion layer across the shared sample envelope; remaining work is OCR polish and broader chapter coverage.
 
 Test harness: `tests/` pytest suite (unit + integration); `scripts/validate_output.py` for generated Markdown.
 
@@ -173,7 +177,7 @@ Scripture/
 Hub files contain **only** canonical text, H6 verse anchors, and breadcrumb frontmatter.
 
 - **Frontmatter**: required `testament`, `genre`, `book_id`, `aliases`, `up`, `prev`, `next`; optional `mt_ref`, `lxx_ref` only when a modeled reference-system divergence matters
-- **Nav callout**: see canonical nav order in `docs/implementation-architecture.md` § "Shared Navigation Contract". Hub nav is comprehensive (all modes + all notes). Companion navs are scoped: Hub · own notes · NET Notes only. NET text is not in the nav; accessible inline from NET Notes files only.
+- **Nav callout**: see canonical nav order in `docs/implementation-architecture.md` § "Shared Navigation Contract". Hub nav is comprehensive (all modes + all notes). Companion navs are scoped: Hub · own notes · NET Notes · Fathers when present. NET text is not in the nav; accessible inline from NET Notes files only.
 - **Verses**: one real verse per anchor, with canonical linking still resolving as `[[Book Chapter#vN]]`
 - **Reading layout**: the visible verse number should be styled inline with the verse text for normal Bible reading flow, typically via `.vn` styling, rather than rendering the number as a detached heading line above a separate paragraph
 - **Secondary stability anchor**: preserve a hidden per-verse block ID such as `^vN` when possible; it is useful for compatibility, transclusion, and implementation flexibility, but it does not replace the canonical external link contract
@@ -192,7 +196,7 @@ prev: ""
 next: "[[John 2]]"
 intro: "[[John — OSB Intro]]"
 ---
-> **Modes:** [[John 1|OSB]] · [[John 1 — EOB|EOB]] · [[John 1 — RSV|RSV]] · [[John 1 — Greek NT|Greek NT]] · [[John 1 — NET Notes|NET Notes]] · [[John 1 — EOB Notes|EOB Notes]] · [[John 1 — OSB Notes|Study Notes]]
+> **Modes:** [[John 1|OSB]] · [[John 1 — EOB|EOB]] · [[John 1 — RSV|RSV]] · [[John 1 — Greek NT|Greek NT]] · [[John 1 — NET Notes|NET Notes]] · [[John 1 — EOB Notes|EOB Notes]] · [[John 1 — OSB Notes|Study Notes]] · [[John 1 — Fathers|Fathers]]
 
 ###### v1
 <span class="vn">1</span> In the beginning was the Word, and the Word was with God, and the Word was God. ^v1
@@ -204,7 +208,7 @@ Named `{BookName} {Chapter} — {Source} Notes.md`.
 - **Frontmatter**: required `hub: "[[HubLink]]"`, `source: "SourceName"`; recommended `layer_type`, `book`, `chapter`, `cssclass`
 - **Heading links**: Link back to hub verse anchors using `### [[{Book} {Ch}#v{N}|{Ref}]]`
 - **Ordering rule**: Render companion content in verse/pericope order, not in large top-level sections by note family. Keep note-type distinction via callouts/CSS within each verse block.
-- **Nav scope rule**: Companion navs are scoped — each shows only: Hub (back link) · own notes companion (if applicable) · NET Notes. Do NOT replicate the full hub nav in companion files.
+- **Nav scope rule**: Companion navs are scoped — each shows only: Hub (back link) · own notes companion (if applicable) · NET Notes · Fathers when present. Do NOT replicate the full hub nav in companion files.
 - **NET text**: The NET text companion (`{Book} {Ch} — NET.md`) is not linked in any nav. It is accessed via an inline link within the NET Notes file only. NET Notes is linked in all files as universal apparatus.
 - **Schema note**: Generic fields like `type: commentary` may be added later for convenience, but they must not replace the established `hub` / `source` metadata or the normalized per-entry data model.
 - **Scope note**: This companion-file pattern applies to imported source layers like OSB, NET, Fathers, and Greek. Personal reflections remain distributed across `000-Zettelkasten/`, `500-Orthodox-Life/`, class notes, homily notes, etc., and link back to hub verses rather than living in a generated per-chapter companion file.

@@ -7,7 +7,7 @@ Contracts guarded:
   3. Verses render in ascending order.
   4. Each verse has an inline <span class="vn"> number.
   5. Each verse has a hidden ^vN block ID.
-  6. Nav is scoped: Hub · own notes (if any) · NET Notes. No full mode bar.
+  6. Nav is scoped: Hub · own notes (if any) · NET Notes · Fathers when present. No full mode bar.
 """
 import re
 
@@ -97,6 +97,11 @@ def test_nt_companion_nav_has_eob_notes_link(renderer, john1_chapter):
 def test_nt_companion_nav_has_net_notes_link(renderer, john1_chapter):
     output = renderer.render_text_companion(john1_chapter, source="EOB")
     assert "[[John 1 \u2014 NET Notes|NET Notes]]" in output
+
+
+def test_nt_companion_nav_has_fathers_link_when_enabled(renderer, john1_chapter):
+    output = renderer.render_text_companion(john1_chapter, source="EOB", has_fathers=True)
+    assert "[[John 1 \u2014 Fathers|Fathers]]" in output
 
 
 def test_companion_nav_has_no_osb_link(renderer, genesis1_lexham_chapter):

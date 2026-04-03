@@ -127,7 +127,8 @@ Returns `ExtractionResult` with counts and `summary()` string.
 
 All adapters map source-specific note markers to `NoteType`:
 
-- OSB: `crossReference.html` → `CROSS_REF`; `studyNote` → `FOOTNOTE`; patristic citations → `CITATION`
+- OSB: `crossReference.html` → `CROSS_REF`; `studyNote` → `FOOTNOTE`; patristic citations → `CITATION` notes that can link out to source-backed Fathers companions when present
+- Manley: OCR catena excerpts → source-backed `ChapterFathers` companions keyed to Scripture chapter
 - NET: `tn` → `TRANSLATOR`; `tc` → `VARIANT`; `sn` → `FOOTNOTE`; `map` → `BACKGROUND`
 - Lexham: translator notes → `TRANSLATOR`; variants → `VARIANT`
 - EOB: variants → `VARIANT`; alternatives → `ALTERNATIVE`; citations → `CITATION`
@@ -145,11 +146,11 @@ All adapters map source-specific note markers to `NoteType`:
 
 ### Chapter Text Companion Renderer (`render_text_companion`)
 
-Used for EOB NT, Lexham OT, Greek LXX, Greek NT. Scoped nav (hub + own notes + NET Notes).
+Used for EOB NT, Lexham OT, Greek LXX, Greek NT. Scoped nav (hub + own notes + NET Notes + Fathers when present).
 
 ### Notes Companion Renderer (`render_notes`)
 
-Used for OSB Notes, NET Notes, Lexham Notes, EOB Notes. Verse/pericope-ordered headings with typed callout blocks.
+Used for OSB Notes, NET Notes, Lexham Notes, EOB Notes, and Fathers. Verse/pericope-ordered headings with typed callout blocks.
 
 ### Book Intro Renderer (`render_book_intro`)
 
@@ -226,6 +227,7 @@ Most generated files should share the same top-of-file mode navigation shape so 
 | 5 | NET Notes | NET Notes | Technical apparatus (universal) |
 | 6 | EOB Notes | Lexham Notes | Source-specific notes |
 | 7 | Study Notes | Study Notes | OSB study notes |
+| 8 | Fathers | Fathers | Patristic companion (curated chapters only) |
 
 **NET text companion** is not included in the nav. It exists on disk but is accessed via an inline link within NET Notes files only. This reflects NET's notes-first purpose — the text is a support artifact for the apparatus, not a reading mode.
 
@@ -239,8 +241,9 @@ Most generated files should share the same top-of-file mode navigation shape so 
 1. The hub (back link)
 2. Its own notes companion (if applicable)
 3. NET Notes (universal apparatus — always present)
+4. Fathers (when a Fathers companion exists for the chapter)
 
-This keeps companion navs to 2–3 items. Notes companions link back to the hub and include NET Notes; they do not link to each other.
+This keeps companion navs to 2–4 items. Notes companions link back to the hub and include NET Notes; they do not link to each other.
 
 ### Book Intros — DECIDED (2026-03-23)
 

@@ -37,6 +37,7 @@ class VaultRenderer(ABC):
         chapter: Chapter,
         source: str,
         notes_suffix: str | None = None,
+        has_fathers: bool = False,
     ) -> str:
         """Render a parallel text layer (e.g. Lexham, EOB, NET) as a companion file.
 
@@ -46,14 +47,18 @@ class VaultRenderer(ABC):
             notes_suffix: Suffix for the companion notes link (e.g. "EOB Notes").
                           Pass None to suppress the link. When omitted, concrete
                           implementations default to f"{source} Notes".
+            has_fathers: When True, include a Fathers companion link for the
+                         current chapter after NET Notes.
         """
 
     @abstractmethod
-    def render_notes(self, notes: ChapterNotes) -> str:
+    def render_notes(self, notes: ChapterNotes, has_fathers: bool = False) -> str:
         """Render a study notes companion file for a chapter.
 
         Args:
             notes: The ChapterNotes domain object for one chapter/source pair.
+            has_fathers: When True, include a Fathers companion link for the
+                         current chapter after NET Notes.
         """
 
     @abstractmethod
@@ -61,6 +66,7 @@ class VaultRenderer(ABC):
         self,
         notes: ChapterNotes,
         pericopes: dict[int, str] | None = None,
+        has_fathers: bool = False,
     ) -> str:
         """Render a NET Bible notes companion with tn/tc/sn callouts.
 
@@ -68,6 +74,8 @@ class VaultRenderer(ABC):
             notes: The ChapterNotes domain object.
             pericopes: Optional mapping of verse number → pericope heading text,
                        used to insert section headers within the notes file.
+            has_fathers: When True, include a Fathers companion link after the
+                         NET text link in the scoped nav.
         """
 
     @abstractmethod

@@ -6,12 +6,22 @@ and generates Obsidian-formatted Markdown for an Eastern Orthodox personal study
 ## Current Focus
 
 - Core extraction architecture is in place and the main source stack is already usable.
+- Linear currently shows Phase 3 as the active execution lane, with Phase 2, Phase 4, and Phase 5 queued/backlog.
 - Current work is centered on output quality, note polish, and navigation refinement rather than raw source count.
 - NOAB RSV remains explicitly gated: the PDF is still too noisy for trustworthy routine extraction, even after recent parser improvements.
 - The next practical wins are:
+  - finishing parallel-passage and citation-routing work
   - improving hub-to-notes navigation and companion discoverability
-  - adding CSS/presentation polish for note callouts
-  - triaging remaining validator findings from full-stack extraction runs
+  - keeping Phase 2 source additions queued unless they have a clear audited path and approved slot
+  - keeping NOAB quality gating and interlinear work in their dedicated later-phase lanes
+
+## Linear Board Snapshot
+
+- Phase 1 — Core Sources: complete.
+- Phase 2 — New Sources: backlog/queued; Alter, DBH NT, NOAB RSV, and related source assessment work live here.
+- Phase 3 — Vault Polish: active; current issues cover parallel passages, citation routing, and companion discoverability.
+- Phase 4 — Photocopy PDF Sources: backlog; NOAB quality gating and OCR cleanup live here.
+- Phase 5 — Interlinear Hubs: backlog; dynamic/embedded interlinear work lives here.
 
 ## Project Layout
 
@@ -109,6 +119,7 @@ rsync -av output/Scripture/ \
 | Greek NT — GOArch Antoniades 1904 | Web | NT Greek text companions | `goarch_greek_nt.py` | approved |
 | Greek OT — Rahlfs LXX 1935 | CSV | OT Greek text companions | `greek_lxx_csv.py` | approved |
 | Apostolic Fathers (Holmes 3rd ed.) | EPUB | `100-References/Apostolic Fathers/` | `apostolic_fathers_epub.py` | approved |
+| Manley (Bible and the Holy Fathers for Orthodox) | Web/PDF | Source-backed Fathers companions in `output/Scripture/` | `manley_archive.py` | extracted |
 | OCMC Lectionary | CSV | Pericope links in hub files | `extract_lectionary.py` | extracted |
 | NOAB RSV | PDF | (gated — quality issues) | `noab_pdf.py` | incomplete |
 | KJV with Apocrypha | EPUB | — | — | new |
@@ -137,6 +148,7 @@ rsync -av output/Scripture/ \
 | `docs/goarch-greek-nt-source-structure.md` | GOArch web scrape patterns, polytonic Unicode |
 | `docs/noab-pdf-source-structure.md` | NOAB PDF layout, known quality issues, GlyphLessFont |
 | `docs/apostolic-fathers-source-structure.md` | Apostolic Fathers EPUB structure, verse anchor scheme |
+| `docs/manley-source-structure.md` | Manley OCR/text structure, Fathers companion extraction plan |
 | `docs/greek-nt-source-structure.md` | Survey of available Greek NT sources (reference) |
 
 ## Claude Code Skills

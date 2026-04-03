@@ -2,7 +2,8 @@
 Contract tests for EOB Notes companion rendering.
 
 Covers render_notes() when source="EOB": frontmatter, nav callout,
-verse ordering, heading wikilink format, and note content presence.
+verse ordering, heading wikilink format, Fathers link support, and note
+content presence.
 """
 import re
 import pytest
@@ -43,6 +44,11 @@ def test_eob_notes_nav_has_hub_link(renderer, john1_eob_notes):
 def test_eob_notes_nav_has_net_notes_link(renderer, john1_eob_notes):
     out = renderer.render_notes(john1_eob_notes)
     assert "[[John 1 \u2014 NET Notes|NET Notes]]" in out
+
+
+def test_eob_notes_nav_has_fathers_link_when_enabled(renderer, john1_eob_notes):
+    out = renderer.render_notes(john1_eob_notes, has_fathers=True)
+    assert "[[John 1 \u2014 Fathers|Fathers]]" in out
 
 
 def test_eob_notes_nav_has_no_osb_link(renderer, john1_eob_notes):

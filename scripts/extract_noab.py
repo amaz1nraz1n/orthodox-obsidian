@@ -14,6 +14,7 @@ import sys
 
 from vault_builder.adapters.obsidian.renderer import ObsidianRenderer
 from vault_builder.adapters.obsidian.writer import ObsidianWriter
+from vault_builder.bootstrap import FATHERS_SAMPLE_CHAPTERS
 from vault_builder.adapters.sources.noab_pdf import NoabPdfSource
 from vault_builder.domain.canon import BOOK_CHAPTER_COUNT
 
@@ -33,9 +34,13 @@ SAMPLE_CHAPTERS = {
     ("Isaiah",          53),
     ("Matthew",          1),
     ("Matthew",          5),
+    ("Matthew",         18),
     ("John",             1),
+    ("John",            14),
     ("Romans",           8),
     ("I Corinthians",   13),
+    ("Luke",             9),
+    ("Luke",            18),
     ("Revelation",       1),
 }
 
@@ -85,7 +90,13 @@ def main() -> None:
             if not ch_obj.verses:
                 logging.warning("No verses found: %s %d (skipping)", book, chapter)
                 continue
-            content = renderer.render_text_companion(ch_obj, source="NOAB RSV", notes_suffix=None)
+            has_fathers = (book, chapter) in FATHERS_SAMPLE_CHAPTERS
+            content = renderer.render_text_companion(
+                ch_obj,
+                source="NOAB RSV",
+                notes_suffix=None,
+                has_fathers=has_fathers,
+            )
             writer.write_text_companion(ch_obj, "NOAB RSV", content)
             count += 1
         except Exception as exc:

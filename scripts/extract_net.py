@@ -16,6 +16,7 @@ import sys
 
 from vault_builder.adapters.obsidian.renderer import ObsidianRenderer
 from vault_builder.adapters.obsidian.writer import ObsidianWriter
+from vault_builder.bootstrap import FATHERS_SAMPLE_CHAPTERS
 from vault_builder.adapters.sources.net_epub import NetEpubSource
 from vault_builder.domain.canon import BOOK_CHAPTER_COUNT
 
@@ -45,10 +46,14 @@ SAMPLE_CHAPTERS = {
     ("Ezekiel",          1),
     ("Matthew",          1),
     ("Matthew",          5),
+    ("Matthew",         18),
     ("John",             1),
+    ("John",            14),
     ("Acts",            15),
     ("Romans",           8),
     ("I Corinthians",   13),
+    ("Luke",             9),
+    ("Luke",            18),
     ("James",            1),
     ("Revelation",       1),
 }
@@ -109,12 +114,22 @@ def main() -> None:
         try:
             ch_obj = source.read_chapter(book, chapter)
             max_ch = BOOK_CHAPTER_COUNT.get(book, chapter)
-            text_content = renderer.render_text_companion(ch_obj, source="NET", notes_suffix=None)
+            has_fathers = (book, chapter) in FATHERS_SAMPLE_CHAPTERS
+            text_content = renderer.render_text_companion(
+                ch_obj,
+                source="NET",
+                notes_suffix=None,
+                has_fathers=has_fathers,
+            )
             writer.write_text_companion(ch_obj, "NET", text_content)
             text_count += 1
 
             notes_obj = source.read_notes(book, chapter)
-            notes_content = renderer.render_net_notes(notes_obj, pericopes=ch_obj.pericopes)
+            notes_content = renderer.render_net_notes(
+                notes_obj,
+                pericopes=ch_obj.pericopes,
+                has_fathers=has_fathers,
+            )
             writer.write_notes(notes_obj, notes_content)
             notes_count += 1
         except Exception as exc:

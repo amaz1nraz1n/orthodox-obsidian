@@ -8,7 +8,7 @@ Contracts guarded:
   4. Callouts use unified labels ([!tn], [!info], [!note]).
   5. Multiple note families on the same verse appear under one heading.
   6. No category section headings (e.g. "## Translator's Notes").
-  7. Nav is scoped: Hub · NET text link. No full mode bar.
+  7. Nav is scoped: Hub · NET text link · Fathers when present. No full mode bar.
   8. Scripture cross-references in content are converted to wikilinks.
 """
 import re
@@ -120,6 +120,11 @@ def test_net_notes_nav_has_hub_link(renderer, john1_net_notes):
 def test_net_notes_nav_has_net_text_link(renderer, john1_net_notes):
     output = renderer.render_net_notes(john1_net_notes)
     assert "[[John 1 \u2014 NET|NET text]]" in output
+
+
+def test_net_notes_nav_has_fathers_link_when_enabled(renderer, john1_net_notes):
+    output = renderer.render_net_notes(john1_net_notes, has_fathers=True)
+    assert "[[John 1 \u2014 Fathers|Fathers]]" in output
 
 
 def test_net_notes_nav_has_no_osb_or_eob_links(renderer, john1_net_notes):

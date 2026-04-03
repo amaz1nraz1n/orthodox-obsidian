@@ -6,11 +6,11 @@ This document captures the implementation-facing roadmap for source acquisition,
 This file answers:
 
 - which sources are local
-- which sources are Phase 1 vs Phase 2
+- which sources belong to the active and queued build phases
 - what gets built first
 - what should be manually acquired later
 
-## Project Snapshot — 2026-03-25
+## Project Snapshot — 2026-04-01
 
 ### Where The Project Stands
 
@@ -21,6 +21,15 @@ This file answers:
   - quality triage on generated output
   - polish of note presentation and navigation
   - disciplined admission of new sources only when quality is high enough
+- Linear now reflects that shift explicitly: Phase 3 is the active execution lane, while Phase 2, Phase 4, and Phase 5 are queued/backlog.
+
+### Linear Board Snapshot
+
+- Phase 1 — Core Sources: complete.
+- Phase 2 — New Sources: backlog/queued; Alter, DBH NT, NOAB RSV, and related source assessment work live here.
+- Phase 3 — Vault Polish: active; current issues cover parallel passages, citation routing, and companion discoverability.
+- Phase 4 — Photocopy PDF Sources: backlog; NOAB quality gating and OCR cleanup live here.
+- Phase 5 — Interlinear Hubs: backlog; dynamic/embedded interlinear work lives here.
 
 ### Current Reality Check
 
@@ -28,21 +37,22 @@ This file answers:
 - **Navigation and note UX still need polish.** The next high-value work is improving hub-to-notes navigation, tightening cross-layer navigation behavior, and making note layers easier to move through in actual reading.
 - **Visual callout styling is still missing.** New taxonomy callouts render with Obsidian defaults; this is now a polish task, not an architecture task.
 - **Validator follow-up is still required.** Full-stack extraction has been run, but its remaining warnings/errors need to be classified into true bugs, source limitations, or validator expectation mismatches.
+- **Phase 2 source work is not the immediate focus.** New-source candidates remain valid, but the board is intentionally keeping them behind the current polish lane.
 
 ### Immediate Next 3 Tasks
 
-1. **Polish hub-to-notes navigation and companion discoverability**
-   - Review the shared nav contract against actual generated files.
-   - Improve "hub → notes" affordances so the hub is a reliable launch point into the available companion layers.
-   - Tighten conditional rendering so gated or absent layers do not create dead or misleading navigation.
-2. **Finish note-layer presentation polish**
-   - Add CSS for the full callout taxonomy.
-   - Check that verse/pericope ordering still reads naturally across OSB, NET, EOB, and Lexham notes companions.
-   - Smooth out consistency problems between note families, labels, and companion file presentation.
-3. **Keep NOAB in audit/refinement mode, not promotion mode**
-   - Continue improving extraction quality, but treat the PDF itself as a hostile source.
-   - Do not promote NOAB to approved/full-run status until verse boundaries, OCR artifacts, and Psalms contamination are materially under control.
-   - Prioritize correctness over source-count growth.
+1. **Finish the active Phase 3 lane**
+   - Land the in-progress parallel-passage and citation-routing work.
+   - Keep companion discoverability and note navigation aligned with the shared nav contract.
+   - Treat the current polish lane as the primary board focus until it is actually closed out.
+2. **Keep Phase 2 source additions queued**
+   - Leave Alter, DBH NT, NOAB RSV, and similar source-admission work in backlog unless a source has a clear audited path and an approved implementation slot.
+   - Avoid starting a new source just because it is available locally.
+   - Promote only when the source structure doc and extraction target are both ready.
+3. **Hold Phase 4 and Phase 5 as planned follow-on work**
+   - Keep NOAB quality gating and photocopy-PDF cleanup in the dedicated PDF lane.
+   - Keep dynamic interlinear / embedded-hub work in reserve until the current polish lane is stable.
+   - Do not let later-phase architecture distract from the current execution lane.
 
 ## Current Source Status
 
@@ -59,6 +69,7 @@ This file answers:
 | NET Bible (1st ed.) | PDF | Notes-first technical layer | High |
 | Philokalia | PDF | Distributed/manual source | Medium |
 | Apostolic Fathers | EPUB + PDF | Distributed Patristic source; EPUB preferred for English extraction | Medium-high |
+| Manley (Bible and the Holy Fathers for Orthodox) | Web/PDF | Lectionary-organized Fathers catena; candidate companion source | Medium-high |
 
 ### Greek Sources
 
@@ -133,6 +144,14 @@ This file answers:
 - EPUB is preferred for English extraction
 - Greek/English PDF is a diglot reference source, not the default parser target
 - best modeled as distributed Patristic notes first, curated catena files later
+
+### Manley
+
+- Internet Archive scan of the 1984 SVS Press edition is available with PDF plus OCR derivatives
+- `_djvu.txt` is the best primary parse target; the PDF text layer is noisy in the front matter
+- the source is liturgical / lectionary-organized, not chapter-shaped
+- best modeled as source-backed Fathers companions keyed to Scripture chapters, with the Scripture anchor inferred from the reading header or explicit citation line
+- sample output now follows the shared sample envelope used by the other source adapters; remaining work is OCR cleanup and broader chapter coverage
 
 ### Philokalia
 

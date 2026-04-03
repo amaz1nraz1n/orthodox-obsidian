@@ -31,7 +31,49 @@ from vault_builder.service_layer.extraction import ExtractionMode, ExtractionSer
 
 _SOURCES_YAML = "sources.yaml"
 
-# Sample chapters per source — used when sample_only=True.
+# Shared sample envelope used to flag Fathers companions in sample runs.
+# This mirrors the representative chapters exercised by the current source
+# adapters, plus the few outliers used by NOAB and the Lexham notes script.
+FATHERS_SAMPLE_CHAPTERS: set[tuple[str, int]] = {
+    ("Genesis", 1),
+    ("Genesis", 2),
+    ("Exodus", 20),
+    ("Leviticus", 1),
+    ("Numbers", 6),
+    ("Deuteronomy", 6),
+    ("Joshua", 1),
+    ("I Kingdoms", 1),
+    ("Psalms", 1),
+    ("Psalms", 50),
+    ("Psalms", 151),
+    ("Job", 3),
+    ("Proverbs", 8),
+    ("Song of Solomon", 1),
+    ("Sirach", 1),
+    ("Tobit", 1),
+    ("Wisdom of Solomon", 1),
+    ("I Maccabees", 1),
+    ("Isaiah", 7),
+    ("Isaiah", 53),
+    ("Jeremiah", 1),
+    ("Ezekiel", 1),
+    ("Ezra", 1),
+    ("Nehemiah", 1),
+    ("Daniel", 3),
+    ("Matthew", 1),
+    ("Matthew", 5),
+    ("Matthew", 18),
+    ("John", 1),
+    ("John", 14),
+    ("Acts", 15),
+    ("Romans", 8),
+    ("I Corinthians", 13),
+    ("Luke", 9),
+    ("Luke", 18),
+    ("James", 1),
+    ("Revelation", 1),
+}
+
 _OSB_SAMPLE: set[tuple[str, int]] = {
     ("Genesis",           1),
     ("Exodus",           20),
@@ -57,9 +99,13 @@ _OSB_SAMPLE: set[tuple[str, int]] = {
     ("John",              1),
     ("Matthew",           1),
     ("Matthew",           5),
+    ("Matthew",          18),
     ("Acts",             15),
     ("Romans",            8),
     ("I Corinthians",    13),
+    ("Luke",              9),
+    ("Luke",             18),
+    ("John",             14),
     ("James",             1),
     ("Revelation",        1),
 }
@@ -88,10 +134,14 @@ _LEXHAM_SAMPLE: set[tuple[str, int]] = {
 _EOB_SAMPLE: set[tuple[str, int]] = {
     ("Matthew",        1),
     ("Matthew",        5),
+    ("Matthew",       18),
     ("John",           1),
+    ("John",          14),
     ("Acts",          15),
     ("Romans",         8),
     ("I Corinthians", 13),
+    ("Luke",           9),
+    ("Luke",          18),
     ("James",          1),
     ("Revelation",     1),
 }
@@ -110,10 +160,14 @@ _GREEK_LXX_SAMPLE: set[tuple[str, int]] = {
 _GREEK_NT_SAMPLE: set[tuple[str, int]] = {
     ("Matthew",        1),
     ("Matthew",        5),
+    ("Matthew",       18),
     ("John",           1),
+    ("John",          14),
     ("Acts",          15),
     ("Romans",         8),
     ("I Corinthians", 13),
+    ("Luke",           9),
+    ("Luke",          18),
     ("James",          1),
     ("Revelation",     1),
 }
@@ -121,6 +175,7 @@ _GREEK_NT_SAMPLE: set[tuple[str, int]] = {
 # Maps source short-name → (adapter class import path, ExtractionMode, label, sample_chapters)
 _SOURCE_CONFIG: dict[str, tuple[str, ExtractionMode, str, set[tuple[str, int]]]] = {
     "osb":      ("vault_builder.adapters.sources.osb_epub:OsbEpubSource",     ExtractionMode.HUB,       "OSB",       _OSB_SAMPLE),
+    "manley":   ("vault_builder.adapters.sources.manley_archive:ManleyArchiveSource", ExtractionMode.HUB, "Manley", FATHERS_SAMPLE_CHAPTERS),
     "lexham":   ("vault_builder.adapters.sources.lexham_epub:LexhamEpubSource", ExtractionMode.COMPANION, "Lexham",    _LEXHAM_SAMPLE),
     "eob":      ("vault_builder.adapters.sources.eob_epub:EobEpubSource",      ExtractionMode.COMPANION, "EOB",       _EOB_SAMPLE),
     "greek_lxx":("vault_builder.adapters.sources.greek_lxx_csv:GreekLxxCsvSource", ExtractionMode.COMPANION, "Greek LXX", _GREEK_LXX_SAMPLE),
@@ -256,6 +311,9 @@ def bootstrap(
         source:      Override the source adapter (for testing).
         renderer:    Override the renderer (for testing).
         writer:      Override the writer (for testing).
+
+    Any source override that also implements PatristicSource is wired into the
+    Fathers companion pipeline automatically.
     """
     if source_name not in _SOURCE_CONFIG:
         raise ValueError(
@@ -268,6 +326,12 @@ def bootstrap(
     resolved_source   = source   or _build_source(source_name, adapter_spec, full_run, sample_chapters)
     resolved_renderer = renderer or ObsidianRenderer()
     resolved_writer   = writer   or ObsidianWriter(output_root=output_dir)
+    resolved_patristic_source = (
+        resolved_source if isinstance(resolved_source, PatristicSource) else None
+    )
+    resolved_fathers_chapters = (
+        FATHERS_SAMPLE_CHAPTERS if (not full_run and source_name in {"eob", "greek_nt"}) else None
+    )
 
     return ExtractionService(
         source=resolved_source,
@@ -275,4 +339,6 @@ def bootstrap(
         writer=resolved_writer,
         mode=mode,
         source_label=label,
+        patristic_source=resolved_patristic_source,
+        fathers_chapters=resolved_fathers_chapters,
     )

@@ -18,6 +18,7 @@ import sys
 
 from vault_builder.adapters.obsidian.renderer import ObsidianRenderer
 from vault_builder.adapters.obsidian.writer import ObsidianWriter
+from vault_builder.bootstrap import FATHERS_SAMPLE_CHAPTERS
 from vault_builder.adapters.sources.greek_nt_csv import GreekNtCsvSource
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
@@ -29,10 +30,14 @@ DEFAULT_CSV_DIR = (
 SAMPLE_CHAPTERS = {
     ("Matthew",        1),
     ("Matthew",        5),
+    ("Matthew",       18),
     ("John",           1),
+    ("John",          14),
     ("Acts",          15),
     ("Romans",         8),
     ("I Corinthians", 13),
+    ("Luke",           9),
+    ("Luke",          18),
     ("James",          1),
     ("Revelation",     1),
 }
@@ -74,7 +79,13 @@ def main() -> None:
     count = 0
     for book in source.read_text():
         for chapter in book.chapters.values():
-            content = renderer.render_text_companion(chapter, "Greek NT", notes_suffix=None)
+            has_fathers = (chapter.book, chapter.number) in FATHERS_SAMPLE_CHAPTERS
+            content = renderer.render_text_companion(
+                chapter,
+                "Greek NT",
+                notes_suffix=None,
+                has_fathers=has_fathers,
+            )
             writer.write_text_companion(chapter, "Greek NT", content)
             count += 1
 

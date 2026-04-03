@@ -16,7 +16,7 @@ See also: `docs/lexham-epub-source-structure.md`, `docs/eob-epub-source-structur
 | `variant.html` | Textual variants | 932 notes |
 | `crossReference.html` | Cross-references | 355 notes |
 | `x-liturgical.html` | Lectionary notes | 365 `footnotedef` + 4 `footnotepara`; **currently processed** into `ChapterNotes.liturgical` |
-| `citation.html` | Patristic citations | 229 `footnotedef` + 1 `footnotepara`; **currently processed** into `ChapterNotes.citations` |
+| `citation.html` | Patristic citations | 229 `footnotedef` + 1 `footnotepara`; **processed** into `ChapterNotes.citations` and promoted into `ChapterFathers` when the citation is clearly attributed |
 | `alternative.html` | Alternative readings | 5 notes — **ingested into `ChapterNotes.variants`** (no distinct model field; provenance folded) |
 | `background.html` | Background notes | 2 notes — **ingested into `ChapterNotes.footnotes`** (no distinct model field; provenance folded) |
 | `translation.html` | Translation notes | 4 notes — **ingested into `ChapterNotes.variants`** (no distinct model field; provenance folded) |
@@ -179,7 +179,7 @@ This is the current structural mapping from source HTML into the domain layer.
 | `variant.html` | Pass C | `ChapterNotes.variants` | ✅ implemented |
 | `crossReference.html` | Pass D | `ChapterNotes.cross_references` | ✅ implemented |
 | `x-liturgical.html` | Pass E | `ChapterNotes.liturgical` | ✅ implemented |
-| `citation.html` | Pass F | `ChapterNotes.citations` | ✅ implemented |
+| `citation.html` | Pass F | `ChapterNotes.citations` + `ChapterFathers` | ✅ implemented |
 | `alternative.html` | Pass G → `variants` | `ChapterNotes.variants` (provenance folded) | ✅ implemented — no distinct domain field by design |
 | `background.html` | Pass H → `footnotes` | `ChapterNotes.footnotes` (provenance folded) | ✅ implemented — no distinct domain field by design |
 | `translation.html` | Pass I → `variants` | `ChapterNotes.variants` (provenance folded) | ✅ implemented — no distinct domain field by design |

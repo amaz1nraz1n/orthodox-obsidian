@@ -5,7 +5,7 @@ Covers:
   1. Domain: PatristicExcerpt immutability, PatristicType routing,
      ChapterFathers.add_excerpt(), sorted_excerpts()
   2. Renderer: render_fathers() output shape — frontmatter, nav, section
-     headings, [!father] callouts with attribution, pericope range refs
+     headings, [!cite] callouts with attribution, pericope range refs
   3. Writer: write_fathers() path convention
   4. Service: ExtractionService writes fathers when patristic_source set
   5. Nav: show_fathers=True adds Fathers slot; False omits it
@@ -102,6 +102,7 @@ def test_render_fathers_frontmatter():
 def test_render_fathers_nav():
     out = renderer.render_fathers(_make_fathers())
     assert "[[John 1|Hub]]" in out
+    assert "[[John 1 \u2014 Fathers|Fathers]]" not in out
 
 
 def test_render_fathers_section_heading_links_to_hub():
@@ -118,8 +119,8 @@ def test_render_fathers_block_id():
 
 def test_render_fathers_callout_attribution():
     out = renderer.render_fathers(_make_fathers())
-    assert "> [!father] Ignatius of Antioch — To the Ephesians, §7" in out
-    assert "> [!father] Clement of Rome — 1 Clement" in out
+    assert "> [!cite] Ignatius of Antioch — To the Ephesians, §7" in out
+    assert "> [!cite] Clement of Rome — 1 Clement" in out
 
 
 def test_render_fathers_callout_content():
@@ -141,7 +142,7 @@ def test_render_fathers_no_section_omits_comma():
         father="Polycarp", work="To the Philippians", content="body", verse_start=1
     ))
     out = renderer.render_fathers(cf)
-    assert "> [!father] Polycarp — To the Philippians\n" in out
+    assert "> [!cite] Polycarp — To the Philippians\n" in out
 
 
 # ── 3. Writer path convention ─────────────────────────────────────────────────
@@ -194,6 +195,27 @@ def test_extraction_result_summary_includes_fathers():
     )
     result = svc.extract()
     assert "1 fathers" in result.summary()
+
+
+def test_extraction_service_marks_hub_with_fathers_link_when_present():
+    from vault_builder.domain.models import Book, Chapter
+
+    book = Book(name="John")
+    chapter = Chapter(book="John", number=1)
+    chapter.add_verse(1, "In the beginning was the Word.")
+    book.add_chapter(chapter)
+
+    patristic = FakePatristicSource(fathers=[_make_fathers()])
+    writer = FakeVaultWriter()
+    svc = ExtractionService(
+        source=FakeScriptureSource(books=[book]),
+        renderer=renderer,
+        writer=writer,
+        patristic_source=patristic,
+    )
+    svc.extract()
+
+    assert "[[John 1 \u2014 Fathers|Fathers]]" in writer.written_hubs[("John", 1)]
 
 
 # ── 5. Nav slot ───────────────────────────────────────────────────────────────

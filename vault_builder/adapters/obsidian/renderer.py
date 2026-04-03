@@ -68,6 +68,13 @@ _CALLOUT: dict[NoteType, str] = {
 }
 
 
+def _blockquote_lines(text: str) -> list[str]:
+    """Split multiline callout content into quoted Markdown lines."""
+    normalized = text.replace("\r\n", "\n").replace("\r", "\n")
+    lines = normalized.split("\n")
+    return [f"> {line}" if line else ">" for line in lines]
+
+
 
 class ObsidianRenderer(VaultRenderer):
 
@@ -141,12 +148,14 @@ class ObsidianRenderer(VaultRenderer):
         chapter: int,
         own_notes_suffix: str | None = None,
         net_text_link: bool = False,
+        show_fathers: bool = False,
     ) -> str:
-        """Scoped nav for companion files: Hub · [own notes] · NET Notes.
+        """Scoped nav for companion files: Hub · [own notes] · NET Notes · Fathers.
 
         own_notes_suffix: notes file for text companions (e.g. "EOB Notes", "Lexham Notes").
                           Pass None when there is no notes companion (e.g. Greek NT, LXX).
         net_text_link: True for NET Notes only — replaces NET Notes link with NET text link.
+        show_fathers: True when a Fathers companion exists for this chapter.
         """
         pfx = book_file_prefix(book)
         parts = [f"[[{pfx} {chapter}|Hub]]"]
@@ -156,6 +165,8 @@ class ObsidianRenderer(VaultRenderer):
             parts.append(f"[[{pfx} {chapter} \u2014 NET|NET text]]")
         else:
             parts.append(f"[[{pfx} {chapter} \u2014 NET Notes|NET Notes]]")
+        if show_fathers:
+            parts.append(f"[[{pfx} {chapter} \u2014 Fathers|Fathers]]")
         return f"> **Nav:** {' \u00b7 '.join(parts)}"
 
     def _inject_scripture_links(self, text: str, current_book: str) -> str:
@@ -243,12 +254,17 @@ class ObsidianRenderer(VaultRenderer):
     # ── Text companion file ───────────────────────────────────────────────────
 
     def render_text_companion(
-        self, chapter: Chapter, source: str, notes_suffix: object = _UNSET
+        self,
+        chapter: Chapter,
+        source: str,
+        notes_suffix: object = _UNSET,
+        has_fathers: bool = False,
     ) -> str:
         """Render a parallel text layer (e.g. Lexham, EOB) as a chapter companion.
 
         notes_suffix: suffix for the Study Notes link (e.g. "EOB Notes").
                       Defaults to f"{source} Notes". Pass None to suppress the link.
+        has_fathers: when True, include a Fathers companion link after NET Notes.
         """
         book, ch = chapter.book, chapter.number
         abbr = BOOK_ABBREVIATIONS.get(book, book[:3])
@@ -258,7 +274,12 @@ class ObsidianRenderer(VaultRenderer):
         parts = [
             f'---\ncssclasses: [scripture-hub]\nhub: "[[{book_file_prefix(book)} {ch}]]"\nsource: "{source}"\n---',
             "",
-            self._companion_nav(book, ch, own_notes_suffix=resolved_notes_suffix),
+            self._companion_nav(
+                book,
+                ch,
+                own_notes_suffix=resolved_notes_suffix,
+                show_fathers=has_fathers,
+            ),
             "",
         ]
         for verse in chapter.sorted_verses():
@@ -279,6 +300,7 @@ class ObsidianRenderer(VaultRenderer):
         self,
         notes: ChapterNotes,
         pericopes: dict[int, str] | None = None,
+        has_fathers: bool = False,
     ) -> str:
         """Render a NET Bible notes companion with unified callouts ([!tn], [!info], [!note], [!bg])."""
         book, ch = notes.book, notes.chapter
@@ -286,7 +308,7 @@ class ObsidianRenderer(VaultRenderer):
         lines = [
             f'---\nhub: "[[{book_file_prefix(book)} {ch}]]"\nsource: "{notes.source}"\n---',
             "",
-            self._companion_nav(book, ch, net_text_link=True),
+            self._companion_nav(book, ch, net_text_link=True, show_fathers=has_fathers),
             "",
         ]
 
@@ -315,19 +337,19 @@ class ObsidianRenderer(VaultRenderer):
                 block_id = f" ^{note.anchor_id}" if note.anchor_id else ""
                 lines.append("")
                 lines.append(f"> {callout} {note.ref_str}{block_id}")
-                lines.append(f"> {self._inject_scripture_links(note.content, book)}")
+                lines.extend(_blockquote_lines(self._inject_scripture_links(note.content, book)))
                 i += 1
             lines.append("")
 
         return "\n".join(lines)
 
-    def render_notes(self, notes: ChapterNotes) -> str:
+    def render_notes(self, notes: ChapterNotes, has_fathers: bool = False) -> str:
         book, ch, source = notes.book, notes.chapter, notes.source
         pfx = book_file_prefix(book)
         lines = [
             f'---\nhub: "[[{pfx} {ch}]]"\nsource: "{source}"\n---',
             "",
-            self._companion_nav(book, ch),
+            self._companion_nav(book, ch, show_fathers=has_fathers),
             "",
         ]
 
@@ -368,7 +390,7 @@ class ObsidianRenderer(VaultRenderer):
                 if callout:
                     block_id = f" ^{note.anchor_id}" if (callout and note.anchor_id) else ""
                     lines.append(f"> {callout} {note.ref_str}{block_id}")
-                    lines.append(f"> {note.content}")
+                    lines.extend(_blockquote_lines(note.content))
                 else:
                     lines.append(note.content)
                 first_in_group = False
@@ -397,7 +419,7 @@ class ObsidianRenderer(VaultRenderer):
         """Render a Patristic catena companion for a Scripture chapter.
 
         Each pericope/verse group is a ### heading linking to the hub verse anchor,
-        followed by [!father] callouts — one per excerpt — with attribution in
+        followed by [!cite] callouts — one per excerpt — with attribution in
         the callout title and excerpt body below.
         """
         book, ch = fathers.book, fathers.chapter
@@ -425,8 +447,8 @@ class ObsidianRenderer(VaultRenderer):
                 if exc.section:
                     attribution += f", {exc.section}"
                 lines.append("")
-                lines.append(f"> [!father] {exc.father} — {attribution}")
-                lines.append(f"> {exc.content}")
+                lines.append(f"> [!cite] {exc.father} — {attribution}")
+                lines.extend(_blockquote_lines(exc.content))
                 i += 1
             lines.append("")
 

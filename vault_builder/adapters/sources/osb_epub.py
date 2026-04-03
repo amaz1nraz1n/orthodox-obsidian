@@ -5,6 +5,7 @@ Parses the Orthodox Study Bible EPUB and yields domain objects.
 
   read_text()  → Iterator[Book]         (verse text from main HTML files)
   read_notes() → Iterator[ChapterNotes] (study articles + footnotes)
+  read_fathers() → Iterator[ChapterFathers] (promoted patristic citations)
 
 The EPUB has two distinct note sources:
   Pass A — Inline gray study articles in the main book HTML files
@@ -25,11 +26,15 @@ from vault_builder.domain.models import (
     Book,
     BookIntro,
     Chapter,
+    ChapterFathers,
     ChapterNotes,
+    PatristicExcerpt,
+    PatristicType,
     StudyArticle,
     StudyNote,
     Verse,
 )
+from vault_builder.ports.patristic_source import PatristicSource
 from vault_builder.ports.source import ScriptureSource
 
 logger = logging.getLogger(__name__)
@@ -133,6 +138,19 @@ _NOTE_TYPE_TO_MARKER: dict[str, tuple[str, str]] = {
     "cross_references": ("§",  "nt-cross"),
 }
 
+_PATRISTIC_AUTHOR_PATTERNS: list[tuple[re.Pattern[str], str]] = [
+    (re.compile(r"\bSt\.\s+John Chrysostom\b", re.IGNORECASE), "John Chrysostom"),
+    (re.compile(r"\bJohn Chrysostom\b", re.IGNORECASE), "John Chrysostom"),
+    (re.compile(r"\bJohnChr\b", re.IGNORECASE), "John Chrysostom"),
+    (re.compile(r"\bTheophylact\b", re.IGNORECASE), "Theophylact of Ohrid"),
+    (re.compile(r"\bTheoph\b", re.IGNORECASE), "Theophylact of Ohrid"),
+    (re.compile(r"\bSt\.\s+Ambrose\b", re.IGNORECASE), "Ambrose of Milan"),
+    (re.compile(r"\bAmbrose\b", re.IGNORECASE), "Ambrose of Milan"),
+    (re.compile(r"\bAmbM\b", re.IGNORECASE), "Ambrose of Milan"),
+    (re.compile(r"\bIrenaeus\b", re.IGNORECASE), "Irenaeus of Lyons"),
+    (re.compile(r"\bIren\b", re.IGNORECASE), "Irenaeus of Lyons"),
+]
+
 
 # ── HTML → Markdown helpers ───────────────────────────────────────────────────
 
@@ -226,6 +244,23 @@ def _footnote_to_md(note_div: Tag) -> str:
     return text.strip()
 
 
+def _infer_osb_patristic_attribution(text: str, book: str) -> tuple[str, str] | None:
+    """Return a best-effort (father, work) pair for an OSB patristic citation."""
+    for pattern, father in _PATRISTIC_AUTHOR_PATTERNS:
+        if not pattern.search(text):
+            continue
+        if father == "John Chrysostom":
+            work = f"Homilies on {book}"
+        elif father in {"Theophylact of Ohrid", "Ambrose of Milan"}:
+            work = f"Commentary on {book}"
+        elif father == "Irenaeus of Lyons":
+            work = "Against Heresies"
+        else:
+            work = "OSB citation"
+        return father, work
+    return None
+
+
 def _article_to_md(gray_div: Tag) -> Optional[str]:
     """Convert an inline OSB study article (gray box) to an Obsidian callout."""
     title_text = ""
@@ -254,7 +289,7 @@ def _article_to_md(gray_div: Tag) -> Optional[str]:
 
 # ── Source adapter ────────────────────────────────────────────────────────────
 
-class OsbEpubSource(ScriptureSource):
+class OsbEpubSource(ScriptureSource, PatristicSource):
     """Reads the OSB EPUB file and yields domain objects."""
 
     def __init__(self, epub_path: str, sample_only: bool = False,
@@ -330,6 +365,33 @@ class OsbEpubSource(ScriptureSource):
                 if md:
                     seen_books.add(book_name)
                     yield BookIntro(book=book_name, source="OSB", content=md)
+
+    def read_fathers(self) -> Iterator[ChapterFathers]:
+        """Yield Fathers companions built from citation.html patristic notes."""
+        if not os.path.exists(self.epub_path):
+            logger.error("EPUB not found: %s", self.epub_path)
+            return
+
+        fathers_by_chapter: dict[tuple[str, int], ChapterFathers] = {}
+        with zipfile.ZipFile(self.epub_path, "r") as z:
+            if "OEBPS/citation.html" not in z.namelist():
+                return
+
+            logger.info("Processing OEBPS/citation.html for Fathers companions...")
+            soup = BeautifulSoup(
+                z.read("OEBPS/citation.html").decode("utf-8", errors="ignore"),
+                "html.parser",
+            )
+            self._collect_patristic_citations(soup, fathers_by_chapter)
+
+        if self.sample_only and self.sample_chapters:
+            fathers_by_chapter = {
+                key: value
+                for key, value in fathers_by_chapter.items()
+                if key in self.sample_chapters
+            }
+
+        yield from fathers_by_chapter.values()
 
     @staticmethod
     def _intro_to_md(intro_div: Tag) -> str:
@@ -791,6 +853,11 @@ class OsbEpubSource(ScriptureSource):
             md = _footnote_to_md(note_div)
             if not md:
                 continue
+            if content_key == "citations" and _infer_osb_patristic_attribution(md, book):
+                md = (
+                    f"{md}\n\n"
+                    f"See [[{book} {chapter} — Fathers#v{verse_start}|Fathers]]"
+                )
             own_id = note_div.get("id", "")
             if not isinstance(own_id, str):
                 own_id = ""
@@ -802,6 +869,76 @@ class OsbEpubSource(ScriptureSource):
                  "alternatives": [], "background_notes": [], "translator_notes": []}
             )
             chapter_content[key][content_key].append((verse_start, verse_end, ref_str, md, own_id))
+
+    def _collect_patristic_citations(
+        self,
+        soup: BeautifulSoup,
+        fathers_by_chapter: dict[tuple[str, int], ChapterFathers],
+    ) -> None:
+        from vault_builder.domain.canon import BOOK_CHAPTER_COUNT
+
+        _NOTE_CLASSES = {"footnotedef", "footnotedefpara", "footnotepara"}
+        for note_div in soup.find_all("div", class_=lambda c: c in _NOTE_CLASSES):
+            a_tag = note_div.find("a")
+            if not a_tag or not a_tag.get("href"):
+                continue
+
+            href = a_tag["href"]
+            href_file = href.split("#")[0]
+            book = _resolve_html_book(href_file)
+            if not book:
+                logger.debug("No book mapping for patristic citation: %s", href_file)
+                continue
+
+            b_tag = note_div.find("b")
+            if not b_tag:
+                continue
+
+            ref_str = b_tag.get_text().strip()
+            m_ref = _REF_STR_PAT.match(ref_str)
+            if not m_ref:
+                continue
+
+            chapter = int(m_ref.group(1))
+            verse_start = int(m_ref.group(2))
+            verse_end_raw = int(m_ref.group(3)) if m_ref.group(3) else None
+
+            max_ch = BOOK_CHAPTER_COUNT.get(book)
+            if max_ch is not None and chapter > max_ch:
+                logger.warning(
+                    "Skipping out-of-range patristic citation: %s %d:%d (max chapters: %d)",
+                    book, chapter, verse_start, max_ch,
+                )
+                continue
+
+            if verse_end_raw is not None and verse_end_raw < verse_start:
+                verse_end = None
+            else:
+                verse_end = verse_end_raw
+
+            md = _footnote_to_md(note_div)
+            attribution = _infer_osb_patristic_attribution(md, book)
+            if attribution is None:
+                continue
+
+            father, work = attribution
+            key = (book, chapter)
+            if key not in fathers_by_chapter:
+                fathers_by_chapter[key] = ChapterFathers(
+                    book=book,
+                    chapter=chapter,
+                    source="OSB Citations",
+                )
+            fathers_by_chapter[key].add_excerpt(
+                PatristicType.COMMENTARY,
+                PatristicExcerpt(
+                    father=father,
+                    work=work,
+                    content=md,
+                    verse_start=verse_start,
+                    verse_end=verse_end,
+                ),
+            )
 
     # ── Domain object builders ────────────────────────────────────────────────
 

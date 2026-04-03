@@ -107,3 +107,26 @@ def test_notes_companion_nav_has_no_eob_link(renderer, john1_osb_notes):
 def test_notes_companion_nav_has_net_notes_link(renderer, john1_osb_notes):
     output = renderer.render_notes(john1_osb_notes)
     assert "[[John 1 \u2014 NET Notes|NET Notes]]" in output
+
+
+def test_notes_companion_nav_has_fathers_link_when_enabled(renderer, john1_osb_notes):
+    output = renderer.render_notes(john1_osb_notes, has_fathers=True)
+    assert "[[John 1 \u2014 Fathers|Fathers]]" in output
+
+
+def test_notes_renderer_quotes_multiline_citation_content(renderer):
+    from vault_builder.domain.models import ChapterNotes, StudyNote
+
+    notes = ChapterNotes(book="John", chapter=14, source="OSB")
+    notes.add_note(
+        NoteType.CITATION,
+        StudyNote(
+            verse_number=26,
+            ref_str="14:26",
+            content="First line.\n\nSee [[John 14 — Fathers#v26|Fathers]]",
+        ),
+    )
+
+    output = renderer.render_notes(notes)
+    assert "> First line." in output
+    assert "> See [[John 14 — Fathers#v26|Fathers]]" in output

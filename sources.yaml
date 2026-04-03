@@ -34,7 +34,7 @@ sources:
     structure_doc: null
     adapter: null
     extract_script: null
-    status: new
+    status: extracted
     notes: "KJV (1611) with Apocrypha/Deuterocanon. Classic liturgical English; used in ROCOR and some GOA contexts. Potential Mode 3 ecumenical/classic comparison text. EPUB structure not yet assessed."
 
   njb:
@@ -243,7 +243,18 @@ sources:
     adapter: "vault_builder.adapters.sources.apostolic_fathers_epub"
     extract_script: "extract_apostolic_fathers.py"
     status: approved
-    notes: "Holmes 3rd edition, 14 documents. Output to 100-References/Apostolic Fathers/. Per-chapter files with verse anchors. Deferred: Shepherd of Hermas (3-book structure), Papias Fragments (no chapter structure)."
+    notes: "Holmes 3rd edition, 14 documents. Output to 100-References/Apostolic Fathers/. Per-chapter files with verse anchors. Follow-on work: PER-60 tracks Didache edition strategy and Scripture-link enrichment; PER-61 revisits Shepherd of Hermas as a three-book structure (Visions, Mandates, Similitudes). Papias Fragments remains no chapter structure."
+
+  manley:
+    label: "The Bible and the Holy Fathers for Orthodox — Johanna Manley"
+    path: "https://archive.org/details/svs-press-holy-bible-the-fathers-for-orthodox-cmplr.-johanna-manley-fwdrd.-bisho"
+    format: web
+    testament: patristic
+    structure_doc: "docs/manley-source-structure.md"
+    adapter: "vault_builder.adapters.sources.manley_archive"
+    extract_script: "extract_manley.py"
+    status: new
+    notes: "Internet Archive scan of the 1984 SVS Press edition. PDF scan plus OCR derivatives (_djvu.txt, hOCR) are available and the OCR text is usable. Lectionary-organized Fathers catena source; sample output now follows the shared sample envelope used by the other source adapters. Output should be source-backed Fathers companions keyed to Scripture chapters, not Scripture hub text; remaining work is OCR cleanup and broader coverage."
 
   apostolic-fathers-diglot:
     label: "The Apostolic Fathers — Greek/English Diglot (PDF)"
