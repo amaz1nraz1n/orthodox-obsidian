@@ -140,6 +140,17 @@ sources:
     status: approved
     notes: "Primary OT Mode 2 comparison text (LXX-based translation). Produces Lexham text companion and Lexham Notes companion. Handles Esdras B chapter-offset split for Ezra/Nehemiah."
 
+  nets:
+    label: "A New English Translation of the Septuagint (NETS)"
+    path: "./source_files/Old Testament /A new English translation of the Septuagint.epub"
+    format: epub
+    testament: ot
+    structure_doc: null
+    adapter: null
+    extract_script: null
+    status: approved
+    notes: "NETS — scholarly LXX translation (Oxford, 2007). Full LXX canon including Deuterocanon (39+ books — fills the Deuterocanon gap no other source covers). 42 chapter HTML files + ~800 page HTML files (footnote defs). Three verse marker patterns: <strong>1</strong> (chapter-open), <sup>N</sup> (mid-para), plain 'N ' (new-para). Footnotes in page_N.html, resolved by href. Psalms: LXX primary with MT in parens (Psalm 50(51)) — matches vault convention, no mapping table needed. NoteType: VARIANTS for Om/We^ed patterns, TRANSLATOR for Or/Lit. Output: NETS text companion + NETS Notes companion + per-book intros to 100-References/NETS/."
+
   eob-ot:
     label: "Eastern Orthodox Bible — Old Testament"
     path: "./source_files/Old Testament /EOB - OT The Eastern Greek Orthodox Old Testament Based on the Official Text of the Greek Orthodox Church.pdf"
@@ -156,11 +167,11 @@ sources:
     path: "./source_files/Old Testament /The Hebrew Bible -- Robert Alter.epub"
     format: epub
     testament: ot
-    structure_doc: null
+    structure_doc: "docs/alter-epub-source-structure.md"
     adapter: null
     extract_script: null
-    status: new
-    notes: "Literary/scholarly OT translation with extensive commentary. Large EPUB (~32 MB). Potential secondary OT comparison or commentary layer. EPUB structure not yet assessed."
+    status: approved
+    notes: "Literary/scholarly OT translation with extensive commentary. 3-volume EPUB (31.7 MB), 1011 spine items. MT canon only (39 books — no Deuterocanon). Mode 3 literary comparison layer. Verse markers: inline <sup>N</sup> in prose paragraphs (multiple verses per paragraph); Psalms: one file per Psalm, one colon per <p>. Footnotes (NoteType.TRANSLATOR) in same file as text. LORD rendered as plain LORD. Psalms extraction blocked until psalter-concordance.json built (MT→LXX mapping required). Output: Alter text companion + Alter Notes companion + per-book intros to 100-References/Alter/."
 
   # ── Psalms ────────────────────────────────────────────────────────────────
 
