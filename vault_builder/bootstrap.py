@@ -161,6 +161,27 @@ _DBH_SAMPLE: set[tuple[str, int]] = {
     ("Revelation",     1),
 }
 
+_NETS_SAMPLE: set[tuple[str, int]] = {
+    ("Genesis",          1),
+    ("Exodus",          20),
+    ("Leviticus",        1),
+    ("Psalms",           1),
+    ("Psalms",          50),
+    ("Job",              3),
+    ("Proverbs",         8),
+    ("Song of Songs",    1),
+    ("Sirach",           1),
+    ("Wisdom of Solomon", 1),
+    ("1 Maccabees",      1),
+    ("Lamentations",     1),
+    ("Isaiah",           7),
+    ("Isaiah",          53),
+    ("Jeremiah",         1),
+    ("Ezekiel",          1),
+    ("Tobit",            1),
+    ("Judith",           1),
+}
+
 _GREEK_LXX_SAMPLE: set[tuple[str, int]] = {
     ("Genesis",           1),
     ("Psalms",           50),
@@ -194,6 +215,7 @@ _SOURCE_CONFIG: dict[str, tuple[str, ExtractionMode, str, set[tuple[str, int]]]]
     "lexham":   ("vault_builder.adapters.sources.lexham_epub:LexhamEpubSource", ExtractionMode.COMPANION, "Lexham",    _LEXHAM_SAMPLE),
     "eob":      ("vault_builder.adapters.sources.eob_epub:EobEpubSource",      ExtractionMode.COMPANION, "EOB",       _EOB_SAMPLE),
     "dbh":      ("vault_builder.adapters.sources.dbh_epub:DbhEpubSource",      ExtractionMode.COMPANION, "DBH",       _DBH_SAMPLE),
+    "nets":      ("vault_builder.adapters.sources.nets_epub:NetsEpubSource",        ExtractionMode.COMPANION, "NETS",      _NETS_SAMPLE),
     "greek_lxx":("vault_builder.adapters.sources.greek_lxx_csv:GreekLxxCsvSource", ExtractionMode.COMPANION, "Greek LXX", _GREEK_LXX_SAMPLE),
     "greek_nt": ("vault_builder.adapters.sources.goarch_greek_nt:GoarchGreekNtSource", ExtractionMode.COMPANION, "Greek NT", _GREEK_NT_SAMPLE),
 }
