@@ -113,8 +113,8 @@ sources:
     structure_doc: "docs/dbh-nt-source-structure.md"
     adapter: null
     extract_script: null
-    status: new
-    notes: "Highly literal NT translation with strong Greek fidelity. Potential second NT Mode 2 or Mode 3 comparison layer. EPUB structure not yet assessed."
+    status: approved
+    notes: "Mode 2 NT second text companion (alongside EOB). One file per book (part0011–part0037). Verse markers: inline <span class='superscript'>N</span> in <p class='indent'> paragraphs; multiple verses per paragraph (literary flow). No pericope headings. 400 footnotes (NoteType.TRANSLATOR) — letter-indexed per book, defined at bottom of same file. GOD/god typography: plain GOD/god in Markdown. Single-chapter books (Philemon, 2 John, 3 John, Jude) identified by h2.h2a. Output: DBH text companion + DBH Notes companion. Also extract Introduction (part0009) and Postscript (part0038) to 100-References/."
 
   dbh-pdf:
     label: "The New Testament — David Bentley Hart (PDF)"
