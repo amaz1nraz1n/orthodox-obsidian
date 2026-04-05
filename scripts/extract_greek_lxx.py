@@ -74,8 +74,14 @@ def main() -> None:
     count = 0
     for book in source.read_text():
         for chapter in book.chapters.values():
-            content = renderer.render_text_companion(chapter, "LXX", notes_suffix=None)
+            has_fathers = writer.has_fathers_companion(chapter.book, chapter.number)
+            content = renderer.render_text_companion(
+                chapter, "LXX", notes_suffix=None, has_fathers=has_fathers
+            )
             writer.write_text_companion(chapter, "LXX", content)
+            companions = writer.list_text_companions(chapter.book, chapter.number)
+            trans = renderer.render_translations_hub(chapter.book, chapter.number, companions)
+            writer.write_translations_hub(chapter.book, chapter.number, trans)
             count += 1
 
     logging.info("Done: %d LXX text companions written.", count)

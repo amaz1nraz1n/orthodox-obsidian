@@ -162,9 +162,13 @@ class ExtractionService:
                         result.hubs_written += 1
                     else:
                         noted = noted_verses_index.get((chapter.book, chapter.number))
+                        notes_suffix = (
+                            f"{self._source_label} Notes" if noted else None
+                        )
                         content = self._renderer.render_text_companion(
                             chapter,
                             self._source_label,
+                            notes_suffix=notes_suffix,
                             has_fathers=has_fathers,
                             noted_verses=noted,
                         )

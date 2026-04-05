@@ -80,6 +80,9 @@ def main() -> None:
             has_fathers=has_fathers,
         )
         writer.write_text_companion(chapter, "Greek NT", content)
+        companions = writer.list_text_companions(chapter.book, chapter.number)
+        trans = renderer.render_translations_hub(chapter.book, chapter.number, companions)
+        writer.write_translations_hub(chapter.book, chapter.number, trans)
         count += 1
         logging.info("  %s %d", chapter.book, chapter.number)
 
