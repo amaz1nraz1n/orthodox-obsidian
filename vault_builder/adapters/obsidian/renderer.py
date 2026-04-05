@@ -240,18 +240,22 @@ class ObsidianRenderer(VaultRenderer):
         source: str,
         notes_suffix: object = _UNSET,
         has_fathers: bool = False,
+        noted_verses: set[int] | None = None,
     ) -> str:
         """Render a parallel text layer (e.g. Lexham, EOB) as a chapter companion.
 
         notes_suffix: suffix for the Study Notes link (e.g. "EOB Notes").
                       Defaults to f"{source} Notes". Pass None to suppress the link.
         has_fathers: when True, include a Fathers companion link after NET Notes.
+        noted_verses: verse numbers that have entries in the notes companion.
+                      When provided, a † link to the notes entry is appended inline.
         """
         book, ch = chapter.book, chapter.number
         abbr = BOOK_ABBREVIATIONS.get(book, book[:3])
         resolved_notes_suffix: str | None = (
             f"{source} Notes" if notes_suffix is _UNSET else notes_suffix  # type: ignore[assignment]
         )
+        notes_file = f"{book_file_prefix(book)} {ch} \u2014 {source} Notes"
         parts = [
             f'---\ncssclasses: [scripture-hub]\nhub: "[[{book_file_prefix(book)} {ch}]]"\nsource: "{source}"\n---',
             "",
@@ -267,9 +271,14 @@ class ObsidianRenderer(VaultRenderer):
             if verse.text:
                 if verse.number in chapter.pericopes:
                     parts.append(f"*{chapter.pericopes[verse.number]}*")
+                marker = (
+                    f" [[{notes_file}#v{verse.number}|\u2020]]"
+                    if noted_verses and verse.number in noted_verses
+                    else ""
+                )
                 parts.append(
                     f'###### v{verse.number}\n'
-                    f'<span class="vn">{verse.number}</span> {verse.text} ^v{verse.number}\n'
+                    f'<span class="vn">{verse.number}</span> {verse.text}{marker} ^v{verse.number}\n'
                 )
                 for marker in chapter.after_markers.get(verse.number, []):
                     parts.append(f"*{marker}*\n")
@@ -351,7 +360,7 @@ class ObsidianRenderer(VaultRenderer):
 
         text_target = (
             f"{pfx} {ch} \u2014 {source}"
-            if source in ("EOB", "Lexham", "NETS")
+            if source != "OSB"
             else f"{pfx} {ch}"
         )
         i = 0

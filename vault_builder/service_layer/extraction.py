@@ -18,7 +18,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 
 from vault_builder.domain.canon import book_file_prefix
-from vault_builder.domain.models import ChapterFathers
+from vault_builder.domain.models import ChapterFathers, NoteType
 from vault_builder.ports.parallel_source import ParallelSource
 from vault_builder.ports.patristic_source import PatristicSource
 from vault_builder.ports.renderer import VaultRenderer
@@ -127,6 +127,20 @@ class ExtractionService:
                 result.error_log.append(msg)
 
         # 2. Chapter text
+        # For COMPANION mode: pre-collect notes to build a noted_verses index so
+        # the text companion can embed † links to note entries inline.
+        noted_verses_index: dict[tuple[str, int], set[int]] = {}
+        cached_notes: list = []
+        if self._mode is ExtractionMode.COMPANION:
+            for notes in self._source.read_notes():
+                cached_notes.append(notes)
+                key = (notes.book, notes.chapter)
+                noted_verses_index.setdefault(key, set())
+                for note_type in NoteType:
+                    for note in notes.sorted_notes(note_type):
+                        if note.verse_number > 0:
+                            noted_verses_index[key].add(note.verse_number)
+
         for book in self._source.read_text():
             max_ch = book.max_chapter()
             for chapter in sorted(book.chapters.values(), key=lambda c: c.number):
@@ -147,10 +161,12 @@ class ExtractionService:
                         self._writer.write_hub(chapter, content)
                         result.hubs_written += 1
                     else:
+                        noted = noted_verses_index.get((chapter.book, chapter.number))
                         content = self._renderer.render_text_companion(
                             chapter,
                             self._source_label,
                             has_fathers=has_fathers,
+                            noted_verses=noted,
                         )
                         self._writer.write_text_companion(
                             chapter, self._source_label, content
@@ -163,8 +179,9 @@ class ExtractionService:
                     result.errors += 1
                     result.error_log.append(msg)
 
-        # 3. Notes companions
-        for notes in self._source.read_notes():
+        # 3. Notes companions (use cached list for COMPANION mode)
+        notes_iter = cached_notes if cached_notes else self._source.read_notes()
+        for notes in notes_iter:
             try:
                 has_fathers = (
                     (notes.book, notes.chapter) in self._fathers_chapters

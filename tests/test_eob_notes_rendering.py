@@ -56,9 +56,9 @@ def test_eob_notes_nav_has_no_osb_link(renderer, john1_eob_notes):
     assert "[[John 1|OSB]]" not in out, "Notes companion must not include OSB mode link"
 
 
-def test_eob_notes_nav_has_no_eob_mode_link(renderer, john1_eob_notes):
+def test_eob_notes_nav_links_back_to_eob_text(renderer, john1_eob_notes):
     out = renderer.render_notes(john1_eob_notes)
-    assert "[[John 1 \u2014 EOB|EOB]]" not in out, "EOB Notes must not link to EOB text mode"
+    assert "[[John 1 \u2014 EOB|EOB]]" in out, "EOB Notes must link back to EOB text companion"
 
 
 def test_eob_notes_nav_has_no_lexham_link(renderer, john1_eob_notes):
