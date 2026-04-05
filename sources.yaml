@@ -168,8 +168,8 @@ sources:
     format: epub
     testament: ot
     structure_doc: "docs/alter-epub-source-structure.md"
-    adapter: null
-    extract_script: null
+    adapter: "vault_builder.adapters.sources.alter_epub"
+    extract_script: "extract_alter.py"
     status: approved
     notes: "Literary/scholarly OT translation with extensive commentary. 3-volume EPUB (31.7 MB), 1011 spine items. MT canon only (39 books — no Deuterocanon). Mode 3 literary comparison layer. Verse markers: inline <sup>N</sup> in prose paragraphs (multiple verses per paragraph); Psalms: one file per Psalm, one colon per <p>. Footnotes (NoteType.TRANSLATOR) in same file as text. LORD rendered as plain LORD. Psalms extraction blocked until psalter-concordance.json built (MT→LXX mapping required). Output: Alter text companion + Alter Notes companion + per-book intros to 100-References/Alter/."
 

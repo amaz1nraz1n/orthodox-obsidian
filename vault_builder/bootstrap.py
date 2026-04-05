@@ -209,13 +209,27 @@ _GREEK_NT_SAMPLE: set[tuple[str, int]] = {
 }
 
 # Maps source short-name → (adapter class import path, ExtractionMode, label, sample_chapters)
+_ALTER_SAMPLE: set[tuple[str, int]] = {
+    ("Genesis",      1),
+    ("Genesis",      2),
+    ("Exodus",      20),
+    ("Isaiah",       7),
+    ("Isaiah",      53),
+    ("Ruth",         1),
+    ("Job",          3),
+    ("Proverbs",     8),
+    ("Jeremiah",     1),
+    ("Ezekiel",      1),
+}
+
 _SOURCE_CONFIG: dict[str, tuple[str, ExtractionMode, str, set[tuple[str, int]]]] = {
     "osb":      ("vault_builder.adapters.sources.osb_epub:OsbEpubSource",     ExtractionMode.HUB,       "OSB",       _OSB_SAMPLE),
     "manley":   ("vault_builder.adapters.sources.manley_archive:ManleyArchiveSource", ExtractionMode.HUB, "Manley", FATHERS_SAMPLE_CHAPTERS),
     "lexham":   ("vault_builder.adapters.sources.lexham_epub:LexhamEpubSource", ExtractionMode.COMPANION, "Lexham",    _LEXHAM_SAMPLE),
     "eob":      ("vault_builder.adapters.sources.eob_epub:EobEpubSource",      ExtractionMode.COMPANION, "EOB",       _EOB_SAMPLE),
     "dbh":      ("vault_builder.adapters.sources.dbh_epub:DbhEpubSource",      ExtractionMode.COMPANION, "DBH",       _DBH_SAMPLE),
-    "nets":      ("vault_builder.adapters.sources.nets_epub:NetsEpubSource",        ExtractionMode.COMPANION, "NETS",      _NETS_SAMPLE),
+    "nets":     ("vault_builder.adapters.sources.nets_epub:NetsEpubSource",    ExtractionMode.COMPANION, "NETS",      _NETS_SAMPLE),
+    "alter":    ("vault_builder.adapters.sources.alter_epub:AlterEpubSource",  ExtractionMode.COMPANION, "Alter",     _ALTER_SAMPLE),
     "greek_lxx":("vault_builder.adapters.sources.greek_lxx_csv:GreekLxxCsvSource", ExtractionMode.COMPANION, "Greek LXX", _GREEK_LXX_SAMPLE),
     "greek_nt": ("vault_builder.adapters.sources.goarch_greek_nt:GoarchGreekNtSource", ExtractionMode.COMPANION, "Greek NT", _GREEK_NT_SAMPLE),
 }

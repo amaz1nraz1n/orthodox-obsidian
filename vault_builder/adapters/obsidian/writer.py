@@ -111,6 +111,7 @@ class ObsidianWriter(VaultWriter):
         ("Greek NT",  "Greek NT"),
         ("LXX",       "LXX"),
         ("NET",       "NET"),
+        ("Alter",     "Alter"),
         ("DBH",       "DBH"),
         ("NETS",      "NETS"),
         ("NOAB RSV",  "RSV"),
