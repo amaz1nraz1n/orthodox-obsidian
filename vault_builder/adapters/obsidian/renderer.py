@@ -71,13 +71,13 @@ _CALLOUT: dict[NoteType, str] = {
 # * = text-critical note; None = no inline marker (structural types that
 # produce wikilinks or section blocks rather than verse-level annotations).
 _INLINE_MARKER: dict[NoteType, str | None] = {
-    NoteType.FOOTNOTE:    "\u2020",   # †
-    NoteType.TRANSLATOR:  "\u2020",   # †
-    NoteType.CITATION:    "\u2020",   # †
-    NoteType.BACKGROUND:  "\u2020",   # †
-    NoteType.LITURGICAL:  "\u2020",   # †
-    NoteType.VARIANT:     "*",
-    NoteType.ALTERNATIVE: "*",
+    NoteType.FOOTNOTE:    "\u2020",   # † dagger
+    NoteType.TRANSLATOR:  "\u2021",   # ‡ double dagger
+    NoteType.CITATION:    "\u203b",   # ※ reference mark
+    NoteType.BACKGROUND:  "\u00b6",   # ¶ pilcrow
+    NoteType.LITURGICAL:  "\u2629",   # ☩ cross of Jerusalem
+    NoteType.VARIANT:     "*",        # * asterisk
+    NoteType.ALTERNATIVE: "\u25ca",   # ◊ lozenge
     NoteType.CROSS_REF:   None,
     NoteType.PARALLEL:    None,
 }
