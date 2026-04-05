@@ -41,6 +41,7 @@ class ExtractionResult:
     intros_written: int = 0
     fathers_written: int = 0
     parallels_written: int = 0
+    translations_written: int = 0
     errors: int = 0
     error_log: list[str] = field(default_factory=list)
 
@@ -58,6 +59,8 @@ class ExtractionResult:
             parts.append(f"{self.fathers_written} fathers")
         if self.parallels_written:
             parts.append(f"{self.parallels_written} parallels")
+        if self.translations_written:
+            parts.append(f"{self.translations_written} translations")
         total = ", ".join(parts) or "0 files"
         err = f" ({self.errors} errors)" if self.errors else ""
         return f"{total} written{err}"
@@ -150,6 +153,7 @@ class ExtractionService:
                             chapter, self._source_label, content
                         )
                         result.companions_written += 1
+                    self._update_translations_hub(chapter.book, chapter.number, result)
                 except Exception as exc:
                     msg = f"text {chapter.book} {chapter.number}: {exc}"
                     logger.error(msg)
@@ -197,3 +201,16 @@ class ExtractionService:
 
         logger.info("Extraction complete: %s", result.summary())
         return result
+
+    def _update_translations_hub(self, book: str, chapter: int, result: ExtractionResult) -> None:
+        try:
+            sources = self._writer.list_text_companions(book, chapter)
+            if sources:
+                content = self._renderer.render_translations_hub(book, chapter, sources)
+                self._writer.write_translations_hub(book, chapter, content)
+                result.translations_written += 1
+        except Exception as exc:
+            msg = f"translations hub {book} {chapter}: {exc}"
+            logger.error(msg)
+            result.errors += 1
+            result.error_log.append(msg)

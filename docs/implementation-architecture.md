@@ -216,24 +216,40 @@ Shared rule:
 
 Most generated files should share the same top-of-file mode navigation shape so the vault feels like one system rather than a set of isolated exports.
 
-### Canonical Nav Order — DECIDED (2026-03-23)
+### Canonical Nav Order — DECIDED (2026-04-04)
 
 | Slot | NT | OT | Purpose |
 |------|----|----|---------|
 | 1 | OSB | OSB | Orthodox primary (hub) |
-| 2 | EOB | Lexham | Orthodox comparison text |
-| 3 | RSV | RSV | Classic ecumenical text |
-| 4 | Greek NT | LXX | Original language |
-| 5 | NET Notes | NET Notes | Technical apparatus (universal) |
+| 2 | EOB | Lexham | Primary comparison text |
+| 3 | Greek NT | Greek LXX | Original language |
+| 4 | NET Notes | NET Notes | Technical apparatus (universal) |
+| 5 | + | + | Per-chapter Translations hub (all text modes) |
 | 6 | EOB Notes | Lexham Notes | Source-specific notes |
 | 7 | Study Notes | Study Notes | OSB study notes |
 | 8 | Fathers | Fathers | Patristic companion (curated chapters only) |
 
+**Slot 5 (`+`)** links to `{Book} {Chapter} — Translations.md`, a generated per-chapter index of every available text translation for that chapter: OSB, EOB/Lexham, Greek NT/LXX, DBH, RSV, NETS, and any future text companions. Only emitted when at least one source has content for the chapter (in practice, always). This replaces inline nav slots for supplemental translations (DBH, RSV, NETS) — those are discoverable via `+`, not listed individually in the main nav.
+
 **NET text companion** is not included in the nav. It exists on disk but is accessed via an inline link within NET Notes files only. This reflects NET's notes-first purpose — the text is a support artifact for the apparatus, not a reading mode.
 
-**RSV Notes** is a planned slot (parallel to EOB Notes / Lexham Notes) once RSV extraction quality is resolved.
+### Translations Hub — DECIDED (2026-04-04)
 
-### Hub vs. Companion Nav Scoping — DECIDED (2026-03-23)
+File name: `{Book} {Chapter} — Translations.md`
+Nav label: `+` (rendered as `[[John 1 — Translations|+]]`)
+
+Contains a structured list of every text-mode companion available for the chapter, including:
+- OSB (hub)
+- EOB (NT) / Lexham (OT)
+- Greek NT / Greek LXX
+- DBH NT (NT chapters only, when extracted)
+- RSV (when extracted)
+- NETS (OT chapters only, when extracted)
+- Any future text companions
+
+This file is the comprehensive discovery surface for translations. It does not include notes companions or Fathers — those are accessed from the main nav.
+
+### Hub vs. Companion Nav Scoping — DECIDED (2026-04-04)
 
 **Hub nav is comprehensive** — links to all mode companions and all notes companions. The hub is the navigation home; discoverability is the priority.
 

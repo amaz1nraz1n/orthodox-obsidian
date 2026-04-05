@@ -37,3 +37,15 @@ class VaultWriter(ABC):
     @abstractmethod
     def write_parallels(self, book: str, chapter: int, content: str) -> Path:
         """Write a parallel passages companion. Returns the path written."""
+
+    @abstractmethod
+    def write_translations_hub(self, book: str, chapter: int, content: str) -> Path:
+        """Write a per-chapter translations index. Returns the path written."""
+
+    @abstractmethod
+    def list_text_companions(self, book: str, chapter: int) -> list[tuple[str, str | None]]:
+        """Return (display_label, file_suffix) pairs for text companions that exist.
+
+        suffix=None means the entry is the hub file itself (OSB).
+        Results are in canonical nav order.
+        """

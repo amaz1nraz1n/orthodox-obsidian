@@ -96,6 +96,22 @@ class VaultRenderer(ABC):
         """
 
     @abstractmethod
+    def render_translations_hub(
+        self,
+        book: str,
+        chapter: int,
+        sources: list[tuple[str, str | None]],
+    ) -> str:
+        """Render a per-chapter index of all available text translations.
+
+        Args:
+            book: Canonical book name (e.g. "John").
+            chapter: Chapter number.
+            sources: List of (display_label, file_suffix) pairs. suffix=None links
+                     to the hub itself (OSB). e.g. [("OSB", None), ("EOB", "EOB")].
+        """
+
+    @abstractmethod
     def render_patristic_chapter(
         self,
         chapter: Chapter,

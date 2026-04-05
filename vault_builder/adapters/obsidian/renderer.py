@@ -147,13 +147,16 @@ class ObsidianRenderer(VaultRenderer):
         book: str,
         chapter: int,
         own_notes_suffix: str | None = None,
+        own_text_suffix: str | None = None,
         net_text_link: bool = False,
         show_fathers: bool = False,
     ) -> str:
-        """Scoped nav for companion files: Hub · [own notes] · NET Notes · Fathers.
+        """Scoped nav for companion files: Hub · [own notes or text] · NET Notes · Fathers.
 
         own_notes_suffix: notes file for text companions (e.g. "EOB Notes", "Lexham Notes").
                           Pass None when there is no notes companion (e.g. Greek NT, LXX).
+        own_text_suffix: text file for notes companions (e.g. "NETS", "EOB", "Lexham").
+                         Pass None when there is no text companion (e.g. OSB Notes).
         net_text_link: True for NET Notes only — replaces NET Notes link with NET text link.
         show_fathers: True when a Fathers companion exists for this chapter.
         """
@@ -161,6 +164,8 @@ class ObsidianRenderer(VaultRenderer):
         parts = [f"[[{pfx} {chapter}|Hub]]"]
         if own_notes_suffix:
             parts.append(f"[[{pfx} {chapter} \u2014 {own_notes_suffix}|{own_notes_suffix}]]")
+        if own_text_suffix:
+            parts.append(f"[[{pfx} {chapter} \u2014 {own_text_suffix}|{own_text_suffix}]]")
         if net_text_link:
             parts.append(f"[[{pfx} {chapter} \u2014 NET|NET text]]")
         else:
@@ -186,70 +191,45 @@ class ObsidianRenderer(VaultRenderer):
         notes_suffix: str | None = "OSB Notes",
         show_source_notes: bool = True,
         show_greek: bool = True,
-        show_net: bool = True,
-        show_noab_rsv: bool = True,
         show_fathers: bool = False,
     ) -> str:
-        """Shared modes nav used by all file types.
+        """Hub modes nav. Order: OSB · EOB/Lexham · Greek · NET Notes · + · source notes · Study Notes · Fathers.
 
-        notes_suffix: suffix for the Study Notes link (e.g. "OSB Notes", "Lexham Notes").
-                      Pass None when the current file IS the notes layer.
-        show_source_notes: when True, insert a link to EOB Notes (NT) or Lexham Notes (OT).
-        show_greek: when True and NT, insert Greek NT link. Pass False from Greek companion.
-        show_net: when True, insert NET text companion link. Pass False from NET companion.
-        show_noab_rsv: when True, insert NOAB RSV text companion link.
+        notes_suffix: suffix for the Study Notes link (e.g. "OSB Notes"). Pass None to suppress.
+        show_source_notes: when True, insert EOB Notes (NT) or Lexham Notes (OT).
+        show_greek: when False, omit the Greek NT / LXX link (e.g. viewing from the Greek companion).
+        show_fathers: when True, append the Fathers companion link.
         """
         is_ot = BOOK_TESTAMENT.get(book) == "OT"
         pfx = book_file_prefix(book)
         source_notes_label = "Lexham Notes" if is_ot else "EOB Notes"
-        mid = (
-            f"[[{pfx} {chapter} \u2014 Lexham|Lexham]] \u00b7 "
-            if is_ot
-            else f"[[{pfx} {chapter} \u2014 EOB|EOB]] \u00b7 "
-        )
-        net_link = (
-            f"[[{pfx} {chapter} \u2014 NET|NET]] \u00b7 "
-            if show_net
-            else ""
-        )
-        if not show_greek:
-            greek_link = ""
-        elif is_ot:
-            greek_link = f"[[{pfx} {chapter} \u2014 LXX|LXX]] \u00b7 "
+
+        parts: list[str] = [f"[[{pfx} {chapter}|OSB]]"]
+
+        if is_ot:
+            parts.append(f"[[{pfx} {chapter} \u2014 Lexham|Lexham]]")
         else:
-            greek_link = f"[[{pfx} {chapter} \u2014 Greek NT|Greek NT]] \u00b7 "
-        source_notes_link = (
-            f"[[{pfx} {chapter} \u2014 {source_notes_label}|{source_notes_label}]] \u00b7 "
-            if show_source_notes
-            else ""
-        )
-        noab_rsv_link = (
-            f"[[{pfx} {chapter} \u2014 NOAB RSV|RSV]] \u00b7 "
-            if show_noab_rsv
-            else ""
-        )
-        study = (
-            f" \u00b7 [[{pfx} {chapter} \u2014 {notes_suffix}|Study Notes]]"
-            if notes_suffix
-            else ""
-        )
-        fathers_link = (
-            f" \u00b7 [[{pfx} {chapter} \u2014 Fathers|Fathers]]"
-            if show_fathers
-            else ""
-        )
-        return (
-            f"> **Modes:** "
-            f"[[{pfx} {chapter}|OSB]] \u00b7 "
-            f"{mid}"
-            f"{net_link}"
-            f"{greek_link}"
-            f"{noab_rsv_link}"
-            f"{source_notes_link}"
-            f"[[{pfx} {chapter} \u2014 NET Notes|NET Notes]]"
-            f"{study}"
-            f"{fathers_link}"
-        )
+            parts.append(f"[[{pfx} {chapter} \u2014 EOB|EOB]]")
+
+        if show_greek:
+            if is_ot:
+                parts.append(f"[[{pfx} {chapter} \u2014 LXX|LXX]]")
+            else:
+                parts.append(f"[[{pfx} {chapter} \u2014 Greek NT|Greek NT]]")
+
+        parts.append(f"[[{pfx} {chapter} \u2014 NET Notes|NET Notes]]")
+        parts.append(f"[[{pfx} {chapter} \u2014 Translations|+]]")
+
+        if show_source_notes:
+            parts.append(f"[[{pfx} {chapter} \u2014 {source_notes_label}|{source_notes_label}]]")
+
+        if notes_suffix:
+            parts.append(f"[[{pfx} {chapter} \u2014 {notes_suffix}|Study Notes]]")
+
+        if show_fathers:
+            parts.append(f"[[{pfx} {chapter} \u2014 Fathers|Fathers]]")
+
+        return f"> **Modes:** {' \u00b7 '.join(parts)}"
 
     # ── Text companion file ───────────────────────────────────────────────────
 
@@ -366,7 +346,7 @@ class ObsidianRenderer(VaultRenderer):
 
         text_target = (
             f"{pfx} {ch} \u2014 {source}"
-            if source in ("EOB", "Lexham")
+            if source in ("EOB", "Lexham", "NETS")
             else f"{pfx} {ch}"
         )
         i = 0
@@ -412,6 +392,34 @@ class ObsidianRenderer(VaultRenderer):
             f"---\n\n"
             f"{content}\n"
         )
+
+    # ── Translations hub ──────────────────────────────────────────────────
+
+    def render_translations_hub(
+        self,
+        book: str,
+        chapter: int,
+        sources: list[tuple[str, str | None]],
+    ) -> str:
+        """Render a per-chapter index of all available text translations.
+
+        sources: list of (display_label, file_suffix) pairs.
+                 suffix=None links to the hub itself (OSB).
+                 suffix="EOB" links to [[{pfx} {ch} — EOB|EOB]], etc.
+        """
+        pfx = book_file_prefix(book)
+        lines = [
+            f'---\nhub: "[[{pfx} {chapter}]]"\ncssclasses: [translations-index]\n---',
+            "",
+            f"> **Nav:** [[{pfx} {chapter}|Hub]]",
+            "",
+        ]
+        for label, suffix in sources:
+            if suffix is None:
+                lines.append(f"- [[{pfx} {chapter}|{label}]]")
+            else:
+                lines.append(f"- [[{pfx} {chapter} \u2014 {suffix}|{label}]]")
+        return "\n".join(lines)
 
     # ── Patristic catena companion ────────────────────────────────────────
 

@@ -69,6 +69,7 @@ class FakeVaultWriter(VaultWriter):
         self.written_intros: dict[str, str] = {}
         self.written_fathers: dict[tuple[str, int], str] = {}
         self.written_parallels: dict[tuple[str, int], str] = {}
+        self.written_translations: dict[tuple[str, int], str] = {}
 
     def write_hub(self, chapter: Chapter, content: str) -> Path:
         self.written_hubs[(chapter.book, chapter.number)] = content
@@ -93,3 +94,17 @@ class FakeVaultWriter(VaultWriter):
     def write_parallels(self, book: str, chapter: int, content: str) -> Path:
         self.written_parallels[(book, chapter)] = content
         return Path(f"fake/{book}/{chapter} — Parallels.md")
+
+    def write_translations_hub(self, book: str, chapter: int, content: str) -> Path:
+        self.written_translations[(book, chapter)] = content
+        return Path(f"fake/{book}/{chapter} — Translations.md")
+
+    def list_text_companions(self, book: str, chapter: int) -> list[tuple[str, str | None]]:
+        results: list[tuple[str, str | None]] = []
+        if (book, chapter) in self.written_hubs:
+            results.append(("OSB", None))
+        for (b, c, source) in self.written_companions:
+            if b == book and c == chapter:
+                label = "RSV" if source == "NOAB RSV" else source
+                results.append((label, source))
+        return results

@@ -100,6 +100,45 @@ class ObsidianWriter(VaultWriter):
         ch_dir = self._chapter_dir(book, chapter)
         return os.path.join(ch_dir, f"{book_file_prefix(book)} {chapter} \u2014 Parallels.md")
 
+    # ── Translations hub ──────────────────────────────────────────────────────
+
+    # Canonical order for all known text companions.
+    # (file_suffix, display_label) — suffix None = hub file itself (OSB).
+    _TEXT_COMPANION_SLOTS: list[tuple[str | None, str]] = [
+        (None,        "OSB"),
+        ("EOB",       "EOB"),
+        ("Lexham",    "Lexham"),
+        ("Greek NT",  "Greek NT"),
+        ("LXX",       "LXX"),
+        ("DBH",       "DBH"),
+        ("NETS",      "NETS"),
+        ("NOAB RSV",  "RSV"),
+    ]
+
+    def write_translations_hub(self, book: str, chapter: int, content: str) -> Path:
+        """Write a per-chapter translations index. Returns the path written."""
+        path = self._translations_hub_path(book, chapter)
+        self._write(path, content)
+        return Path(path)
+
+    def _translations_hub_path(self, book: str, chapter: int) -> str:
+        ch_dir = self._chapter_dir(book, chapter)
+        return os.path.join(ch_dir, f"{book_file_prefix(book)} {chapter} \u2014 Translations.md")
+
+    def list_text_companions(self, book: str, chapter: int) -> list[tuple[str, str | None]]:
+        """Return (display_label, file_suffix) pairs for text companions that exist on disk."""
+        pfx = book_file_prefix(book)
+        ch_dir = os.path.join(self.output_root, book_folder_path(book), f"Chapter {chapter:02d}")
+        results: list[tuple[str, str | None]] = []
+        for suffix, label in self._TEXT_COMPANION_SLOTS:
+            if suffix is None:
+                fname = f"{pfx} {chapter}.md"
+            else:
+                fname = f"{pfx} {chapter} \u2014 {suffix}.md"
+            if os.path.exists(os.path.join(ch_dir, fname)):
+                results.append((label, suffix))
+        return results
+
     # ── Internal ──────────────────────────────────────────────────────────────
 
     @staticmethod
