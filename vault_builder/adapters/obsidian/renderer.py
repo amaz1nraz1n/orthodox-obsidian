@@ -217,6 +217,7 @@ class ObsidianRenderer(VaultRenderer):
             else:
                 parts.append(f"[[{pfx} {chapter} \u2014 Greek NT|Greek NT]]")
 
+        parts.append(f"[[{pfx} {chapter} \u2014 NET|NET]]")
         parts.append(f"[[{pfx} {chapter} \u2014 NET Notes|NET Notes]]")
         parts.append(f"[[{pfx} {chapter} \u2014 Translations|+]]")
 

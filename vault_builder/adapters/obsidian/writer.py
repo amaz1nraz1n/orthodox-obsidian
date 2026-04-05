@@ -110,10 +110,14 @@ class ObsidianWriter(VaultWriter):
         ("Lexham",    "Lexham"),
         ("Greek NT",  "Greek NT"),
         ("LXX",       "LXX"),
+        ("NET",       "NET"),
         ("DBH",       "DBH"),
         ("NETS",      "NETS"),
         ("NOAB RSV",  "RSV"),
     ]
+
+    def has_fathers_companion(self, book: str, chapter: int) -> bool:
+        return os.path.exists(self._fathers_path(book, chapter))
 
     def write_translations_hub(self, book: str, chapter: int, content: str) -> Path:
         """Write a per-chapter translations index. Returns the path written."""

@@ -43,6 +43,10 @@ class VaultWriter(ABC):
         """Write a per-chapter translations index. Returns the path written."""
 
     @abstractmethod
+    def has_fathers_companion(self, book: str, chapter: int) -> bool:
+        """Return True if a Fathers companion file exists for this chapter."""
+
+    @abstractmethod
     def list_text_companions(self, book: str, chapter: int) -> list[tuple[str, str | None]]:
         """Return (display_label, file_suffix) pairs for text companions that exist.
 

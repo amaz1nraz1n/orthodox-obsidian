@@ -1,0 +1,287 @@
+---
+hub: "[[Exodus 20]]"
+source: "NET"
+---
+
+> **Nav:** [[Exodus 20|Hub]] · [[Exodus 20 — NET|NET text]] · [[Exodus 20 — Fathers|Fathers]]
+
+*The Decalogue*
+### [[Exodus 20 — NET#v1|Ex 20:1]]
+^v1
+
+> [!note] 20:1 ^n020201
+> This chapter is the heart of the Law of Israel, and as such is well known throughout the world. There is so much literature on it that it is almost impossible to say anything briefly and do justice to the subject. But the exposition of the book must point out that this is the charter of the new nation of Israel. These ten commands (words) form the preamble; they will be followed by the decisions (judgments). And then in chap. 24 the covenant will be inaugurated. So when Israel entered into covenant with God, they entered into a theocracy by expressing their willingness to submit to his authority. The Law was the binding constitution for the nation of Israel under Yahweh their God. It was specifically given to them at a certain time and in a certain place. The Law legislated how Israel was to live in order to be blessed by God and used by him as a kingdom of priests. In the process of legislating their conduct and their ritual for worship, the Law revealed God. It revealed the holiness of Yahweh as the standard for all worship and service, and in revealing that it revealed or uncovered sin. But what the Law condemned, the Law (Leviticus) also made provision for in the laws of the sacrifice and the feasts intended for atonement. The NT teaches that the Law was good, and perfect, and holy. But it also teaches that Christ was the end (goal) of the Law, that it ultimately led to him. It was a pedagogue, Paul said, to bring people to Christ. And when the fulfillment of the promise came in him, believers were not to go back under the Law. What this means for Christians is that what the Law of Israel revealed about God and his will is timeless and still authoritative over faith and conduct, but what the Law regulated for Israel in their existence as the people of God has been done away with in Christ. The Ten Commandments reveal the essence of the Law; the ten for the most part are reiterated in the NT because they reflect the holy and righteous nature of God. The NT often raises them to a higher standard, to guard the spirit of the Law as well as the letter.
+
+> [!note] 20:1 ^n020202
+> The Bible makes it clear that the Law was the revelation of God at Mount Sinai. And yet study has shown that the law code’s form follows the literary pattern of covenant codes in the Late Bronze Age, notably the Hittite codes. The point of such codes is that all the covenant stipulations are appropriate because of the wonderful things that the sovereign has done for the people. God, in using a well-known literary form, was both drawing on the people’s knowledge of such to impress their duties on them, as well as putting new wine into old wineskins. The whole nature of God’s code was on a much higher level. For this general structure, see M. G. Kline, _Treaty of the Great King_. For the Ten Commandments specifically, see J. J. Stamm and M. E. Andrew, _The Ten Commandments in Recent Research_ (SBT). See also some of the general articles: M. Barrett, “God’s Moral Standard: An Examination of the Decalogue,” _BV_ 12 (1978): 34-40; C. J. H. Wright, “The Israelite Household and the Decalogue: The Social Background and Significance of Some Commandments,” _TynBul_ 30 (1979): 101-24; J. D. Levenson, “The Theologies of Commandment in Biblical Israel,” _HTR_ 73 (1980): 17-33; M. B. Cohen and D. B. Friedman, “The Dual Accentuation of the Ten Commandments,” _Masoretic Studies_ 1 (1974): 7-190; D. Skinner, “Some Major Themes of Exodus,” _Mid-America Theological Journal_ 1 (1977): 31-42; M. Tate, “The Legal Traditions of the Book of Exodus,” _RevExp_ 74 (1977): 483-509; E. C. Smith, “The Ten Commandments in Today’s Permissive Society: A Principleist Approach,” _SwJT_ 20 (1977): 42-58; and D. W. Buck, “[[Exodus 20#v1|Exodus 20:1]]-17, ” _Lutheran Theological Journal_ 16 (1982): 65-75.
+
+### [[Exodus 20 — NET#v2|Ex 20:2]]
+^v2
+
+> [!note] 20:2 ^n020203
+> The revelation of Yahweh here begins with the personal pronoun. “I”—a person, a living personality, not an object or a mere thought. This enabled him to address “you”—Israel, and all his people, making the binding stipulations for them to conform to his will (B. Jacob, _Exodus_, 544).
+
+> [!tn] 20:2 ^n020204
+> Most English translations have “I am Yahweh your God.” But the preceding chapters have again and again demonstrated how he made himself known to them. Now, the emphasis is on “I am your God”—and what that would mean in their lives.
+
+> [!tn] 20:2 ^n020205
+> The suffix on the verb is second masculine singular. It is this person that will be used throughout the commandments for the whole nation. God addresses them all as his people, but he addresses them individually for their obedience. The masculine form is not, thereby, intended to exclude women.
+
+> [!note] 20:2
+> By this announcement Yahweh declared what he had done for Israel by freeing them from slavery. Now they are free to serve him. He has a claim on them for gratitude and obedience. But this will not be a covenant of cruel slavery and oppression; it is a covenant of love, as God is saying “I am yours, and you are mine.” This was the sovereign Lord of creation and of history speaking, declaring that he was their savior.
+
+> [!tn] 20:2 ^n020206
+> _Heb_ “the house of slaves” meaning “the land of slavery.”
+
+### [[Exodus 20 — NET#v3|Ex 20:3]]
+^v3
+
+> [!tn] 20:3 ^n020207
+> The possession is expressed here by the use of the preposition ‏ל‎ (lamed) and the verb “to be”: ‏לֹא־יִהְיֶה לְךָ‎ (loʾ yihyeh lekha, “there will not be to you”). The negative with the imperfect expresses the emphatic prohibition; it is best reflected with “you will not” and has the strongest expectation of obedience (see GKC 317 §107._o_). As an additional way of looking at this line, U. Cassuto suggests that the verb is in the singular in order to say that they could not have even one other god, and the word “gods” is plural to include any gods (_Exodus_, 241).
+
+> [!tn] 20:3 ^n020208
+> The expression ‏עַל־פָּנָי‎ (ʿal panay) has several possible interpretations. S. R. Driver suggests “in front of me,” meaning obliging me to behold them, and also giving a prominence above me (_Exodus_, 193-94). W. F. Albright rendered it “You shall not prefer other gods to me” (_From the Stone Age to Christianity_, 297, n. 29). B. Jacob (_Exodus_, 546) illustrates it with marriage: the wife could belong to only one man while every other man was “another man.” They continued to exist but were not available to her. The point is clear from the Law, regardless of the specific way the prepositional phrase is rendered. God demands absolute allegiance, to the exclusion of all other deities. The preposition may imply some antagonism, for false gods would be opposed to Yahweh. U. Cassuto adds that God was in effect saying that anytime Israel turned to a false god they had to know that the Lord was there—it is always in his presence, or before him (_Exodus_, 241).
+
+### [[Exodus 20 — NET#v4|Ex 20:4]]
+^v4
+
+> [!tn] 20:4 ^n020209
+> A ‏פֶּסֶל‎ (pesel) is an image that was carved out of wood or stone. The Law was concerned with a statue that would be made for the purpose of worship, an idol to be venerated, and not any ordinary statue.
+
+> [!tn] 20:4 ^n0202010
+> The word ‏תְּמוּנָה‎ (temunah) refers to the mental pattern from which the ‏פֶּסֶל‎ (pesel) is constructed; it is a real or imagined resemblance. If this is to stand as a second object to the verb, then the verb itself takes a slightly different nuance here. It would convey “you shall not make an image, neither shall you conceive a form” for worship (B. Jacob, _Exodus_, 547). Some simply make the second word qualify the first: “you shall not make an idol in the form of…” (NIV).
+
+> [!tn] 20:4 ^n0202011
+> Here the phrase “of anything” has been supplied.
+
+> [!tn] 20:4 ^n0202012
+> _Heb_ “under the earth” (so KJV, ASV, NASB, NRSV).
+
+### [[Exodus 20 — NET#v5|Ex 20:5]]
+^v5
+
+> [!tn] 20:5 ^n0202013
+> The combination of these two verbs customarily refers to the worship of pagan deities (e.g., [[Deuteronomy 17#v3|Deut 17:3]]: 30:17; [[Jeremiah 8#v2|Jer 8:2]]; see J. J. Stamm and M. E. Andrew, _The Ten Commandments in Recent Research_ [SBT], 86). The first verb is ‏לאֹ־תִשְׁתַּחֲוֶה‎ (loʾ tishtakhaveh), now to be classified as a Hishtaphel imperfect from ‏חָוָה‎ (khavah; BDB 1005 s.v. ‏שׁחה‎), “to make oneself to be low to the ground.” It is used of the true worship of God as well. The second verb is ‏וְלֹא תָעָבְדֵם‎ (veloʾ toʿovdem). The two could be taken as a hendiadys: “you will not prostrate yourself to serve them.” In an interesting side comment U. Cassuto (_Exodus_, 242) suggests that the second verb was spelled with the qamets khatuf vowel to show contempt for pagan worship, as if their conduct does not even warrant a correct spelling of the word “serve.” Gesenius says that forms like this are anomalous, but he wonders if it was pointed as a Hophal with the meaning “you shall not allow yourself to be brought to worship them” (GKC 161 §60._b_).
+
+> [!note] 20:5 ^n0202014
+> The word “jealous” is the same word often translated “zeal” or “zealous.” The word describes a passionate intensity to protect or defend something that is jeopardized. The word can also have the sense of “envy,” but in that case the object is out of bounds. God’s zeal or jealousy is to protect his people or his institutions or his honor. Yahweh’s honor is bound up with the life of his people.
+
+> [!tn] 20:5 ^n0202015
+> Verses 5 and 6 are very concise, and the word ‏פָּקַד‎ (paqad) is difficult to translate. Often rendered “visiting,” it might here be rendered “dealing with” in a negative sense or “punishing,” but it describes positive attention in 13:19. When used of God, it essentially means that God intervenes in the lives of people for blessing or for cursing. Some would simply translate the participle here as “punishing” the children for the sins of the fathers (cf. [[Leviticus 18#v25|Lev 18:25]]; [[Isaiah 26#v21|Isa 26:21]]; [[Jeremiah 29#v32|Jer 29:32]]; 36:31; [[Hosea 1#v4|Hos 1:4]]; [[Amos 3#v2|Amos 3:2]]). That is workable, but may not say enough. The verse may indicate that those who hate Yahweh and do not keep his commandments will repeat the sins their fathers committed and suffer for them. [[Deuteronomy 24#v16|Deut 24:16]] says that individuals will die for their own sins and not their father’s sins (see also [[Deuteronomy 7#v10|Deut 7:10]] and Ezek 18). It may have more to do with patterns of sin being repeated from generation to generation; if the sin and the guilt were not fully developed in the one generation, then left unchecked they would develop and continue in the next. But it may also indicate that the effects of the sins of the fathers will be experienced in the following generations, especially in the case of Israel as a national entity (U. Cassuto, _Exodus_, 243). God is showing here that his ethical character is displayed in how he deals with sin and righteousness, all of which he describes as giving strong motivation for loyalty to him and for avoiding idolatry. There is a justice at work in the dealings of God that is not present in the pagan world.
+
+> [!tn] 20:5 ^n0202016
+> The Hebrew word for “generations” is not found in v. 5 or 6. The numbers are short for a longer expression, which is understood as part of the description of the children already mentioned (see [[Deuteronomy 7#v9|Deut 7:9]], where “generation” [‏דּוֹר‎, dor] is present and more necessary, since “children” have not been mentioned).
+
+> [!tn] 20:5 ^n0202017
+> This is an important qualification to the principle. The word rendered “reject” is often translated “hate” and carries with it the idea of defiantly rejecting and opposing God and his word. Such people are doomed to carry on the sins of their ancestors and bear guilt with them.
+
+### [[Exodus 20 — NET#v6|Ex 20:6]]
+^v6
+
+> [!tn] 20:6 ^n0202018
+> Literally “doing loyal love” (‏עֹשֶׂה חֶסֶד‎, ʿoseh khesed). The noun refers to God’s covenant loyalty, his faithful love to those who belong to him. These are members of the covenant, recipients of grace, the people of God, whom God will preserve and protect from evil and its effects.
+
+> [!tn] 20:6 ^n0202019
+> _Heb_ “to thousands” or “to thousandth.” After “tenth,” Hebrew uses cardinal numbers for ordinals also. This statement is the antithesis of the preceding line. The “thousands” or “thousandth [generation]” are those who love Yahweh and keep his commands. These are descendants from the righteous, and even associates with them, who benefit from the mercy that God extends to his people. S. R. Driver (_Exodus_, 195) says that this passage teaches that God’s mercy transcends his wrath; in his providence the beneficial consequences of a life of goodness extend indefinitely further than the retribution that is the penalty for persisting in sin. To say that God’s loyal love extends to thousands of generations or the thousandth generation is parallel to saying that it endures forever (Ps 118). See also [[Exodus 34#v7|Exod 34:7]]; [[Deuteronomy 5#v10|Deut 5:10]]; 7:9; [[Psalm 18#v50|Ps 18:50]]; [[Jeremiah 32#v18|Jer 32:18]].
+
+### [[Exodus 20 — NET#v7|Ex 20:7]]
+^v7
+
+> [!tn] 20:7 ^n0202020
+> Or “use” (NCV, TEV); NIV, CEV, NLT “misuse”; NRSV “make wrongful use of.”
+
+> [!tn] 20:7 ^n0202021
+> ‏שָׁוְא‎ (shavʾ, “vain”) describes “unreality.” The command prohibits use of the name for any idle, frivolous, or insincere purpose (S. R. Driver, _Exodus_, 196). This would include perjury, pagan incantations, or idle talk. The name is to be treated with reverence and respect because it is the name of the holy God.
+
+> [!tn] 20:7 ^n0202022
+> Or “leave unpunished.”
+
+### [[Exodus 20 — NET#v8|Ex 20:8]]
+^v8
+
+> [!tn] 20:8 ^n0202023
+> The text uses the infinitive absolute ‏זָכוֹר‎ (zakhor) for the commandment for the Sabbath day, which is the sign of the Sinaitic Covenant. The infinitive absolute functions in place of the emphatic imperative here (see GKC 346 §113._bb_); the absolute stresses the basic verbal idea of the root—remembering. The verb includes the mental activity of recalling and pondering as well as the consequent actions for such remembering.
+
+> [!tn] 20:8 ^n0202024
+> The word “Sabbath” is clearly connected to the verb ‏שָׁבַת‎ (shavat, “to cease, desist, rest”). There are all kinds of theories as to the origin of the day, most notably in the Babylonian world, but the differences are striking in so far as the pagan world had these days filled with magic. Nevertheless, the pagan world does bear witness to a tradition of a regular day set aside for special sacrifices. See, for example, H. W. Wolff, “The Day of Rest in the Old Testament,” _LTQ_ 7 (1972): 65-76; H. Routtenberg, “The Laws of Sabbath: Biblical Sources,” _Dor le Dor_ 6 (1977): 41-43, 99-101, 153-55, 204-6; G. Robinson, “The Idea of Rest in the OT and the Search for the Basic Character of Sabbath,” _ZAW_ 92 (1980): 32-42; and M. Tsevat, “The Basic Meaning of the Biblical Sabbath,” _ZAW_ 84 (1972): 447-59.
+
+> [!tn] 20:8 ^n0202025
+> The Piel infinitive construct provides the purpose of remembering the Sabbath day—to set it apart, to make it distinct from the other days. Verses 9 and 10 explain in part how this was to be done. To set this day apart as holy taught Israel the difference between the holy and the profane, that there was something higher than daily life. If an Israelite bent down to the ground laboring all week, the Sabbath called his attention to the heavens, to pattern life after the Creator (B. Jacob, _Exodus_, 569-70).
+
+### [[Exodus 20 — NET#v9|Ex 20:9]]
+^v9
+
+> [!tn] 20:9 ^n0202026
+> The text has simply “six days,” but this is an adverbial accusative of time, answering how long they were to work (GKC 374 §118._k_).
+
+> [!tn] 20:9 ^n0202027
+> The imperfect tense has traditionally been rendered as a commandment, “you will labor.” But the point of this commandment is the prohibition of work on the seventh day. The permission nuance of the imperfect works well here.
+
+> [!tn] 20:9 ^n0202028
+> This is the occupation, or business of the work week.
+
+### [[Exodus 20 — NET#v10|Ex 20:10]]
+^v10
+
+> [!tn] 20:10 ^n0202029
+> The phrase “on it” has been supplied for clarity.
+
+> [!note] 20:10 ^n0202030
+> The wife is omitted in the list, not that she was considered unimportant, nor that she was excluded from the rest, but rather in reflecting her high status. She was not man’s servant, not lesser than the man, but included with the man as an equal before God. The “you” of the commandments is addressed to the Israelites individually, male and female, just as God in the Garden of Eden held both the man and the woman responsible for their individual sins (see B. Jacob, _Exodus_, 567-68).
+
+> [!note] 20:10 ^n0202031
+> The Sabbath day was the sign of the Sinaitic Covenant. It required Israel to cease from ordinary labors and devote the day to God. It required Israel to enter into the life of God, to share his Sabbath. It gave them a chance to recall the work of the Creator. But in the NT the apostolic teaching for the Church does not make one day holier than another, but calls for the entire life to be sanctified to God. This teaching is an application of the meaning of entering into the Sabbath of God. The book of Hebrews declares that those who believe in Christ cease from their works and enter into his Sabbath rest. For a Christian keeping Saturday holy is not a requirement from the NT; it may be a good and valuable thing to have a day of rest and refreshment, but it is not a binding law for the Church. The principle of setting aside time to worship and serve the Lord has been carried forward, but the strict regulations have not.
+
+### [[Exodus 20 — NET#v12|Ex 20:12]]
+^v12
+
+> [!tn] 20:12 ^n0202032
+> The verb ‏כַּבֵּד‎ (kabbed) is a Piel imperative; it calls for people to give their parents the respect and honor that is appropriate for them. It could be paraphrased to say, give them the weight of authority that they deserve. Next to God, parents were to be highly valued, cared for, and respected.
+
+> [!tn] 20:12 ^n0202033
+> _Heb_ “that your days may be long.”
+
+> [!note] 20:12 ^n0202034
+> The promise here is national rather than individual, although it is certainly true that the blessing of life was promised for anyone who was obedient to God’s commands ([[Deuteronomy 4#v1|Deut 4:1]]; 8:1, etc.). But as W. C. Kaiser (“Exodus,” _EBC_ 2:424) summarizes, the land that was promised was the land of Canaan, and the duration of Israel in the land was to be based on morality and the fear of God as expressed in the home ([[Deuteronomy 4#v26|Deut 4:26]], 33, 40; 32:46-47). The captivity was in part caused by a breakdown in this area ([[Ezekiel 22#v7|Ezek 22:7]], 15). Malachi would announce at the end of his book that Elijah would come at the end of the age to turn the hearts of the children and the parents toward each other again.
+
+### [[Exodus 20 — NET#v13|Ex 20:13]]
+^v13
+
+> [!tn] 20:13 ^n0202035
+> The verb ‏רָצַח‎ (ratsakh) refers to the premeditated or accidental taking of the life of another human being; it includes any unauthorized killing (it is used for the punishment of a murderer, but that would not be included in the prohibition). This commandment teaches the sanctity of all human life. See J. H. Yoder, “Exodus 20, 13: ‘Thou Shalt Not Kill’,” _Int_ 34 (1980): 394-99; and A. Phillips, “Another Look at Murder,” _JJS_ 28 (1977): 105-26.
+
+### [[Exodus 20 — NET#v14|Ex 20:14]]
+^v14
+
+> [!note] 20:14 ^n0202036
+> This is a sin against the marriage of a fellow citizen—it destroys the home. The Law distinguished between adultery (which had a death penalty) and sexual contact with a young woman (which carried a monetary fine and usually marriage if the father was willing). So it distinguished fornication and adultery. Both were sins, but the significance of each was different. In the ancient world this sin is often referred to as “the great sin.”
+
+### [[Exodus 20 — NET#v15|Ex 20:15]]
+^v15
+
+> [!note] 20:15 ^n0202037
+> This law protected the property of the Israelite citizen. See D. Little, “[[Exodus 20#v15|Exodus 20:15]]: ‘Thou Shalt Not Steal’,” _Int_ 34 (1980): 399-405.
+
+### [[Exodus 20 — NET#v16|Ex 20:16]]
+^v16
+
+> [!tn] 20:16 ^n0202038
+> _Heb_ “answer” as in a court of law.
+
+> [!tn] 20:16 ^n0202039
+> The expression ‏עֵד שָׁקֶר‎ (ʿed shaqer) means “a lying witness” (B. S. Childs, _Exodus_ [OTL], 388). In this verse the noun is an adverbial accusative, “you will not answer as a lying witness.” The prohibition is against perjury. While the precise reference would be to legal proceedings, the law probably had a broader application to lying about other people in general (see [[Leviticus 5#v1|Lev 5:1]]; [[Hosea 4#v2|Hos 4:2]]).
+
+### [[Exodus 20 — NET#v17|Ex 20:17]]
+^v17
+
+> [!tn] 20:17 ^n0202040
+> The verb ‏חָמַד‎ (khamad) focuses not on an external act but on an internal mental activity behind the act, the motivation for it. The word can be used in a very good sense (Pss 19:10; 68:16), but it has a bad connotation in contexts where the object desired is off limits. This command is aimed at curtailing the greedy desire for something belonging to a neighbor, a desire that leads to the taking of it or the attempt to take it. It was used in the story of the Garden of Eden for the tree that was desired.
+
+> [!note] 20:17 ^n0202041
+> See further G. Wittenburg, “The Tenth Commandment in the Old Testament,” _Journal for Theology in South Africa_ 21 (1978): 3-17: and E. W. Nicholson, “The Decalogue as the Direct Address of God,” _VT_ 27 (1977): 422-33.
+
+### [[Exodus 20 — NET#v18|Ex 20:18]]
+^v18
+
+> [!tn] 20:18 ^n0202042
+> The participle is used here for durative action in the past time (GKC 359 §116._o_).
+
+> [!tn] 20:18 ^n0202043
+> The verb “to see” (‏רָאָה‎, raʾah) refers to seeing with all the senses, or perceiving. W. C. Kaiser suggests that this is an example of the figure of speech called zeugma because the verb “saw” yokes together two objects, one that suits the verb and the other that does not. So, the verb “heard” is inserted here to clarify (“Exodus,” _EBC_ 2:427).
+
+> [!tn] 20:18 ^n0202044
+> The verb “saw” is supplied here because it is expected in English (see the previous note on “heard”).
+
+> [!tn] 20:18 ^n0202045
+> The preterite with vav (‏ו‎) consecutive is here subordinated as a temporal clause to the following clause, which receives the prominence.
+
+> [!tn] 20:18 ^n0202046
+> The meaning of ‏נוּעַ‎ (nuaʿ) is “to shake, sway to and fro” in fear. Cf. [[Isaiah 7#v2|Isa 7:2]] “and his heart shook…as the trees of the forest shake with the wind.”
+
+> [!tn] 20:18 ^n0202047
+> _Heb_ “and they stood from/at a distance.”
+
+### [[Exodus 20 — NET#v19|Ex 20:19]]
+^v19
+
+> [!tn] 20:19 ^n0202048
+> The verb is a Piel imperative. In this context it has more of the sense of a request than a command. The independent personal pronoun “you” emphasizes the subject and forms the contrast with God’s speaking.
+
+### [[Exodus 20 — NET#v20|Ex 20:20]]
+^v20
+
+> [!tn] 20:20 ^n0202049
+> ‏נַסּוֹת‎ (nassot) is the Piel infinitive construct; it forms the purpose of God’s coming with all the accompanying phenomena. The verb can mean “to try, test, prove.” The sense of “prove” fits this context best because the terrifying phenomena were intended to put the fear of God in their hearts so that they would obey. In other words, God was inspiring them to obey, not simply testing to see if they would.
+
+> [!tn] 20:20 ^n0202050
+> The suffix on the noun is an objective genitive, referring to the fear that the people would have of God (GKC 439 §135._m_).
+
+> [!tn] 20:20 ^n0202051
+> The negative form ‏לְבִלְתִּי‎ (levilti) is used here with the imperfect tense (see for other examples GKC 483 §152._x_). This gives the imperfect the nuance of a final imperfect: that you might not sin. Others: to keep you from sin.
+
+### [[Exodus 20 — NET#v21|Ex 20:21]]
+^v21
+
+> [!tn] 20:21 ^n0202052
+> _Heb_ “and they stood”; the referent (the people) has been specified in the translation for clarity.
+
+> [!note] 20:21 ^n0202053
+> The word ‏עֲרָפֶל‎ (ʿarafel) is used in poetry in [[Psalm 18#v9|Ps 18:9]] and [[III Kingdoms 8#v12|1 Kgs 8:12]]; and it is used in [[Deuteronomy 4#v11|Deut 4:11]]; 5:22 [19].
+
+> [!note] 20:21 ^n0202054
+> It will not be hard to expound the passage on the Ten Commandments once their place in scripture has been determined. They, for the most part, are reiterated in the NT, in one way or another, usually with a much higher standard that requires attention to the spirit of the laws. Thus, these laws reveal God’s standard of righteousness by revealing sin. No wonder the Israelites were afraid when they saw the manifestation of God and heard his laws. When the whole covenant is considered, preamble and all, then it becomes clear that the motivation for obeying the commands is the person and the work of the covenant God—the one who redeemed his people. Obedience then becomes a response of devotion and adoration to the Redeemer who set them free. It becomes loyal service, not enslavement to laws. The point could be worded this way: God requires that his covenant people, whom he has redeemed, and to whom he has revealed himself, give their absolute allegiance and obedience to him. This means they will worship and serve him and safeguard the well-being of each other.
+
+*The Altar*
+### [[Exodus 20 — NET#v22|Ex 20:22]]
+^v22
+
+> [!note] 20:22 ^n0202055
+> Based on the revelation of the holy sovereign God, this pericope instructs Israel on the form of proper worship of such a God. It focuses on the altar, the centerpiece of worship. The point of the section is this: those who worship this holy God must preserve holiness in the way they worship—they worship where he permits, in the manner he prescribes, and with the blessings he promises. This paragraph is said to open the Book of the Covenant, which specifically rules on matters of life and worship.
+
+> [!tn] 20:22 ^n0202056
+> _Heb_ “and Yahweh said.”
+
+### [[Exodus 20 — NET#v23|Ex 20:23]]
+^v23
+
+> [!tn] 20:23 ^n0202057
+> The direct object of the verb must be “gods of silver.” The prepositional phrase modifies the whole verse to say that these gods would then be alongside the one true God.
+
+> [!note] 20:23
+> U. Cassuto explains that by the understanding of parallelism each of the halves apply to the whole verse, so that “with me” and “for you” concern gods of silver or gods of gold (_Exodus_, 255).
+
+> [!tn] 20:23 ^n0202058
+> _Heb_ “neither will you make for you gods of gold.”
+
+### [[Exodus 20 — NET#v24|Ex 20:24]]
+^v24
+
+> [!note] 20:24 ^n0202059
+> The instructions here call for the altar to be made of natural things, not things manufactured or shaped by man. The altar was either to be made of clumps of earth or natural, unhewn rocks.
+
+> [!note] 20:24 ^n0202060
+> The “burnt offering” is the offering prescribed in Lev 1. Everything of this animal went up in smoke as a sweet aroma to God. It signified complete surrender by the worshiper who brought the animal, and complete acceptance by God, thereby making atonement. The “peace offering” is legislated in Lev 3 and 7. This was a communal meal offering to celebrate being at peace with God. It was made usually for thanksgiving, for payment of vows, or as a freewill offering.
+
+> [!tn] 20:24 ^n0202061
+> Gesenius lists this as one of the few places where the noun in construct seems to be indefinite in spite of the fact that the genitive has the article. He says ‏בְּכָל־הַמָּקוֹם‎ (bekhol hammaqom) means “in all the place, sc. of the sanctuary,” and is a dogmatic correction of “in every place” (‏כָּל־מָקוֹם‎, kol maqom). See GKC 412 §127._e_.
+
+> [!tn] 20:24 ^n0202062
+> The verb is ‏זָכַר‎ (zakhar, “to remember”), but in the Hiphil especially it can mean more than remember or cause to remember (remind)—it has the sense of praise or honor. B. S. Childs says it has a denominative meaning, “to proclaim” (_Exodus_ [OTL], 447). The point of the verse is that God will give Israel reason for praising and honoring him, and in every place that occurs he will make his presence known by blessing them.
+
+### [[Exodus 20 — NET#v25|Ex 20:25]]
+^v25
+
+> [!tn] 20:25 ^n0202063
+> _Heb_ “them” referring to the stones.
+
+> [!tn] 20:25 ^n0202064
+> _Heb_ “of hewn stones.” Gesenius classifies this as an adverbial accusative—“you shall not build them (the stones of the altar) as hewn stones.” The remoter accusative is in apposition to the nearer (GKC 372 §117._kk_).
+
+> [!tn] 20:25 ^n0202065
+> The verb is a preterite with vav (‏ו‎) consecutive. It forms the apodosis in a conditional clause: “if you lift up your tool on it…you have defiled it.”
+
+### [[Exodus 20 — NET#v26|Ex 20:26]]
+^v26
+
+> [!tn] 20:26 ^n0202066
+> _Heb_ “uncovered” (so ASV, NAB).

@@ -131,7 +131,10 @@ class ExtractionService:
             max_ch = book.max_chapter()
             for chapter in sorted(book.chapters.values(), key=lambda c: c.number):
                 try:
-                    has_fathers = (chapter.book, chapter.number) in self._fathers_chapters
+                    has_fathers = (
+                        (chapter.book, chapter.number) in self._fathers_chapters
+                        or self._writer.has_fathers_companion(chapter.book, chapter.number)
+                    )
                     if self._mode is ExtractionMode.HUB:
                         intro_link = (
                             f"[[{book_file_prefix(chapter.book)} — OSB Intro]]"
@@ -163,7 +166,10 @@ class ExtractionService:
         # 3. Notes companions
         for notes in self._source.read_notes():
             try:
-                has_fathers = (notes.book, notes.chapter) in self._fathers_chapters
+                has_fathers = (
+                    (notes.book, notes.chapter) in self._fathers_chapters
+                    or self._writer.has_fathers_companion(notes.book, notes.chapter)
+                )
                 content = self._renderer.render_notes(notes, has_fathers=has_fathers)
                 self._writer.write_notes(notes, content)
                 result.notes_written += 1

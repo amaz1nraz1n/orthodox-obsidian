@@ -367,9 +367,6 @@ def bootstrap(
     resolved_patristic_source = (
         resolved_source if isinstance(resolved_source, PatristicSource) else None
     )
-    resolved_fathers_chapters = (
-        FATHERS_SAMPLE_CHAPTERS if (not full_run and source_name in {"eob", "greek_nt"}) else None
-    )
 
     return ExtractionService(
         source=resolved_source,
@@ -378,5 +375,4 @@ def bootstrap(
         mode=mode,
         source_label=label,
         patristic_source=resolved_patristic_source,
-        fathers_chapters=resolved_fathers_chapters,
     )

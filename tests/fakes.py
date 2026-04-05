@@ -95,6 +95,9 @@ class FakeVaultWriter(VaultWriter):
         self.written_parallels[(book, chapter)] = content
         return Path(f"fake/{book}/{chapter} — Parallels.md")
 
+    def has_fathers_companion(self, book: str, chapter: int) -> bool:
+        return (book, chapter) in self.written_fathers
+
     def write_translations_hub(self, book: str, chapter: int, content: str) -> Path:
         self.written_translations[(book, chapter)] = content
         return Path(f"fake/{book}/{chapter} — Translations.md")
