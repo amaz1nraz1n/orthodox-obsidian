@@ -330,7 +330,11 @@ class ObsidianRenderer(VaultRenderer):
         lines = [
             f'---\nhub: "[[{pfx} {ch}]]"\nsource: "{source}"\n---',
             "",
-            self._companion_nav(book, ch, show_fathers=has_fathers),
+            self._companion_nav(
+                book, ch,
+                own_text_suffix=source if source != "OSB" else None,
+                show_fathers=has_fathers,
+            ),
             "",
         ]
 
