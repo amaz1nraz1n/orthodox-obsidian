@@ -67,6 +67,21 @@ _CALLOUT: dict[NoteType, str] = {
     NoteType.PARALLEL:    "[!parallel]",
 }
 
+# Inline marker symbols for text companions. † = content/annotation note;
+# * = text-critical note; None = no inline marker (structural types that
+# produce wikilinks or section blocks rather than verse-level annotations).
+_INLINE_MARKER: dict[NoteType, str | None] = {
+    NoteType.FOOTNOTE:    "\u2020",   # †
+    NoteType.TRANSLATOR:  "\u2020",   # †
+    NoteType.CITATION:    "\u2020",   # †
+    NoteType.BACKGROUND:  "\u2020",   # †
+    NoteType.LITURGICAL:  "\u2020",   # †
+    NoteType.VARIANT:     "*",
+    NoteType.ALTERNATIVE: "*",
+    NoteType.CROSS_REF:   None,
+    NoteType.PARALLEL:    None,
+}
+
 
 def _blockquote_lines(text: str) -> list[str]:
     """Split multiline callout content into quoted Markdown lines."""
@@ -240,15 +255,15 @@ class ObsidianRenderer(VaultRenderer):
         source: str,
         notes_suffix: object = _UNSET,
         has_fathers: bool = False,
-        noted_verses: set[int] | None = None,
+        noted_verses: dict[int, set[NoteType]] | None = None,
     ) -> str:
         """Render a parallel text layer (e.g. Lexham, EOB) as a chapter companion.
 
         notes_suffix: suffix for the Study Notes link (e.g. "EOB Notes").
                       Defaults to f"{source} Notes". Pass None to suppress the link.
         has_fathers: when True, include a Fathers companion link after NET Notes.
-        noted_verses: verse numbers that have entries in the notes companion.
-                      When provided, a † link to the notes entry is appended inline.
+        noted_verses: maps verse number → set of NoteTypes present in the notes companion.
+                      When provided, type-appropriate inline markers are appended to verses.
         """
         book, ch = chapter.book, chapter.number
         abbr = BOOK_ABBREVIATIONS.get(book, book[:3])
@@ -271,14 +286,18 @@ class ObsidianRenderer(VaultRenderer):
             if verse.text:
                 if verse.number in chapter.pericopes:
                     parts.append(f"*{chapter.pericopes[verse.number]}*")
-                marker = (
-                    f" [[{notes_file}#v{verse.number}|\u2020]]"
-                    if noted_verses and verse.number in noted_verses
-                    else ""
-                )
+                inline = ""
+                if noted_verses and verse.number in noted_verses:
+                    symbols = dict.fromkeys(
+                        s for nt in noted_verses[verse.number]
+                        if (s := _INLINE_MARKER.get(nt)) is not None
+                    )
+                    if symbols:
+                        label = "".join(symbols)
+                        inline = f" [[{notes_file}#v{verse.number}|{label}]]"
                 parts.append(
                     f'###### v{verse.number}\n'
-                    f'<span class="vn">{verse.number}</span> {verse.text}{marker} ^v{verse.number}\n'
+                    f'<span class="vn">{verse.number}</span> {verse.text}{inline} ^v{verse.number}\n'
                 )
                 for marker in chapter.after_markers.get(verse.number, []):
                     parts.append(f"*{marker}*\n")

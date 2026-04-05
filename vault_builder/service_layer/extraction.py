@@ -129,17 +129,17 @@ class ExtractionService:
         # 2. Chapter text
         # For COMPANION mode: pre-collect notes to build a noted_verses index so
         # the text companion can embed † links to note entries inline.
-        noted_verses_index: dict[tuple[str, int], set[int]] = {}
+        noted_verses_index: dict[tuple[str, int], dict[int, set[NoteType]]] = {}
         cached_notes: list = []
         if self._mode is ExtractionMode.COMPANION:
             for notes in self._source.read_notes():
                 cached_notes.append(notes)
                 key = (notes.book, notes.chapter)
-                noted_verses_index.setdefault(key, set())
+                verse_map = noted_verses_index.setdefault(key, {})
                 for note_type in NoteType:
                     for note in notes.sorted_notes(note_type):
                         if note.verse_number > 0:
-                            noted_verses_index[key].add(note.verse_number)
+                            verse_map.setdefault(note.verse_number, set()).add(note_type)
 
         for book in self._source.read_text():
             max_ch = book.max_chapter()
