@@ -211,7 +211,7 @@ _GREEK_NT_SAMPLE: set[tuple[str, int]] = {
 # Sources that embed per-note <sup> markers in verse text via their adapters.
 # noted_verse_markers is suppressed for these to avoid doubling up with the
 # combined end-of-verse symbol links the service layer would otherwise add.
-_NO_NOTED_MARKERS: frozenset[str] = frozenset({"eob", "lexham", "dbh"})
+_NO_NOTED_MARKERS: frozenset[str] = frozenset()
 
 # Maps source short-name → (adapter class import path, ExtractionMode, label, sample_chapters)
 _ALTER_SAMPLE: set[tuple[str, int]] = {

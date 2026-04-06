@@ -289,13 +289,13 @@ class ObsidianRenderer(VaultRenderer):
                     parts.append(f"*{chapter.pericopes[verse.number]}*")
                 inline = ""
                 if noted_verses and verse.number in noted_verses:
-                    symbols = dict.fromkeys(
-                        s for nt in noted_verses[verse.number]
+                    marker_links = [
+                        f"[[{notes_file}#v{verse.number}|{s}]]"
+                        for nt in sorted(noted_verses[verse.number], key=lambda t: t.value)
                         if (s := _INLINE_MARKER.get(nt)) is not None
-                    )
-                    if symbols:
-                        label = "".join(symbols)
-                        inline = f" [[{notes_file}#v{verse.number}|{label}]]"
+                    ]
+                    if marker_links:
+                        inline = " " + "".join(marker_links)
                 parts.append(
                     f'###### v{verse.number}\n'
                     f'<span class="vn">{verse.number}</span> {verse.text}{inline} ^v{verse.number}\n'

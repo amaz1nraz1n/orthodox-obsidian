@@ -97,11 +97,10 @@ def test_footnote_plus_liturgical_on_same_verse(renderer, simple_chapter):
 
     out = renderer.render_text_companion(simple_chapter, "OSB", noted_verses=noted)
     v2_line = next(l for l in out.splitlines() if 'class="vn">2</span>' in l)
-    # Both symbols must appear in the single combined link
-    assert "\u2020" in v2_line   # †
-    assert "\u2629" in v2_line   # ☩
-    # Only one link, not two separate markers
-    assert v2_line.count("OSB Notes#v2") == 1
+    # Each type gets its own separate link
+    assert "OSB Notes#v2|\u2020" in v2_line   # † own link
+    assert "OSB Notes#v2|\u2629" in v2_line   # ☩ own link
+    assert v2_line.count("OSB Notes#v2") == 2
 
 
 def test_footnote_plus_variant_on_same_verse(renderer, simple_chapter):
@@ -112,9 +111,9 @@ def test_footnote_plus_variant_on_same_verse(renderer, simple_chapter):
 
     out = renderer.render_text_companion(simple_chapter, "EOB", noted_verses=noted)
     v1_line = next(l for l in out.splitlines() if 'class="vn">1</span>' in l)
-    assert "\u2020" in v1_line   # †
-    assert "*" in v1_line        # *
-    assert v1_line.count("EOB Notes#v1") == 1
+    assert "EOB Notes#v1|\u2020" in v1_line   # † own link
+    assert "EOB Notes#v1|*" in v1_line        # * own link
+    assert v1_line.count("EOB Notes#v1") == 2
 
 
 def test_translator_plus_alternative_on_same_verse(renderer, simple_chapter):
@@ -125,9 +124,9 @@ def test_translator_plus_alternative_on_same_verse(renderer, simple_chapter):
 
     out = renderer.render_text_companion(simple_chapter, "Lexham", noted_verses=noted)
     v3_line = next(l for l in out.splitlines() if 'class="vn">3</span>' in l)
-    assert "\u2021" in v3_line   # ‡
-    assert "\u25ca" in v3_line   # ◊
-    assert v3_line.count("Lexham Notes#v3") == 1
+    assert "Lexham Notes#v3|\u2021" in v3_line   # ‡ own link
+    assert "Lexham Notes#v3|\u25ca" in v3_line   # ◊ own link
+    assert v3_line.count("Lexham Notes#v3") == 2
 
 
 def test_all_structural_types_plus_content_type(renderer, simple_chapter):
@@ -140,7 +139,7 @@ def test_all_structural_types_plus_content_type(renderer, simple_chapter):
 
     out = renderer.render_text_companion(simple_chapter, "TestSource", noted_verses=noted)
     v1_line = next(l for l in out.splitlines() if 'class="vn">1</span>' in l)
-    assert "\u2020" in v1_line                     # † from FOOTNOTE
+    assert "TestSource Notes#v1|\u2020" in v1_line   # † from FOOTNOTE
     assert v1_line.count("TestSource Notes#v1") == 1
 
 
@@ -398,29 +397,30 @@ def _make_service(source_label: str, noted_verse_markers: bool, notes: ChapterNo
 
 
 @pytest.mark.parametrize("source_label", ["EOB", "Lexham", "DBH"])
-def test_native_marker_sources_produce_no_combined_link(source_label):
-    """EOB/Lexham/DBH set noted_verse_markers=False — no combined end-of-verse link."""
+def test_native_marker_sources_show_per_type_links(source_label):
+    """EOB/Lexham/DBH now use noted_verse_markers=True — separate link per type."""
     ch = _chapter("John", 1, [(1, "In the beginning was the Word."), (2, "He was with God.")])
     notes = ChapterNotes(book="John", chapter=1, source=source_label)
     notes.add_note(NoteType.FOOTNOTE, _note(1, 1, "Commentary on the Logos."))
     notes.add_note(NoteType.TRANSLATOR, _note(1, 1, "Or: divine reason."))
 
-    service, writer = _make_service(source_label, noted_verse_markers=False, notes=notes, chapter=ch)
+    service, writer = _make_service(source_label, noted_verse_markers=True, notes=notes, chapter=ch)
     service.extract()
 
     companion = writer.written_companions[("John", 1, source_label)]
-    # No combined end-of-verse wikilink to the notes file should appear
-    assert f"{source_label} Notes#v1" not in companion
+    # Each type gets its own separate link
+    assert f"{source_label} Notes#v1|\u2020" in companion   # †
+    assert f"{source_label} Notes#v1|\u2021" in companion   # ‡
 
 
 @pytest.mark.parametrize("source_label", ["EOB", "Lexham", "DBH"])
 def test_native_marker_sources_still_show_notes_nav_link(source_label):
-    """Even with noted_verse_markers=False, the nav link to Notes must appear."""
+    """Notes nav link appears regardless of marker mode."""
     ch = _chapter("John", 1, [(1, "In the beginning was the Word.")])
     notes = ChapterNotes(book="John", chapter=1, source=source_label)
     notes.add_note(NoteType.FOOTNOTE, _note(1, 1, "A note."))
 
-    service, writer = _make_service(source_label, noted_verse_markers=False, notes=notes, chapter=ch)
+    service, writer = _make_service(source_label, noted_verse_markers=True, notes=notes, chapter=ch)
     service.extract()
 
     companion = writer.written_companions[("John", 1, source_label)]
