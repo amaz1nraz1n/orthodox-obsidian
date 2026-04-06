@@ -18,6 +18,7 @@ from vault_builder.adapters.obsidian.renderer import ObsidianRenderer
 from vault_builder.adapters.obsidian.writer import ObsidianWriter
 from vault_builder.bootstrap import FATHERS_SAMPLE_CHAPTERS
 from vault_builder.adapters.sources.net_epub import NetEpubSource
+from vault_builder.domain.models import NoteType
 from vault_builder.domain.canon import BOOK_CHAPTER_COUNT
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
@@ -113,18 +114,25 @@ def main() -> None:
     for book, chapter in sorted(chapters_to_run):
         try:
             ch_obj = source.read_chapter(book, chapter)
-            max_ch = BOOK_CHAPTER_COUNT.get(book, chapter)
+            notes_obj = source.read_notes(book, chapter)
+
+            noted_verses: dict[int, set] = {}
+            for note_type in NoteType:
+                for note in notes_obj.sorted_notes(note_type):
+                    if note.verse_number > 0:
+                        noted_verses.setdefault(note.verse_number, set()).add(note_type)
+
             has_fathers = (book, chapter) in FATHERS_SAMPLE_CHAPTERS
             text_content = renderer.render_text_companion(
                 ch_obj,
                 source="NET",
-                notes_suffix=None,
+                notes_suffix="NET Notes" if noted_verses else None,
                 has_fathers=has_fathers,
+                noted_verses=noted_verses,
             )
             writer.write_text_companion(ch_obj, "NET", text_content)
             text_count += 1
 
-            notes_obj = source.read_notes(book, chapter)
             notes_content = renderer.render_net_notes(
                 notes_obj,
                 pericopes=ch_obj.pericopes,

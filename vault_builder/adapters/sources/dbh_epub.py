@@ -149,8 +149,8 @@ def _collect_verse_segments(
                     if fn_id is not None and current_verse is not None:
                         fn_map[fn_id] = (book, chapter, current_verse)
                         marker = (
-                            f'<sup class="nt-fn">'
-                            f'[[{book} {chapter} — DBH Notes#^fn{fn_id}|†]]'
+                            f'<sup class="nt-tn">'
+                            f'[[{book} {chapter} — DBH Notes#^fn{fn_id}|‡]]'
                             f'</sup>'
                         )
                         add(marker)
