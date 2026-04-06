@@ -27,14 +27,14 @@ def test_lexham_companion_frontmatter(renderer, genesis1_lexham_chapter):
     output = renderer.render_text_companion(genesis1_lexham_chapter, source="Lexham")
     assert 'hub: "[[Genesis 1]]"' in output
     assert 'source: "Lexham"' in output
-    assert "cssclasses: [scripture-hub]" in output
+    assert "cssclasses: [scripture-companion]" in output
 
 
 def test_eob_companion_frontmatter(renderer, john1_chapter):
     output = renderer.render_text_companion(john1_chapter, source="EOB")
     assert 'hub: "[[John 1]]"' in output
     assert 'source: "EOB"' in output
-    assert "cssclasses: [scripture-hub]" in output
+    assert "cssclasses: [scripture-companion]" in output
 
 
 def test_companion_hub_link_is_wikilink(renderer, genesis1_lexham_chapter):

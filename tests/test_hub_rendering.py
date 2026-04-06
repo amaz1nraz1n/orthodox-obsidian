@@ -33,7 +33,7 @@ def test_nt_hub_modes_bar_excludes_lexham(renderer, john1_chapter):
 
 def test_ot_hub_modes_bar_has_all_standard_modes(renderer, genesis1_chapter):
     output = renderer.render_hub(genesis1_chapter, max_chapter=50)
-    for mode in ("Lexham", "LXX", "Lexham Notes", "NET Notes", "Study Notes"):
+    for mode in ("Lexham", "Alter", "LXX", "Lexham Notes", "NET Notes", "Study Notes"):
         assert mode in output, f"OT hub modes bar must include {mode!r}"
     assert "EOB" not in output, "OT hub must not link to EOB"
     assert "Greek NT" not in output, "OT hub must not link to Greek NT"

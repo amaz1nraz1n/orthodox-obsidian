@@ -223,6 +223,7 @@ class ObsidianRenderer(VaultRenderer):
 
         if is_ot:
             parts.append(f"[[{pfx} {chapter} \u2014 Lexham|Lexham]]")
+            parts.append(f"[[{pfx} {chapter} \u2014 Alter|Alter]]")
         else:
             parts.append(f"[[{pfx} {chapter} \u2014 EOB|EOB]]")
 
@@ -272,7 +273,7 @@ class ObsidianRenderer(VaultRenderer):
         )
         notes_file = f"{book_file_prefix(book)} {ch} \u2014 {source} Notes"
         parts = [
-            f'---\ncssclasses: [scripture-hub]\nhub: "[[{book_file_prefix(book)} {ch}]]"\nsource: "{source}"\n---',
+            f'---\ncssclasses: [scripture-companion]\nhub: "[[{book_file_prefix(book)} {ch}]]"\nsource: "{source}"\n---',
             "",
             self._companion_nav(
                 book,
