@@ -454,6 +454,37 @@ class ObsidianRenderer(VaultRenderer):
                 lines.append(f"- [[{pfx} {chapter} \u2014 {suffix}|{label}]]")
         return "\n".join(lines)
 
+    # ── Book index ────────────────────────────────────────────────────────
+
+    def render_book_index(self, book: str) -> str:
+        """Render a per-book chapter index file (e.g. John.md, Genesis.md).
+
+        Lists all chapters as wikilinks using book_file_prefix for chapter
+        links (e.g. [[Psalm 1]] for Psalms, [[John 1]] for John).
+        """
+        from vault_builder.domain.canon import BOOK_ABBREVIATIONS, BOOK_CHAPTER_COUNT, BOOK_GENRE, BOOK_TESTAMENT
+        testament = BOOK_TESTAMENT.get(book, "OT")
+        genre = BOOK_GENRE.get(book, "")
+        book_id = BOOK_ABBREVIATIONS.get(book, "")
+        ch_count = BOOK_CHAPTER_COUNT.get(book, 0)
+        pfx = book_file_prefix(book)
+        folder = "01 - Old Testament" if testament != "NT" else "02 - New Testament"
+        lines = [
+            "---",
+            f'cssclasses: [book-index]',
+            f'testament: "{testament}"',
+            f'genre: "{genre}"',
+            f'book_id: "{book_id}"',
+            f'up: "[[{folder}]]"',
+            "---",
+            "",
+            f"# {book}",
+            "",
+        ]
+        for ch in range(1, ch_count + 1):
+            lines.append(f"- [[{pfx} {ch}]]")
+        return "\n".join(lines)
+
     # ── Patristic catena companion ────────────────────────────────────────
 
     def render_fathers(self, fathers: ChapterFathers) -> str:

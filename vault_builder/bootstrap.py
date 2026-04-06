@@ -208,6 +208,11 @@ _GREEK_NT_SAMPLE: set[tuple[str, int]] = {
     ("Revelation",     1),
 }
 
+# Sources that embed per-note <sup> markers in verse text via their adapters.
+# noted_verse_markers is suppressed for these to avoid doubling up with the
+# combined end-of-verse symbol links the service layer would otherwise add.
+_NO_NOTED_MARKERS: frozenset[str] = frozenset({"eob", "lexham", "dbh"})
+
 # Maps source short-name → (adapter class import path, ExtractionMode, label, sample_chapters)
 _ALTER_SAMPLE: set[tuple[str, int]] = {
     ("Genesis",      1),
@@ -389,4 +394,5 @@ def bootstrap(
         mode=mode,
         source_label=label,
         patristic_source=resolved_patristic_source,
+        noted_verse_markers=source_name not in _NO_NOTED_MARKERS,
     )

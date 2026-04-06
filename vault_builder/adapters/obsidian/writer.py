@@ -144,6 +144,16 @@ class ObsidianWriter(VaultWriter):
                 results.append((label, suffix))
         return results
 
+    # ── Book index files ──────────────────────────────────────────────────────
+
+    def write_book_index(self, book: str, content: str) -> Path:
+        """Write a per-book chapter index file. Returns the path written."""
+        book_dir = os.path.join(self.output_root, book_folder_path(book))
+        os.makedirs(book_dir, exist_ok=True)
+        path = os.path.join(book_dir, f"{book}.md")
+        self._write(path, content)
+        return Path(path)
+
     # ── Internal ──────────────────────────────────────────────────────────────
 
     @staticmethod

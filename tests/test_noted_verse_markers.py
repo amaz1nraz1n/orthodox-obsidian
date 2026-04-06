@@ -13,7 +13,8 @@ Covers:
 import pytest
 
 from vault_builder.adapters.obsidian.renderer import ObsidianRenderer, _INLINE_MARKER
-from vault_builder.domain.models import Chapter, ChapterNotes, NoteType, StudyNote
+from vault_builder.domain.models import Book, Chapter, ChapterNotes, NoteType, StudyNote
+from vault_builder.service_layer.extraction import ExtractionMode, ExtractionService
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -373,3 +374,68 @@ def test_nets_translator_markers_three_verses(renderer):
 def test_inline_marker_covers_all_note_types():
     for nt in NoteType:
         assert nt in _INLINE_MARKER, f"NoteType.{nt.name} missing from _INLINE_MARKER"
+
+
+# ── I. Service-layer noted_verse_markers flag ────────────────────────────────
+
+def _make_service(source_label: str, noted_verse_markers: bool, notes: ChapterNotes, chapter: Chapter):
+    """Build a minimal ExtractionService with fakes for testing the markers flag."""
+    from tests.fakes import FakeScriptureSource, FakeVaultWriter
+
+    book = Book(name=chapter.book)
+    book.add_chapter(chapter)
+    source = FakeScriptureSource(books=[book], notes=[notes])
+    writer = FakeVaultWriter()
+    renderer = ObsidianRenderer()
+    return ExtractionService(
+        source=source,
+        renderer=renderer,
+        writer=writer,
+        mode=ExtractionMode.COMPANION,
+        source_label=source_label,
+        noted_verse_markers=noted_verse_markers,
+    ), writer
+
+
+@pytest.mark.parametrize("source_label", ["EOB", "Lexham", "DBH"])
+def test_native_marker_sources_produce_no_combined_link(source_label):
+    """EOB/Lexham/DBH set noted_verse_markers=False — no combined end-of-verse link."""
+    ch = _chapter("John", 1, [(1, "In the beginning was the Word."), (2, "He was with God.")])
+    notes = ChapterNotes(book="John", chapter=1, source=source_label)
+    notes.add_note(NoteType.FOOTNOTE, _note(1, 1, "Commentary on the Logos."))
+    notes.add_note(NoteType.TRANSLATOR, _note(1, 1, "Or: divine reason."))
+
+    service, writer = _make_service(source_label, noted_verse_markers=False, notes=notes, chapter=ch)
+    service.extract()
+
+    companion = writer.written_companions[("John", 1, source_label)]
+    # No combined end-of-verse wikilink to the notes file should appear
+    assert f"{source_label} Notes#v1" not in companion
+
+
+@pytest.mark.parametrize("source_label", ["EOB", "Lexham", "DBH"])
+def test_native_marker_sources_still_show_notes_nav_link(source_label):
+    """Even with noted_verse_markers=False, the nav link to Notes must appear."""
+    ch = _chapter("John", 1, [(1, "In the beginning was the Word.")])
+    notes = ChapterNotes(book="John", chapter=1, source=source_label)
+    notes.add_note(NoteType.FOOTNOTE, _note(1, 1, "A note."))
+
+    service, writer = _make_service(source_label, noted_verse_markers=False, notes=notes, chapter=ch)
+    service.extract()
+
+    companion = writer.written_companions[("John", 1, source_label)]
+    assert f"{source_label} Notes" in companion
+
+
+@pytest.mark.parametrize("source_label", ["Alter", "NETS"])
+def test_no_native_marker_sources_produce_combined_link(source_label):
+    """Alter/NETS set noted_verse_markers=True — combined link appears."""
+    ch = _chapter("Genesis", 1, [(2, "Welter and waste."), (5, "First day.")])
+    notes = ChapterNotes(book="Genesis", chapter=1, source=source_label)
+    notes.add_note(NoteType.TRANSLATOR, _note(2, 1, "tohu wabohu."))
+
+    service, writer = _make_service(source_label, noted_verse_markers=True, notes=notes, chapter=ch)
+    service.extract()
+
+    companion = writer.written_companions[("Genesis", 1, source_label)]
+    assert f"{source_label} Notes#v2" in companion

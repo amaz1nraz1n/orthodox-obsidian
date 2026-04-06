@@ -53,3 +53,7 @@ class VaultWriter(ABC):
         suffix=None means the entry is the hub file itself (OSB).
         Results are in canonical nav order.
         """
+
+    @abstractmethod
+    def write_book_index(self, book: str, content: str) -> Path:
+        """Write a per-book chapter index file. Returns the path written."""

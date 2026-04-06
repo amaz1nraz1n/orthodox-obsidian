@@ -102,6 +102,10 @@ class FakeVaultWriter(VaultWriter):
         self.written_translations[(book, chapter)] = content
         return Path(f"fake/{book}/{chapter} — Translations.md")
 
+    def write_book_index(self, book: str, content: str) -> Path:
+        from pathlib import Path
+        return Path(f"fake/{book}.md")
+
     def list_text_companions(self, book: str, chapter: int) -> list[tuple[str, str | None]]:
         results: list[tuple[str, str | None]] = []
         if (book, chapter) in self.written_hubs:

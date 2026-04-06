@@ -89,6 +89,7 @@ class ExtractionService:
         patristic_source: PatristicSource | None = None,
         parallel_source: ParallelSource | None = None,
         fathers_chapters: set[tuple[str, int]] | None = None,
+        noted_verse_markers: bool = True,
     ) -> None:
         self._source = source
         self._renderer = renderer
@@ -98,6 +99,7 @@ class ExtractionService:
         self._patristic_source = patristic_source
         self._parallel_source = parallel_source
         self._fathers_chapters = set(fathers_chapters or set())
+        self._noted_verse_markers = noted_verse_markers
 
     def extract(self) -> ExtractionResult:
         result = ExtractionResult()
@@ -127,19 +129,25 @@ class ExtractionService:
                 result.error_log.append(msg)
 
         # 2. Chapter text
-        # For COMPANION mode: pre-collect notes to build a noted_verses index so
-        # the text companion can embed † links to note entries inline.
+        # For COMPANION mode: pre-collect notes so we can:
+        #   (a) track which chapters have any notes at all (for the nav link), and
+        #   (b) build a noted_verses index for sources that use inline symbol markers.
+        # Sources that already embed per-note <sup> markers (EOB, Lexham, DBH)
+        # set noted_verse_markers=False — they skip (b) but still get (a).
+        chapters_with_notes: set[tuple[str, int]] = set()
         noted_verses_index: dict[tuple[str, int], dict[int, set[NoteType]]] = {}
         cached_notes: list = []
         if self._mode is ExtractionMode.COMPANION:
             for notes in self._source.read_notes():
                 cached_notes.append(notes)
-                key = (notes.book, notes.chapter)
-                verse_map = noted_verses_index.setdefault(key, {})
-                for note_type in NoteType:
-                    for note in notes.sorted_notes(note_type):
-                        if note.verse_number > 0:
-                            verse_map.setdefault(note.verse_number, set()).add(note_type)
+                chapters_with_notes.add((notes.book, notes.chapter))
+                if self._noted_verse_markers:
+                    key = (notes.book, notes.chapter)
+                    verse_map = noted_verses_index.setdefault(key, {})
+                    for note_type in NoteType:
+                        for note in notes.sorted_notes(note_type):
+                            if note.verse_number > 0:
+                                verse_map.setdefault(note.verse_number, set()).add(note_type)
 
         for book in self._source.read_text():
             max_ch = book.max_chapter()
@@ -163,7 +171,9 @@ class ExtractionService:
                     else:
                         noted = noted_verses_index.get((chapter.book, chapter.number))
                         notes_suffix = (
-                            f"{self._source_label} Notes" if noted else None
+                            f"{self._source_label} Notes"
+                            if (chapter.book, chapter.number) in chapters_with_notes
+                            else None
                         )
                         content = self._renderer.render_text_companion(
                             chapter,
