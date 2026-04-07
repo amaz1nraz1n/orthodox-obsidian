@@ -204,26 +204,17 @@ class ObsidianRenderer(VaultRenderer):
         book: str,
         chapter: int,
         notes_suffix: str | None = "OSB Notes",
-        show_source_notes: bool = True,
         show_greek: bool = True,
         show_fathers: bool = False,
     ) -> str:
-        """Hub modes nav. Order: OSB · EOB/Lexham · Greek · NET Notes · + · source notes · Study Notes · Fathers.
-
-        notes_suffix: suffix for the Study Notes link (e.g. "OSB Notes"). Pass None to suppress.
-        show_source_notes: when True, insert EOB Notes (NT) or Lexham Notes (OT).
-        show_greek: when False, omit the Greek NT / LXX link (e.g. viewing from the Greek companion).
-        show_fathers: when True, append the Fathers companion link.
-        """
+        """Hub modes nav. Order: OSB · EOB/Lexham · Greek · NET · + · Study Notes · Fathers."""
         is_ot = BOOK_TESTAMENT.get(book) == "OT"
         pfx = book_file_prefix(book)
-        source_notes_label = "Lexham Notes" if is_ot else "EOB Notes"
 
         parts: list[str] = [f"[[{pfx} {chapter}|OSB]]"]
 
         if is_ot:
             parts.append(f"[[{pfx} {chapter} \u2014 Lexham|Lexham]]")
-            parts.append(f"[[{pfx} {chapter} \u2014 Alter|Alter]]")
         else:
             parts.append(f"[[{pfx} {chapter} \u2014 EOB|EOB]]")
 
@@ -234,11 +225,7 @@ class ObsidianRenderer(VaultRenderer):
                 parts.append(f"[[{pfx} {chapter} \u2014 Greek NT|Greek NT]]")
 
         parts.append(f"[[{pfx} {chapter} \u2014 NET|NET]]")
-        parts.append(f"[[{pfx} {chapter} \u2014 NET Notes|NET Notes]]")
         parts.append(f"[[{pfx} {chapter} \u2014 Translations|+]]")
-
-        if show_source_notes:
-            parts.append(f"[[{pfx} {chapter} \u2014 {source_notes_label}|{source_notes_label}]]")
 
         if notes_suffix:
             parts.append(f"[[{pfx} {chapter} \u2014 {notes_suffix}|Study Notes]]")
