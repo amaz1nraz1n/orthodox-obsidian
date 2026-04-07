@@ -10,6 +10,7 @@ Output label and file names are unchanged ("Greek NT") so vault links remain val
 See docs/goarch-greek-nt-source-structure.md for full HTML structure audit.
 """
 
+import os
 import re
 import time
 import warnings
@@ -73,15 +74,36 @@ class GoArchGreekNtSource:
         sample_only: bool = True,
         sample_chapters: Optional[set[tuple[str, int]]] = None,
         rate_limit: float = 1.5,
+        cache_dir: str = "source_files/goarch_greek_nt",
     ) -> None:
         self.sample_only = sample_only
         self.sample_chapters = sample_chapters or set()
         self.rate_limit = rate_limit
+        self.cache_dir = cache_dir
+
+    def _fetch_book_html(self, book_id: int, book_param: str) -> str:
+        """Return HTML for a book, reading from cache or fetching and caching."""
+        import urllib.request
+
+        os.makedirs(self.cache_dir, exist_ok=True)
+        cache_path = os.path.join(self.cache_dir, f"{book_param}.html")
+
+        if os.path.exists(cache_path):
+            with open(cache_path, encoding="utf-8") as f:
+                return f.read()
+
+        url = f"{_BASE_URL}?id={book_id}&book={book_param}&chapter=full"
+        req = urllib.request.Request(url, headers={"User-Agent": _USER_AGENT})
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            html = resp.read().decode("utf-8")
+
+        with open(cache_path, "w", encoding="utf-8") as f:
+            f.write(html)
+
+        return html
 
     def read_documents(self) -> Iterator[tuple[Chapter, ChapterNotes]]:
         """Fetch each NT book and yield (Chapter, ChapterNotes) pairs."""
-        import urllib.request
-
         first = True
         for book_id, book_param, book_name, _ch_count in self.BOOKS:
             if self.sample_only and not any(
@@ -89,15 +111,12 @@ class GoArchGreekNtSource:
             ):
                 continue
 
-            if not first:
+            cached = os.path.exists(os.path.join(self.cache_dir, f"{book_param}.html"))
+            if not first and not cached:
                 time.sleep(self.rate_limit)
             first = False
 
-            url = f"{_BASE_URL}?id={book_id}&book={book_param}&chapter=full"
-            req = urllib.request.Request(url, headers={"User-Agent": _USER_AGENT})
-            with urllib.request.urlopen(req, timeout=30) as resp:
-                html = resp.read().decode("utf-8")
-
+            html = self._fetch_book_html(book_id, book_param)
             yield from self._parse_book_html(html, book_name)
 
     def _parse_book_html(
