@@ -108,7 +108,7 @@ All extract scripts live in `scripts/`. See `README.md` for the full Quick Start
 .venv/bin/python3 scripts/inspect_epub.py
 
 # Sync to live Obsidian vault
-rsync -av output/Scripture/ "~/Library/CloudStorage/GoogleDrive-jmtharp90@gmail.com/My Drive/Jasper/Holy Tradition/Holy Scripture/"
+rsync -av output/Scripture/ ~/Library/CloudStorage/GoogleDrive-jmtharp90@gmail.com/My\ Drive/Jasper/Holy\ Tradition/Holy\ Scripture/
 ```
 
 Notes:

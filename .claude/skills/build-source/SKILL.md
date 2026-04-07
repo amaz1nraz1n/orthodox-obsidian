@@ -152,7 +152,7 @@ Report all findings. If critical issues are found (bad anchors, missing companio
 After LLM examination passes (no critical issues):
 
 ```bash
-rsync -av output/Scripture/ "~/Library/CloudStorage/GoogleDrive-jmtharp90@gmail.com/My Drive/Jasper/Holy Tradition/Holy Scripture/"
+rsync -av output/Scripture/ ~/Library/CloudStorage/GoogleDrive-jmtharp90@gmail.com/My\ Drive/Jasper/Holy\ Tradition/Holy\ Scripture/
 ```
 
 Update bead notes: "Synced to Google Drive. Awaiting manual verification."
