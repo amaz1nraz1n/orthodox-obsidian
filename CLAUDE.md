@@ -21,6 +21,8 @@ Workspace: tharp-personal
       Milestone: Phase 3 — Vault Polish   (active: parallel passages, citation routing, companion discoverability)
       Milestone: Phase 4 — Photocopy PDF Sources  (backlog: NOAB quality gate and OCR cleanup)
       Milestone: Phase 5 — Interlinear Hubs      (backlog: embedded interlinear / Gospel hub work)
+      Milestone: Phase 6 — Orthodox Saints & Hagiography  (backlog: Prologue of Ohrid, per-saint files, daily notes linking)
+      Milestone: Bugs & Ongoing Maintenance       (persistent: quality fixes, rendering issues, UX improvements)
 ```
 
 ### Issue conventions
