@@ -94,10 +94,10 @@ def test_psalm_modes_bar_lxx_link_singular(renderer, psalms50_chapter):
     assert "[[Psalms 50 \u2014 LXX|LXX]]" not in output
 
 
-def test_psalm_modes_bar_net_notes_link_singular(renderer, psalms50_chapter):
+def test_psalm_modes_bar_net_link_singular(renderer, psalms50_chapter):
     output = renderer.render_hub(psalms50_chapter, max_chapter=151)
-    assert "[[Psalm 50 \u2014 NET Notes|NET Notes]]" in output
-    assert "[[Psalms 50 \u2014 NET Notes|NET Notes]]" not in output
+    assert "[[Psalm 50 \u2014 NET|NET]]" in output
+    assert "[[Psalms 50 \u2014 NET|NET]]" not in output
 
 
 # ── Contract 4: Text companion hub: frontmatter ───────────────────────────────

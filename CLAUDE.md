@@ -119,6 +119,35 @@ Notes:
 - `extract_lexham_notes.py` is superseded; `extract_lexham.py` emits text + notes in the same pass via `bootstrap()`
 - Dependencies: see `requirements.txt` (`beautifulsoup4`, `lxml`, `pyyaml`, `pdfminer.six`)
 
+## Vault Sync Strategy (Obsidian Mobile Indexing)
+
+**Never sync 10,000+ files in a single rsync pass.** Obsidian mobile re-indexes on every batch sync, and a large dump causes severe lag.
+
+**Preferred approach — sync by Bible section across all sources:**
+
+Sync all sources for a section at once, wait for confirmation that Obsidian has finished indexing, then move to the next section. Suggested sections:
+
+| Section | Folders |
+|---------|---------|
+| Gospels | `02 - New Testament/40 - Matthew/` through `43 - John/` |
+| Rest of NT | `02 - New Testament/44 - Acts/` through the end |
+| Torah | `01 - Old Testament/01 - Genesis/` through `05 - Deuteronomy/` |
+| Historical OT | `01 - Old Testament/06 - Joshua/` through `18 - Job/` |
+| Poetic OT | `01 - Old Testament/19 - Psalms/` through `22 - Song of Songs/` |
+| Prophets | `01 - Old Testament/23 - Isaiah/` through the end |
+
+Example: sync only the Gospels (all sources) in one pass:
+
+```bash
+rsync -av output/Scripture-full/02\ -\ New\ Testament/40\ -\ Matthew/ \
+  "~/Library/CloudStorage/GoogleDrive-jmtharp90@gmail.com/My Drive/Jasper/Holy Tradition/Holy Scripture/02 - New Testament/40 - Matthew/"
+# repeat for 41-Mark, 42-Luke, 43-John, then pause for Obsidian to index
+```
+
+**Fallback approach — sync one source at a time:** sync a single source's output across all books, wait for indexing confirmation, then sync the next source. This is simpler to script but results in more sync rounds.
+
+Do not use the bare `rsync -av output/Scripture-full/ ...` command for full-Bible syncs.
+
 ## Architecture
 
 The project follows a **Ports & Adapters (Hexagonal)** architecture with a DDD domain core. See `docs/ddd-architecture-review.md` for the full design rationale.

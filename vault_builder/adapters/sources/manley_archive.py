@@ -111,11 +111,39 @@ _PAGE_NUM_RE = re.compile(r"^\d{1,4}$")
 _VERSE_START_RE = re.compile(r"^(\d{1,3})\s+")
 _CONTEXT_HEADER_RE = re.compile(
     r"\b(WEEK|SUNDAY|MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY|LITURGY|"
-    r"MATINS|TRIODIAN|PASCHA|PENTECOST|APPENDIX)\b",
+    r"MATINS|TRIODION|TRIODIAN|PASCHA|PENTECOST|APPENDIX|GREAT\s+LENT|"
+    r"\d+(?:st|nd|rd|th)\s+WEEK|(?:OGL|APe|OPA|CFW|OPE)\))\b",
     re.IGNORECASE,
 )
+_BIBLIOGRAPHY_ENTRY_RE = re.compile(r"^[A-Z]\d+\.\s")
+_BLOCKED_AUTHORS = {"scofield"}
 _ROMAN_RE = re.compile(r"^(?=[IVXLC]+$)M*(?:CM|CD|D?C{0,3})"
                         r"(?:XC|XL|L?X{0,3})(?:IX|IV|V?I{0,3})$")
+_OCR_ARTIFACT_CHARS_RE = re.compile(r"[|{}@=£$]")
+_OCR_FIXES: tuple[tuple[re.Pattern[str], str], ...] = (
+    (re.compile(r"\bB¥"), "B#"),
+    (re.compile(r"\bbegotton\b", re.IGNORECASE), "begotten"),
+    (re.compile(r"\bDOVETING\b"), "DOUBTING"),
+    (re.compile(r"\bJobn\b"), "John"),
+    (re.compile(r"\bJudg-\s*ments\b", re.IGNORECASE), "Judgments"),
+    (re.compile(r"\bCorin-\s*thians\b", re.IGNORECASE), "Corinthians"),
+    (re.compile(r"\bMat-\s*thew\b", re.IGNORECASE), "Matthew"),
+    (re.compile(r"\bHomi-\s*ly\b", re.IGNORECASE), "Homily"),
+    (re.compile(r"\bHom-\s*bom\s*ilies\b", re.IGNORECASE), "Homilies"),
+    (re.compile(r"\bCen-\s*tury\b", re.IGNORECASE), "Century"),
+    (re.compile(r"\bThes-\s*salonians\b", re.IGNORECASE), "Thessalonians"),
+    (re.compile(r"\bLen-\s*ten\b", re.IGNORECASE), "Lenten"),
+    (re.compile(r"\bMysta-\s*gogy\b", re.IGNORECASE), "Mystagogy"),
+    (re.compile(r"\bSmyr-\s*naeans\b", re.IGNORECASE), "Smyrnaeans"),
+    (re.compile(r"\bConcern-\s*ing\b", re.IGNORECASE), "Concerning"),
+    (re.compile(r"\bColos-\s*sians\b", re.IGNORECASE), "Colossians"),
+    (re.compile(r"\bDis-\s*Ii\s*courses\b", re.IGNORECASE), "Discourses"),
+    (re.compile(r"\bHea\s+ABA!\s+", re.IGNORECASE), ""),
+    (re.compile(r"\bk\s+Myst\.\s*Cat\.II,", re.IGNORECASE), "Myst. Cat.II,"),
+    (re.compile(r"\bsce\b", re.IGNORECASE), "see"),
+    (re.compile(r"\bseck\b", re.IGNORECASE), "seek"),
+    (re.compile(r"Velimirov[ií]ć", re.IGNORECASE), "Velimirovic"),
+)
 
 
 def _normalize_whitespace(text: str) -> str:
@@ -149,6 +177,22 @@ def _is_page_number_block(block: str) -> bool:
 
 def _is_context_header(block: str) -> bool:
     return bool(_CONTEXT_HEADER_RE.search(block))
+
+
+def _strip_context_headers(block: str) -> str:
+    lines = block.splitlines()
+    kept = [line for line in lines if not _is_context_header(line)]
+    return "\n".join(kept).strip()
+
+
+def _normalize_ocr_text(text: str) -> str:
+    text = _OCR_ARTIFACT_CHARS_RE.sub(" ", text)
+    for pattern, replacement in _OCR_FIXES:
+        text = pattern.sub(replacement, text)
+    text = re.sub(r"([A-Za-z]{2,})-\s+[A-Za-z]\s+([A-Za-z]{2,})", r"\1\2", text)
+    text = re.sub(r"([A-Za-z]{2,})-\s+([A-Za-z]{2,})", r"\1\2", text)
+    text = re.sub(r" {2,}", " ", text)
+    return text
 
 
 def _is_title_candidate(block: str) -> bool:
@@ -200,6 +244,61 @@ def _trim_body_to_commentary(body: str) -> str:
         if _is_title_candidate(stripped):
             return "\n".join(lines[idx:]).strip()
     return ""
+
+
+_TRAILING_ARTIFACT_RE = re.compile(r"\s*[|{}]+[^A-Za-z]*$")
+_LEADING_PIPE_RE = re.compile(r"^\s*\|\s*")
+
+
+def _is_noise_line(raw_line: str, cleaned_line: str) -> bool:
+    stripped = cleaned_line.strip()
+    if not stripped:
+        return False
+    letters = sum(1 for c in stripped if c.isalpha())
+    total = len(stripped)
+    if letters / total < 0.5:
+        return True
+    if len(stripped.split()) <= 3 and letters < 5:
+        return True
+    raw_stripped = raw_line.strip()
+    if re.search(r"[|{}@]", raw_stripped) and letters < 5:
+        return True
+    return False
+
+
+def _clean_body_text(text: str) -> str:
+    text = _normalize_ocr_text(text.replace("\u201e", "\u201c"))
+
+    cleaned_lines: list[str] = []
+    for line in text.splitlines():
+        cleaned = _TRAILING_ARTIFACT_RE.sub("", line)
+        cleaned = _LEADING_PIPE_RE.sub("", cleaned)
+        cleaned = _normalize_whitespace(cleaned)
+        if _is_noise_line(line, cleaned):
+            continue
+        cleaned_lines.append(cleaned)
+
+    return "\n".join(cleaned_lines).strip()
+
+
+def _is_plausible_author(author: str) -> bool:
+    author = author.strip()
+    if not author:
+        return False
+    if len(author) > 80:
+        return False
+    if any(ch.isdigit() for ch in author):
+        return False
+    if not re.search(r"[A-Za-z]", author):
+        return False
+    if author.islower():
+        return False
+    if len(author.split()) > 12:
+        return False
+    tail = re.sub(r"[\s.,;:—-]+$", "", author)
+    if tail.split()[-1] in {"St", "Rev", "Bp", "Dr"}:
+        return False
+    return True
 
 
 def _recover_citation_text(block_raw: str) -> str:
@@ -360,6 +459,7 @@ class ManleyArchiveSource(ScriptureSource, PatristicSource):
         current_chapter: int | None = None
         current_reading_start: int | None = None
         awaiting_scripture = False
+        in_bibliography = False
         buffer: list[str] = []
 
         def finalize(citation_text: str) -> None:
@@ -371,6 +471,10 @@ class ManleyArchiveSource(ScriptureSource, PatristicSource):
                 return
 
             body = _trim_body_to_commentary("\n\n".join(buffer))
+            if not body:
+                buffer = []
+                return
+            body = _clean_body_text(body)
             if not body:
                 buffer = []
                 return
@@ -386,6 +490,15 @@ class ManleyArchiveSource(ScriptureSource, PatristicSource):
                 current_reading_start,
             )
             if not author or not work:
+                buffer = []
+                return
+
+            if not _is_plausible_author(author):
+                buffer = []
+                return
+
+            full_cite = _normalize_ocr_text(f"{author} {work} {citation_text}").lower()
+            if any(blocked in full_cite for blocked in _BLOCKED_AUTHORS):
                 buffer = []
                 return
 
@@ -413,7 +526,7 @@ class ManleyArchiveSource(ScriptureSource, PatristicSource):
 
         blocks = re.split(r"\n\s*\n", text.replace("\r\n", "\n"))
         for raw_block in blocks:
-            block_raw = raw_block.strip("\n")
+            block_raw = _normalize_ocr_text(raw_block.strip("\n"))
             block = _normalize_whitespace(block_raw)
             if not block:
                 continue
@@ -426,9 +539,13 @@ class ManleyArchiveSource(ScriptureSource, PatristicSource):
                 current_chapter = int(heading_match.group(2))
                 current_reading_start = None
                 awaiting_scripture = True
+                in_bibliography = False
                 continue
 
             if current_book is None or current_chapter is None:
+                continue
+
+            if in_bibliography:
                 continue
 
             if _is_page_number_block(block):
@@ -441,6 +558,10 @@ class ManleyArchiveSource(ScriptureSource, PatristicSource):
                     awaiting_scripture = False
                 continue
 
+            if _BIBLIOGRAPHY_ENTRY_RE.match(block):
+                in_bibliography = True
+                continue
+
             if "B#" in block:
                 citation_line = _recover_citation_text(block_raw)
                 pre_b = citation_line.split("B#", 1)[0].strip()
@@ -449,7 +570,9 @@ class ManleyArchiveSource(ScriptureSource, PatristicSource):
                 finalize(citation_line)
                 continue
 
-            buffer.append(block_raw.strip())
+            cleaned = _strip_context_headers(block_raw)
+            if cleaned:
+                buffer.append(_normalize_ocr_text(cleaned))
 
         return chapters
 
@@ -466,7 +589,8 @@ class ManleyArchiveSource(ScriptureSource, PatristicSource):
             return None, None, None, None, None
 
         author = _normalize_whitespace(m.group("author"))
-        work_text = _normalize_whitespace(m.group("work").rstrip("."))
+        author = _normalize_ocr_text(author)
+        work_text = _normalize_ocr_text(_normalize_whitespace(m.group("work").rstrip(".")))
 
         verse_start = current_reading_start or 1
         verse_end: int | None = None
